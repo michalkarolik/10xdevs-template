@@ -1,94 +1,73 @@
-# 10x Astro Starter
+# AI Landing Page Generator
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+A tool that leverages AI to generate landing pages based on user prompts. It aims to simplify the creation process for users without coding or design experience.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+- **Framework:** [Astro](https://astro.build/)
+- **UI Library:** [React](https://react.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Backend/DB (Potential):** [Supabase](https://supabase.com/)
+- **Deployment:** [Vercel](https://vercel.com/)
 
-## Prerequisites
+## Getting Started Locally
+
+### Prerequisites
 
 - Node.js v22.14.0 (as specified in `.nvmrc`)
 - npm (comes with Node.js)
 
-## Getting Started
+### Installation & Setup
 
-1. Clone the repository:
+1.  **Clone the repository:**
+    ```bash
+    # Replace with the actual repository URL
+    git clone <your-repository-url>
+    cd <repository-directory>
+    ```
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Run the development server:
-
-```bash
-npm run dev
-```
-
-4. Build for production:
-
-```bash
-npm run build
-```
+3.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:4321](http://localhost:4321) (or the port specified in the output) in your browser.
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+-   `npm run dev`: Starts the development server with hot reloading.
+-   `npm run build`: Builds the application for production.
+-   `npm run preview`: Runs a local server to preview the production build.
+-   `npm run lint`: Lints the codebase using ESLint.
+-   `npm run lint:fix`: Attempts to automatically fix linting issues.
 
-## Project Structure
+## Project Scope
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+### In Scope
 
-## AI Development Support
+-   User input via prompt for landing page requirements.
+-   AI-powered generation of landing page content and structural layout.
+-   Selection from a set of pre-defined templates or styles.
+-   Basic customization options (e.g., color schemes, fonts).
+-   Output of generated landing page as HTML/CSS code.
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+### Out of Scope
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+-   Advanced customization beyond basic options.
+-   Hosting services or deployment management for the generated pages.
+-   Domain name registration or management.
+-   E-commerce features (e.g., shopping carts, payment processing).
+-   User accounts or authentication systems.
 
-### Cursor IDE
+## Project Status
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
-
-### GitHub Copilot
-
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+**Development Phase:** This project is actively under development. Features and functionality are subject to change.
 
 ## License
 
-MIT
+This project is licensed under the **MIT License**. See the LICENSE file for details (if one exists, otherwise state MIT).
