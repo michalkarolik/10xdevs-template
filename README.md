@@ -1,74 +1,122 @@
-# 10x Astro Starter
+# AI Flashcard Generator
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
+## Table of Contents
+
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+  - [In Scope (MVP)](#in-scope-mvp)
+  - [Out of Scope (MVP)](#out-of-scope-mvp)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Description
+
+AI Flashcard Generator is a web application designed to assist students in creating educational flashcards efficiently. It utilizes AI (specifically Google Gemini) to automatically generate flashcards from text pasted by the user, significantly reducing the manual effort involved. The application also helps users identify key information within their source material.
+
+Key features include:
+- User account management (registration, login, deletion).
+- Topic creation and management for organizing flashcards.
+- AI-powered flashcard generation from user-provided text.
+- Manual flashcard creation and editing capabilities.
+- Strict character limits for flashcard content (100 for front, 500 for back).
+- Interface for reviewing and refining AI-generated flashcards (Accept, Regenerate, Edit).
+- Integration with an open-source spaced repetition algorithm for study sessions.
+- User-friendly error handling.
+
+The primary goal is to streamline the flashcard creation process and encourage the use of spaced repetition, an effective learning technique.
 
 ## Tech Stack
 
 - **Framework:** [Astro](https://astro.build/)
-- **UI Library:** [React](https://react.dev/)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **UI Components:** [React](https://react.dev/) with [Shadcn/ui](https://ui.shadcn.com/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Backend/DB (Potential):** [Supabase](https://supabase.com/)
-- **Deployment:** [Vercel](https://vercel.com/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Backend / Database:** [Supabase](https://supabase.com/) (for user auth and data storage)
+- **AI:** [Google Gemini](https://gemini.google.com/) (for flashcard generation)
+- **Package Manager:** [npm](https://www.npmjs.com/)
+- **Runtime:** [Node.js](https://nodejs.org/) (v22.14.0 specified in `.nvmrc`)
+- **Linting/Formatting:** ESLint, Prettier
+- **Git Hooks:** Husky
 
 ## Getting Started Locally
 
-### Prerequisites
-
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
-
-### Installation & Setup
-
 1.  **Clone the repository:**
     ```bash
-    # Replace with the actual repository URL
     git clone <your-repository-url>
-    cd <repository-directory>
+    cd ai-flashcard-generator
     ```
-
-2.  **Install dependencies:**
+    *(Replace `<your-repository-url>` with the actual URL)*
+2.  **Set up Node.js:**
+    Ensure you have Node.js version `22.14.0` installed. If you use [nvm](https://github.com/nvm-sh/nvm), you can run:
+    ```bash
+    nvm use
+    ```
+    Or install the required version manually.
+3.  **Install dependencies:**
     ```bash
     npm install
     ```
-
-3.  **Run the development server:**
+4.  **Set up environment variables:**
+    Copy the example environment file and fill in the required values (Supabase keys, Gemini API key, etc.):
+    ```bash
+    cp .env.example .env
+    ```
+    Edit the `.env` file with your specific credentials.
+5.  **Run the development server:**
     ```bash
     npm run dev
     ```
-    Open [http://localhost:4321](http://localhost:4321) (or the port specified in the output) in your browser.
+    The application should now be running locally, typically at `http://localhost:4321`.
 
 ## Available Scripts
 
--   `npm run dev`: Starts the development server with hot reloading.
--   `npm run build`: Builds the application for production.
--   `npm run preview`: Runs a local server to preview the production build.
--   `npm run lint`: Lints the codebase using ESLint.
--   `npm run lint:fix`: Attempts to automatically fix linting issues.
+In the project directory, you can run the following scripts:
+
+- `npm run dev`: Runs the app in development mode with hot-reloading.
+- `npm run start`: Starts the app in production mode (requires `npm run build` first).
+- `npm run build`: Builds the app for production.
+- `npm run preview`: Previews the production build locally.
+- `npm run astro`: Access Astro CLI commands.
+- `npm run format`: Formats the code using Prettier.
+- `npm run lint`: Lints the code using ESLint.
 
 ## Project Scope
 
-### In Scope
+### In Scope (MVP)
 
--   **Core Framework:** Astro for building fast, content-focused websites.
--   **UI:** React for building interactive components.
--   **Language:** TypeScript for type safety.
--   **Styling:** Tailwind CSS for utility-first styling.
--   **Code Quality:** ESLint, Prettier, and Husky for linting, formatting, and pre-commit checks.
--   **AI Development Support:** Configuration files and guidelines for Cursor IDE, GitHub Copilot, and Windsurf to enhance the AI-assisted development experience.
--   **Basic Project Structure:** Includes standard directories for layouts, pages, components, and assets.
+- User authentication (register, login, delete account).
+- Topic management (create, rename, delete).
+- Pasting text as a source for AI generation.
+- AI (Gemini) generation of flashcards (front/back).
+- Strict enforcement of character limits (100/500).
+- User notification and required editing if AI exceeds limits.
+- AI flashcard review interface (Accept, Regenerate, Edit).
+- Manual flashcard creation, editing, and deletion within topics.
+- Browsing user-created topics and their flashcards.
+- Integration with an open-source spaced repetition algorithm for study sessions.
+- User-friendly error messages (e.g., for API issues).
 
-### Out of Scope
+### Out of Scope (MVP)
 
--   **Specific Backend Implementation:** While Supabase is mentioned as a potential backend/DB, this starter does not include a fully integrated backend.
--   **Complex Business Logic:** The template provides the foundation; specific application logic needs to be added.
--   **Database Migrations:** Beyond any initial setup potentially added later, complex database management is not included.
--   **Deployment Configuration:** While Vercel is mentioned, detailed deployment scripts or configurations for specific platforms are not pre-built.
+- Custom-built spaced repetition algorithm.
+- Importing flashcards or source material from files (PDF, DOCX, CSV, etc.).
+- Processing URLs to fetch content for generation.
+- Sharing topics or flashcards between users.
+- Integrations with other platforms (LMS, calendars).
+- Dedicated mobile applications (iOS, Android).
+- Advanced text formatting on flashcards (bold, italics, lists).
+- Adding images or audio to flashcards.
+- Offline mode.
 
 ## Project Status
 
-**Template/Starter:** This project serves as a starting point or template for new Astro applications. It is ready to be cloned and built upon.
+The project is currently in the **Minimum Viable Product (MVP)** development phase.
 
 ## License
 
-This project is licensed under the **MIT License**. See the LICENSE file for details (if one exists, otherwise state MIT).
+This project is licensed under the **ISC License**. See the [LICENSE](https://opensource.org/licenses/ISC) file for details (Note: A separate LICENSE file is not present in the provided context, but `package.json` specifies ISC).
