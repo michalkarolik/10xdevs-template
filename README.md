@@ -1,6 +1,6 @@
-# AI Landing Page Generator
+# 10x Astro Starter
 
-A tool that leverages AI to generate landing pages based on user prompts. It aims to simplify the creation process for users without coding or design experience.
+A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
 
 ## Tech Stack
 
@@ -50,23 +50,24 @@ A tool that leverages AI to generate landing pages based on user prompts. It aim
 
 ### In Scope
 
--   User input via prompt for landing page requirements.
--   AI-powered generation of landing page content and structural layout.
--   Selection from a set of pre-defined templates or styles.
--   Basic customization options (e.g., color schemes, fonts).
--   Output of generated landing page as HTML/CSS code.
+-   **Core Framework:** Astro for building fast, content-focused websites.
+-   **UI:** React for building interactive components.
+-   **Language:** TypeScript for type safety.
+-   **Styling:** Tailwind CSS for utility-first styling.
+-   **Code Quality:** ESLint, Prettier, and Husky for linting, formatting, and pre-commit checks.
+-   **AI Development Support:** Configuration files and guidelines for Cursor IDE, GitHub Copilot, and Windsurf to enhance the AI-assisted development experience.
+-   **Basic Project Structure:** Includes standard directories for layouts, pages, components, and assets.
 
 ### Out of Scope
 
--   Advanced customization beyond basic options.
--   Hosting services or deployment management for the generated pages.
--   Domain name registration or management.
--   E-commerce features (e.g., shopping carts, payment processing).
--   User accounts or authentication systems.
+-   **Specific Backend Implementation:** While Supabase is mentioned as a potential backend/DB, this starter does not include a fully integrated backend.
+-   **Complex Business Logic:** The template provides the foundation; specific application logic needs to be added.
+-   **Database Migrations:** Beyond any initial setup potentially added later, complex database management is not included.
+-   **Deployment Configuration:** While Vercel is mentioned, detailed deployment scripts or configurations for specific platforms are not pre-built.
 
 ## Project Status
 
-**Development Phase:** This project is actively under development. Features and functionality are subject to change.
+**Template/Starter:** This project serves as a starting point or template for new Astro applications. It is ready to be cloned and built upon.
 
 ## License
 
