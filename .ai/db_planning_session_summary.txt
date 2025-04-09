@@ -1,0 +1,21 @@
+<conversation_summary> <decisions></decisions>
+Podstawowe encje systemu to: users, subjects, flashcards, generations oraz generation_error_logs.
+Jeden użytkownik będzie powiązany z wieloma fiszkami. Fiszki będą odnosić się do konkretnego tematu.
+Należy zastosować limity VARCHAR oraz ograniczenia NOT NULL gdzie jest to istotne.
+Należy zaimplementować zabezpieczenia na poziomie wierszy (RLS) do ochrony danych użytkownika.
+Indeksy powinny być zastosowane dla poprawy wydajności zapytań.
+Należy zastosować usuwanie kaskadowe do automatycznego usuwania zależnych rekordów.
+Partycjonowanie nie jest potrzebne, ponieważ nie spodziewamy się dużej liczby użytkowników.
+<matched_recommendations>
+Zdefiniowanie jasnych kluczy głównych w tabelach Users, Subjects i Flashcards z odpowiednimi kluczami obcymi do egzekwowania relacji jeden-do-wielu.
+Zastosowanie określonych typów danych i ograniczeń (np. VARCHAR z limitami długości, NOT NULL) do egzekwowania reguł biznesowych.
+Zaimplementowanie polityk zabezpieczeń na poziomie wierszy PostgreSQL (RLS) na wszystkich encjach.
+Utworzenie indeksów na często filtrowanych polach, takich jak user_id i subject_id.
+Użycie kaskadowych ograniczeń kluczy obcych do automatycznego usuwania powiązanych rekordów. </matched_recommendations>
+<database_planning_summary> Schemat bazy danych dla aplikacji AI Flashcard Generator zawiera pięć głównych encji: użytkownicy (users), tematy (subjects), fiszki (flashcards), generacje (generations) oraz logi błędów generacji (generation_error_logs).  Schemat implementuje model relacji jeden-do-wielu, gdzie:
+Użytkownicy mogą mieć wiele tematów i fiszek
+Tematy należą do pojedynczego użytkownika i mogą zawierać wiele fiszek
+Fiszki należą do pojedynczego użytkownika i pojedynczego tematu
+Generacje rejestrują sesje generowania fiszek przez AI, powiązane z użytkownikami i tematami
+Logi błędów generacji śledzą błędy występujące podczas procesu generowania przez AI
+Każda tabela używa UUID jako klucza głównego, z odpowiednimi kluczami obcymi do łączenia powiązanych danych. Dla fiszek zastosowano limity 100 znaków dla awersu (front) i 500 znaków dla rewersu (back), zgodnie z wymaganiami biznesowymi.  Bezpieczeństwo jest zapewnione przez polityki Row Level Security (RLS) PostgreSQL, gwarantując, że użytkownicy mogą uzyskać dostęp tylko do własnych danych. Jest to kluczowe w aplikacji wieloużytkownikowej, gdzie izolacja danych jest niezbędna.  Optymalizacja wydajności osiągnięta jest przez strategiczne indeksowanie często filtrowanych pól, takich jak user_id i subject_id. Dodatkowo, schemat wymusza integralność danych poprzez kaskadowe usuwanie, które automatycznie usuwa zależne rekordy, gdy usuwane są rekordy nadrzędne.  Dla wspierania funkcji powtórek, tabela flashcards zawiera pola takie jak last_reviewed_at, next_review_at, review_count oraz ease_factor, które są niezbędne do implementacji algorytmu powtórek. </database_planning_summary>  <unresolved_issues> Nie zidentyfikowano większych nierozwiązanych kwestii w konwersacji. Użytkownik dostarczył jasne wymagania dotyczące encji, relacji, zabezpieczeń i kwestii wydajnościowych, które zostały uwzględnione w zaproponowanym schemacie bazy danych. </unresolved_issues> </conversation_summary>
