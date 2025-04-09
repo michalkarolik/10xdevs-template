@@ -85,6 +85,14 @@ In the project directory, you can run the following scripts:
 - `npm run format`: Formats the code using Prettier.
 - `npm run lint`: Lints the code using ESLint.
 
+### curl example
+```bash
+curl -v -X POST localhost:3000/api/topics/123/generate \
+-H "Content-Type: application/json" \
+-d '{
+  "source_text": "This is a valid source text."
+}'```
+
 ## Project Scope
 
 ### In Scope (MVP)
