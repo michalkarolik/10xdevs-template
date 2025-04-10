@@ -55,7 +55,8 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
             <span>Generate Flashcards</span>
           )}
         </Button>
-      </div>
+      </div> {/* This div should close here */}
+    </div> // This is the main component div closing tag
   );
 };
 
