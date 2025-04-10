@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, Check, Edit, RefreshCw } from "lucide-react"; // Icons
 import type { FlashcardSuggestionViewModel } from "@/types";
 // Placeholder for Edit Form - will be implemented later
-// import FlashcardEditForm from './FlashcardEditForm';
+import FlashcardEditForm from './FlashcardEditForm';
 
 interface FlashcardSuggestionCardProps {
   suggestion: FlashcardSuggestionViewModel;
