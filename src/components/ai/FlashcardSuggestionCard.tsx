@@ -73,20 +73,12 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {suggestion.isEditing ? (
-          // Placeholder for FlashcardEditForm
-          <div>
-            <p>Edit Form Placeholder for card {suggestion.id}</p>
-            <p>Initial Front: {suggestion.front}</p>
-            <p>Initial Back: {suggestion.back}</p>
-            <Button onClick={() => handleSave("Edited Front Placeholder", "Edited Back Placeholder")} variant="secondary" size="sm">Save (Placeholder)</Button>
-            <Button onClick={handleCancel} variant="outline" size="sm" className="ml-2">Cancel</Button>
-          </div>
-          // <FlashcardEditForm
-          //   initialFront={suggestion.front}
-          //   initialBack={suggestion.back}
-          //   onSave={handleSave}
-          //   onCancel={handleCancel}
-          // />
+           <FlashcardEditForm
+             initialFront={suggestion.front}
+             initialBack={suggestion.back}
+             onSave={handleSave}
+             onCancel={handleCancel}
+           />
         ) : (
           <>
             <div>

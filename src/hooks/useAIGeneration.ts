@@ -1,5 +1,39 @@
 import { useState, useCallback } from "react";
-import type { FlashcardSuggestionViewModel, FlashcardGeneratedDto } from "@/types"; // Assuming types.ts is updated
+import type {
+  FlashcardSuggestionViewModel,
+  FlashcardGeneratedDto,
+  FlashcardGenerateDto,
+  FlashcardGeneratedResponseDto,
+  FlashcardAcceptDto,
+  FlashcardAcceptResponseDto,
+  FlashcardGenerateAlternativeDto,
+  FlashcardGenerateAlternativeResponseDto,
+  FlashcardAcceptEditedDto,
+  FlashcardAcceptEditedResponseDto,
+  ErrorResponse,
+} from "@/types";
+
+// Helper to handle API errors consistently
+const handleApiError = async (response: Response, defaultMessage: string): Promise<string> => {
+  if (response.ok) return defaultMessage; // Should not happen if called correctly, but safe check
+
+  try {
+    const errorData: ErrorResponse | { error: string } | { message: string } = await response.json();
+    if (typeof errorData === 'object' && errorData !== null) {
+      if ('message' in errorData && typeof errorData.message === 'string') {
+        return errorData.message;
+      }
+      if ('error' in errorData && typeof errorData.error === 'string') {
+         return errorData.error; // Handle simple error string responses too
+      }
+    }
+  } catch (e) {
+    // Ignore JSON parsing error, fall back to default message
+    console.error("Failed to parse error response:", e);
+  }
+  return `${defaultMessage} (Status: ${response.status})`;
+};
+
 
 export const useAIGeneration = (topicId: string) => {
   const [sourceText, setSourceText] = useState<string>("");
@@ -12,30 +46,29 @@ export const useAIGeneration = (topicId: string) => {
 
     setIsLoading(true);
     setError(null);
-    console.log(`Generating flashcards for topic ${topicId} with text: ${sourceText}`);
+    console.log(`Generating flashcards for topic ${topicId}`);
 
     try {
-      // Placeholder for API call: POST /api/topics/{topicId}/generate
-      // const response = await fetch(`/api/topics/${topicId}/generate`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ source_text: sourceText }),
-      // });
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.message || 'Failed to generate flashcards');
-      // }
-      // const generatedData: FlashcardGeneratedDto[] = await response.json();
+      const requestBody: FlashcardGenerateDto = { source_text: sourceText };
+      const response = await fetch(`/api/topics/${topicId}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
-      // Simulate API response
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-      const generatedData: FlashcardGeneratedDto[] = [
-        { front: "Simulated Front 1", back: "Simulated Back 1", exceeds_limit: false },
-        { front: "Simulated Front 2 - This front is intentionally made very long to demonstrate the exceeds_limit flag functionality during development and testing.", back: "Simulated Back 2", exceeds_limit: true },
-      ];
+      if (!response.ok) {
+        const errorMessage = await handleApiError(response, 'Failed to generate flashcards');
+        throw new Error(errorMessage);
+      }
 
+      const generatedData: FlashcardGeneratedResponseDto = await response.json();
 
-      const newSuggestions: FlashcardSuggestionViewModel[] = generatedData.map((dto) => ({
+      if (!Array.isArray(generatedData)) {
+         console.error("Invalid response format from generate API:", generatedData);
+         throw new Error("Received invalid data from server.");
+      }
+
+      const newSuggestions: FlashcardSuggestionViewModel[] = generatedData.map((dto: FlashcardGeneratedDto) => ({
         id: crypto.randomUUID(), // Generate client-side ID
         front: dto.front,
         back: dto.back,
@@ -64,16 +97,35 @@ export const useAIGeneration = (topicId: string) => {
         setIsLoading(false);
         return;
     }
-    console.log(`Accepting suggestion ${suggestionId}:`, suggestionToAccept);
-    // Placeholder for API call: POST /api/topics/{topicId}/accept
+    console.log(`Accepting suggestion ${suggestionId}`);
+
     try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+      const requestBody: FlashcardAcceptDto = {
+        front: suggestionToAccept.front,
+        back: suggestionToAccept.back,
+      };
+      const response = await fetch(`/api/topics/${topicId}/accept`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
+        throw new Error(errorMessage);
+      }
+
+      // const savedFlashcard: FlashcardAcceptResponseDto = await response.json();
+      await response.json(); // Consume body even if not used directly
+
+      // Remove the accepted suggestion from the list
+      setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+
     } catch (err) {
-        setError("Failed to accept suggestion.");
+      console.error("Acceptance failed:", err);
+      setError(err instanceof Error ? err.message : "An unknown error occurred during acceptance.");
     } finally {
-        setIsLoading(false);
+      setIsLoading(false); // Ensure loading state is reset
     }
   }, [suggestions, topicId]);
 
@@ -84,22 +136,41 @@ export const useAIGeneration = (topicId: string) => {
      if (!suggestionToRegenerate || !suggestionToRegenerate.originalFront || !suggestionToRegenerate.originalBack) {
          setError("Suggestion data incomplete for regeneration.");
          setIsLoading(false);
+         setIsLoading(false);
          return;
      }
      console.log(`Regenerating suggestion ${suggestionId}`);
-     // Placeholder for API call: POST /api/topics/{topicId}/generate/alternative
-     try {
-         // Simulate API call
-         await new Promise(resolve => setTimeout(resolve, 1000));
-         const regeneratedData: FlashcardGeneratedDto = { front: `Regen Front ${Math.random().toFixed(2)}`, back: `Regen Back ${Math.random().toFixed(2)}`, exceeds_limit: false };
 
-         setSuggestions(prev => prev.map(s =>
-             s.id === suggestionId
+     try {
+        const requestBody: FlashcardGenerateAlternativeDto = {
+            source_text: sourceText, // Assuming source text is still relevant
+            original_front: suggestionToRegenerate.originalFront,
+            original_back: suggestionToRegenerate.originalBack,
+        };
+        const response = await fetch(`/api/topics/${topicId}/generate/alternative`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorMessage = await handleApiError(response, 'Failed to regenerate suggestion');
+            throw new Error(errorMessage);
+        }
+
+        const regeneratedData: FlashcardGenerateAlternativeResponseDto = await response.json();
+
+        // Update the specific suggestion in the list
+        setSuggestions(prev => prev.map(s =>
+            s.id === suggestionId
+                 ? { ...s, front: regeneratedData.front, back: regeneratedData.back, exceeds_limit: regeneratedData.exceeds_limit, originalFront: regeneratedData.front, originalBack: regeneratedData.back, isEditing: false }
+                 : s
                  ? { ...s, front: regeneratedData.front, back: regeneratedData.back, exceeds_limit: regeneratedData.exceeds_limit, originalFront: regeneratedData.front, originalBack: regeneratedData.back, isEditing: false }
                  : s
          ));
      } catch (err) {
-         setError("Failed to regenerate suggestion.");
+         console.error("Regeneration failed:", err);
+         setError(err instanceof Error ? err.message : "An unknown error occurred during regeneration.");
      } finally {
          setIsLoading(false);
      }
@@ -114,14 +185,33 @@ export const useAIGeneration = (topicId: string) => {
   const handleSaveEdit = useCallback(async (suggestionId: string, editedFront: string, editedBack: string) => {
     setIsLoading(true); // Consider more granular loading
     setError(null);
-    console.log(`Saving edited suggestion ${suggestionId}:`, { editedFront, editedBack });
-    // Placeholder for API call: POST /api/topics/{topicId}/accept-edited
+    console.log(`Saving edited suggestion ${suggestionId}`);
+
     try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const requestBody: FlashcardAcceptEditedDto = {
+            front: editedFront,
+            back: editedBack,
+        };
+        const response = await fetch(`/api/topics/${topicId}/accept-edited`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            const errorMessage = await handleApiError(response, 'Failed to save edited suggestion');
+            throw new Error(errorMessage);
+        }
+
+        // const savedFlashcard: FlashcardAcceptEditedResponseDto = await response.json();
+        await response.json(); // Consume body
+
+        // Remove the saved suggestion from the list
         setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+
     } catch (err) {
-        setError("Failed to save edited suggestion.");
+        console.error("Saving edited suggestion failed:", err);
+        setError(err instanceof Error ? err.message : "An unknown error occurred while saving.");
     } finally {
         setIsLoading(false);
     }
