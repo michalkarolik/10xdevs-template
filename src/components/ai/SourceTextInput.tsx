@@ -52,10 +52,10 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
               <span>Generating...</span>
             </>
           ) : (
-            "Generate Flashcards"
-        )}
-      </Button>
-    </div>
+            <span>Generate Flashcards</span>
+          )}
+        </Button>
+      </div>
   );
 };
 
