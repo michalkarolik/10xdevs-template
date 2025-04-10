@@ -48,10 +48,6 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
         >
           {isLoading ? (
             <>
-        className="w-full sm:w-auto" // Full width on small screens
-      >
-        {isLoading ? (
-          <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Generating...
           </>
