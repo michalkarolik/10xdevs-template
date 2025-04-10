@@ -164,9 +164,7 @@ export const useAIGeneration = (topicId: string) => {
         setSuggestions(prev => prev.map(s =>
             s.id === suggestionId
                  ? { ...s, front: regeneratedData.front, back: regeneratedData.back, exceeds_limit: regeneratedData.exceeds_limit, originalFront: regeneratedData.front, originalBack: regeneratedData.back, isEditing: false }
-                 : s
-                 ? { ...s, front: regeneratedData.front, back: regeneratedData.back, exceeds_limit: regeneratedData.exceeds_limit, originalFront: regeneratedData.front, originalBack: regeneratedData.back, isEditing: false }
-                 : s
+                 : s // Corrected ternary operator - removed duplicate logic
          ));
      } catch (err) {
          console.error("Regeneration failed:", err);
