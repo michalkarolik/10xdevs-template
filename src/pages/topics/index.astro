@@ -1,0 +1,67 @@
+---
+import Layout from "@/layouts/Layout.astro";
+// Placeholder for fetching actual topics data
+// import { getUser } from '@/lib/auth'; // Assuming auth helper
+// import { supabase } from '@/db/supabase.client'; // Assuming supabase client setup
+// import type { TopicSummaryDto } from '@/types';
+
+// Placeholder data - replace with actual data fetching logic
+const topics: { id: number; name: string; flashcard_count: number }[] = [
+  { id: 1, name: "Biology Basics", flashcard_count: 15 },
+  { id: 2, name: "Astro Framework", flashcard_count: 8 },
+  { id: 123, name: "Test Topic", flashcard_count: 0 }, // Example topic used in previous tests
+];
+
+// TODO: Implement actual data fetching based on logged-in user
+// const user = await getUser(Astro.request);
+// let topics: TopicSummaryDto[] = [];
+// if (user) {
+//   const { data, error } = await Astro.locals.supabase
+//     .from('topics')
+//     .select('id, name, flashcards(count)') // Adjust based on actual schema/view
+//     .eq('user_id', user.id);
+//   if (error) console.error("Error fetching topics:", error);
+//   else topics = data.map(t => ({ ...t, flashcard_count: t.flashcards[0]?.count || 0 }));
+// } else {
+//   // Handle not logged in user - maybe redirect to login?
+//   // return Astro.redirect('/login');
+// }
+
+---
+
+<Layout title="Your Topics">
+  <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-bold">Your Topics</h1>
+      {/* Placeholder for Add Topic Button */}
+      <button class="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90">
+        Add New Topic
+      </button>
+    </div>
+
+    {topics.length === 0 ? (
+      <p class="text-muted-foreground">You haven't created any topics yet. Click "Add New Topic" to get started!</p>
+    ) : (
+      <ul class="space-y-4">
+        {topics.map((topic) => (
+          <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex justify-between items-center">
+            <div>
+              <a href={`/topics/${topic.id}`} class="text-lg font-semibold hover:underline">{topic.name}</a>
+              <p class="text-sm text-muted-foreground">{topic.flashcard_count} flashcards</p>
+            </div>
+            <div class="flex space-x-2">
+               {/* Link to the AI generation view for this specific topic */}
+              <a href={`/topics/${topic.id}/generate`} class="text-sm bg-secondary text-secondary-foreground px-3 py-1 rounded hover:bg-secondary/80">
+                Generate AI Flashcards
+              </a>
+               {/* Placeholder for other actions like Edit/Delete */}
+              <button class="text-sm bg-destructive text-destructive-foreground px-3 py-1 rounded hover:bg-destructive/90">
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Layout>
