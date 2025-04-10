@@ -109,8 +109,7 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
           >
             <Edit className="mr-1 h-4 w-4" /> Edit
           </Button>
-            <Edit className="mr-1 h-4 w-4" /> Edit
-          </Button>
+          {/* Removed duplicate Edit button content and extra closing tag */}
           <Button
             variant="outline"
             size="sm"
