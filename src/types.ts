@@ -150,3 +150,16 @@ export const FLASHCARD_LIMITS = {
   FRONT_MAX_LENGTH: 100,
   BACK_MAX_LENGTH: 500,
 };
+
+/**
+ * ViewModels for UI state
+ */
+export interface FlashcardSuggestionViewModel {
+  id: string; // Client-side unique ID
+  front: string;
+  back: string;
+  exceeds_limit: boolean;
+  isEditing: boolean;
+  originalFront?: string;
+  originalBack?: string;
+}

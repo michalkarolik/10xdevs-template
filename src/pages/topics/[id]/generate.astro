@@ -1,0 +1,18 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import AIGenerationView from "@/components/views/AIGenerationView"; // Assuming React component
+
+const { id } = Astro.params;
+
+if (!id) {
+  // Handle missing ID, maybe redirect or show error
+  return Astro.redirect("/topics"); // Example redirect
+}
+---
+
+<Layout title={`Generate Flashcards for Topic ${id}`}>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Generate Flashcards with AI</h1>
+    <AIGenerationView client:load topicId={id} />
+  </div>
+</Layout>
