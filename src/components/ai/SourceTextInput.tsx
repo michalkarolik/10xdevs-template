@@ -48,11 +48,11 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
         >
           {isLoading ? (
             <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating...
-          </>
-        ) : (
-          "Generate Flashcards"
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <span>Generating...</span>
+            </>
+          ) : (
+            "Generate Flashcards"
         )}
       </Button>
     </div>
