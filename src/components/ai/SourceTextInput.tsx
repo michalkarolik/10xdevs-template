@@ -20,21 +20,34 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
     onSourceTextChange(event.target.value);
   };
 
+  // Unique ID for associating label and textarea
+  const textareaId = React.useId();
+
   const isButtonDisabled = isLoading || sourceText.trim() === "";
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3"> {/* Reduced space inside this component */}
+       {/* Added label for accessibility */}
+      <label htmlFor={textareaId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Source Text
+      </label>
       <Textarea
+        id={textareaId}
         placeholder="Paste your text here to generate flashcards..."
         value={sourceText}
         onChange={handleTextChange}
-        className="min-h-[150px] resize-y" // Allow vertical resize
-        aria-label="Source text for flashcard generation"
+        className="min-h-[150px] resize-y shadow-sm" // Added shadow
+        aria-label="Source text for flashcard generation" // Keep aria-label as well
         disabled={isLoading}
       />
-      <Button
-        onClick={onGenerateClick}
-        disabled={isButtonDisabled}
+      <div className="flex justify-end"> {/* Align button to the right */}
+        <Button
+          onClick={onGenerateClick}
+          disabled={isButtonDisabled}
+          className="w-full sm:w-auto" // Full width on small screens, auto on larger
+        >
+          {isLoading ? (
+            <>
         className="w-full sm:w-auto" // Full width on small screens
       >
         {isLoading ? (

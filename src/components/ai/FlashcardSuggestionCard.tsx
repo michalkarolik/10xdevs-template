@@ -58,38 +58,39 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
   const isOkButtonDisabled = suggestion.exceeds_limit && !suggestion.isEditing;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Suggested Flashcard</CardTitle>
+    <Card className="shadow-md"> {/* Added shadow */}
+      <CardHeader className="pb-3"> {/* Reduced bottom padding */}
+        <CardTitle className="text-lg">Suggested Flashcard</CardTitle> {/* Slightly smaller title */}
         {suggestion.exceeds_limit && !suggestion.isEditing && (
-           <Alert variant="destructive" className="mt-2">
+           <Alert variant="destructive" className="mt-3 p-3"> {/* Adjusted margin and padding */}
              <AlertTriangle className="h-4 w-4" />
-             <AlertTitle>Character Limit Exceeded</AlertTitle>
-             <AlertDescription>
+             <AlertTitle className="text-sm font-semibold">Character Limit Exceeded</AlertTitle> {/* Adjusted text size */}
+             <AlertDescription className="text-xs"> {/* Adjusted text size */}
                The generated content exceeds the character limits. Please edit the card before accepting.
              </AlertDescription>
            </Alert>
         )}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 pt-0"> {/* Removed top padding, adjusted spacing */}
         {suggestion.isEditing ? (
            <FlashcardEditForm
-             initialFront={suggestion.front}
+             initialFront={suggestion.front} // Pass initial values
              initialBack={suggestion.back}
              onSave={handleSave}
              onCancel={handleCancel}
            />
         ) : (
           <>
-            <div>
-              <h3 className="font-semibold text-sm mb-1">Front:</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+            {/* Improved display of front/back */}
+            <div className="border-l-4 border-primary pl-3 py-1">
+              <h3 className="font-medium text-sm text-muted-foreground mb-1">Front</h3>
+              <p className="text-base whitespace-pre-wrap break-words">
                 {suggestion.front}
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold text-sm mb-1">Back:</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+            <div className="border-l-4 border-secondary pl-3 py-1">
+              <h3 className="font-medium text-sm text-muted-foreground mb-1">Back</h3>
+              <p className="text-base whitespace-pre-wrap break-words">
                 {suggestion.back}
               </p>
             </div>
@@ -97,13 +98,17 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
         )}
       </CardContent>
       {!suggestion.isEditing && (
-        <CardFooter className="flex justify-end space-x-2">
+         // Added flex-wrap for better responsiveness on small screens
+        <CardFooter className="flex flex-wrap justify-end gap-2 pt-4">
           <Button
             variant="outline"
             size="sm"
+            className="flex items-center" // Ensure icon and text align
             onClick={handleEditClick}
             aria-label="Edit suggested flashcard"
           >
+            <Edit className="mr-1 h-4 w-4" /> Edit
+          </Button>
             <Edit className="mr-1 h-4 w-4" /> Edit
           </Button>
           <Button
@@ -111,11 +116,13 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
             size="sm"
             onClick={handleRegenerateClick}
             aria-label="Generate new version of suggested flashcard"
+            className="flex items-center" // Ensure icon and text align
           >
             <RefreshCw className="mr-1 h-4 w-4" /> Regenerate
           </Button>
           <Button
             size="sm"
+            className="flex items-center" // Ensure icon and text align
             onClick={handleAcceptClick}
             disabled={isOkButtonDisabled}
             aria-label="Accept suggested flashcard"

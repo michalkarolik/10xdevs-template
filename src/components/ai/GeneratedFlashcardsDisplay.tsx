@@ -57,11 +57,12 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Generated Suggestions</h2>
+    // Added margin top, adjusted internal spacing
+    <div className="space-y-6 mt-8">
+      <h2 className="text-xl font-semibold border-b pb-2">Generated Suggestions</h2>
       {suggestions.map((suggestion) => (
         <FlashcardSuggestionCard
-          key={suggestion.id}
+          key={suggestion.id} // Client-side ID is fine for key here
           suggestion={suggestion}
           onAccept={onAccept}
           onRegenerate={onRegenerate}

@@ -11,8 +11,9 @@ if (!id) {
 ---
 
 <Layout title={`Generate Flashcards for Topic ${id}`}>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-4">Generate Flashcards with AI</h1>
+  {/* Added max-w-4xl for better readability on large screens, adjusted padding and margin */}
+  <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10">
+    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center md:text-left">Generate Flashcards with AI</h1>
     <AIGenerationView client:load topicId={id} />
   </div>
 </Layout>

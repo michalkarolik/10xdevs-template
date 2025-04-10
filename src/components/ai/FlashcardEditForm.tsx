@@ -20,6 +20,10 @@ const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({
   const [editedFront, setEditedFront] = useState(initialFront);
   const [editedBack, setEditedBack] = useState(initialBack);
 
+  // Use IDs for better accessibility linking labels and inputs
+  const frontId = React.useId();
+  const backId = React.useId();
+
   const frontLength = editedFront.length;
   const backLength = editedBack.length;
 
@@ -34,21 +38,22 @@ const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({
   };
 
   return (
-    <div className="space-y-4 p-4 border rounded-md bg-muted/20">
-      <div>
-        <label htmlFor="edit-front" className="block text-sm font-medium mb-1">
+    // Adjusted padding and spacing
+    <div className="space-y-3 p-4 border rounded-md bg-muted/30 dark:bg-muted/10">
+      <div className="space-y-1"> {/* Group label, textarea, counter */}
+        <label htmlFor={frontId} className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
           Front
         </label>
         <Textarea
-          id="edit-front"
+          id={frontId}
           value={editedFront}
           onChange={(e) => setEditedFront(e.target.value)}
           maxLength={FLASHCARD_LIMITS.FRONT_MAX_LENGTH + 20} // Allow slight overtyping before blocking
-          className="min-h-[80px]"
-          aria-describedby="front-char-count"
+          className="min-h-[80px] shadow-sm" // Added shadow
+          aria-describedby={`${frontId}-count`}
         />
         <p
-          id="front-char-count"
+          id={`${frontId}-count`}
           className={cn(
             "text-xs text-right mt-1",
             frontLength > FLASHCARD_LIMITS.FRONT_MAX_LENGTH ? "text-destructive" : "text-muted-foreground"
@@ -58,20 +63,20 @@ const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({
         </p>
       </div>
 
-      <div>
-        <label htmlFor="edit-back" className="block text-sm font-medium mb-1">
+      <div className="space-y-1"> {/* Group label, textarea, counter */}
+        <label htmlFor={backId} className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
           Back
         </label>
         <Textarea
-          id="edit-back"
+          id={backId}
           value={editedBack}
           onChange={(e) => setEditedBack(e.target.value)}
           maxLength={FLASHCARD_LIMITS.BACK_MAX_LENGTH + 50} // Allow slight overtyping
-          className="min-h-[120px]"
-          aria-describedby="back-char-count"
+          className="min-h-[120px] shadow-sm" // Added shadow
+          aria-describedby={`${backId}-count`}
         />
         <p
-          id="back-char-count"
+          id={`${backId}-count`}
           className={cn(
             "text-xs text-right mt-1",
             backLength > FLASHCARD_LIMITS.BACK_MAX_LENGTH ? "text-destructive" : "text-muted-foreground"

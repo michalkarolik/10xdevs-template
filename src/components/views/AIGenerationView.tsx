@@ -23,7 +23,8 @@ const AIGenerationView: React.FC<AIGenerationViewProps> = ({ topicId }) => {
   } = useAIGeneration(topicId);
 
   return (
-    <div className="space-y-8"> {/* Increased spacing */}
+    // Adjusted spacing, added max-width and centering for the main content block
+    <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto">
       <SourceTextInput
         sourceText={sourceText}
         onSourceTextChange={setSourceText}
