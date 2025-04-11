@@ -56,7 +56,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 
     // Although RLS handles access, double-check if data is null (might happen if RLS prevents access but no error is thrown explicitly in some cases)
     if (!topicData) {
-       console.warn(`No topic data returned for ID ${topicIdNum}, potentially due to RLS.`);
+       console.warn(`No topic data returned for ID ${topic_id}, potentially due to RLS.`); // Use topic_id string in log
        return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
     }
 
