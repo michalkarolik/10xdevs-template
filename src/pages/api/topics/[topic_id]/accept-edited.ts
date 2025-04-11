@@ -72,11 +72,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       .from('flashcards')
       .insert({
         topic_id: topic_id, // Use UUID
-        user_id: user.id, // Associate with user
         front: front,
         back: back,
-    //     source: 'ai-edited' // Set source explicitly to 'ai-edited'
-    //   })
+        source: 'ai-edited' // Set source explicitly to 'ai-edited'
+      })
       .select('id, front, back, source, created_at, updated_at') // Select fields matching FlashcardAcceptEditedResponseDto
       .single();
 

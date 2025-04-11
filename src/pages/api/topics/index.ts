@@ -14,7 +14,7 @@ const createTopicSchema = z.object({
 export const GET: APIRoute = async ({ request, locals }) => {
   // 1. Authentication (TEMPORARILY USING PLACEHOLDER)
   // TODO: Implement proper user fetching
-  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
+  const user = { id: '11111111-1111-1111-1111-111111111111' }; // Valid test user UUID
   if (!user) {
     // This condition will likely not be met with the placeholder, but keep for structure
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
@@ -26,13 +26,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // Ensure RLS is set up for topics and flashcards
     const { data, error } = await locals.supabase
       .from('topics')
-      .select(`
-        id,
-        name,
-        created_at,
-        updated_at,
-        flashcards ( count )
-      `)
+      .select(`id, name, created_at, updated_at`)
       // .eq('user_id', user.id) // RLS should handle this automatically if configured
       .order('created_at', { ascending: false }); // Example ordering
 
@@ -41,14 +35,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
       throw new Error("Failed to fetch topics.");
     }
 
-    // Map data to DTO, handling the flashcard count structure
+    // Map data to DTO without flashcard_count aggregation
     const topicsResponse: TopicsResponseDto = data?.map(topic => ({
       id: topic.id,
       name: topic.name,
       created_at: topic.created_at,
       updated_at: topic.updated_at,
-      // Supabase returns count in an array like [{ count: 5 }]
-      flashcard_count: Array.isArray(topic.flashcards) && topic.flashcards.length > 0 ? topic.flashcards[0].count : 0,
     })) || [];
 
 
@@ -69,7 +61,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
   // 1. Authentication (TEMPORARILY USING PLACEHOLDER)
   // TODO: Implement proper user fetching
-  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
+  const user = { id: '11111111-1111-1111-1111-111111111111' }; // Valid test user UUID
    if (!user) {
      // This condition will likely not be met with the placeholder, but keep for structure
      return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
@@ -126,3 +118,4 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return new Response(JSON.stringify({ error: true, code: 'INTERNAL_SERVER_ERROR', message: error instanceof Error ? error.message : 'An unexpected error occurred' } as ErrorResponse), { status: 500 });
   }
 };
+
