@@ -6,10 +6,11 @@ import Layout from "@/layouts/Layout.astro";
 // import type { TopicSummaryDto } from '@/types';
 
 // Placeholder data - replace with actual data fetching logic
-const topics: { id: number; name: string; flashcard_count: number }[] = [
-  { id: 1, name: "Biology Basics", flashcard_count: 15 },
-  { id: 2, name: "Astro Framework", flashcard_count: 8 },
-  { id: 123, name: "Test Topic", flashcard_count: 0 }, // Example topic used in previous tests
+// Using sample UUIDs for placeholder IDs
+const topics: { id: string; name: string; flashcard_count: number }[] = [
+  { id: "a1b2c3d4-e5f6-7890-1234-567890abcdef", name: "Biology Basics (UUID)", flashcard_count: 15 },
+  { id: "b2c3d4e5-f6a7-8901-2345-67890abcdef0", name: "Astro Framework (UUID)", flashcard_count: 8 },
+  { id: "c3d4e5f6-a7b8-9012-3456-7890abcdef01", name: "Test Topic (UUID)", flashcard_count: 0 },
 ];
 
 // TODO: Implement actual data fetching based on logged-in user
