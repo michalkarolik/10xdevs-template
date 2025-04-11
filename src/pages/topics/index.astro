@@ -55,12 +55,16 @@ try {
       </div>
     )}
 
-    {!error && topics.length === 0 ? (
+    {/* Condition for no topics */}
+    {!error && topics.length === 0 && (
       <p class="text-muted-foreground text-center mt-6">You haven't created any topics yet. Click "Add New Topic" to get started!</p>
-    ) : !error && topics.length > 0 ? (
+    )}
+
+    {/* Condition for displaying topics */}
+    {!error && topics.length > 0 && (
       <ul class="space-y-4">
         {topics.map((topic) => (
-          <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex justify-between items-center">
+          <li class="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"> {/* Adjusted flex for responsiveness */}
             <div>
               <a href={`/topics/${topic.id}`} class="text-lg font-semibold hover:underline">{topic.name}</a>
               <p class="text-sm text-muted-foreground">{topic.flashcard_count} flashcards</p>
@@ -78,6 +82,6 @@ try {
           </li>
         ))}
       </ul>
-    )}
+    )} {/* End of condition for displaying topics */}
   </div>
 </Layout>
