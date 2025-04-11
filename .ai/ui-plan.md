@@ -6,49 +6,49 @@
 - Użycie responsywnego designu i komponentów zgodnych z WCAG AA gwarantuje dostępność i bezpieczeństwo.
 
 ## 2. Lista widoków
-- **Widok logowania**  
+- **Widok logowania** `[Do zaimplementowania]`
   Ścieżka: `/login`  
   Cel: Umożliwienie autoryzacji użytkownika.  
   Kluczowe informacje: Formularz logowania, komunikaty o błędach autoryzacyjnych.  
   Kluczowe komponenty: Formularz, przycisk logowania.  
   UX/dostępność: Prosty formularz, etykiety dostępne dla czytników ekranu.
 
-- **Dashboard (Pulpit użytkownika)**  
+- **Dashboard (Pulpit użytkownika)** `[Do zaimplementowania]`
   Ścieżka: `/dashboard`  
   Cel: Przegląd tematyki, powiadomienia i statystyki.  
   Kluczowe informacje: Lista tematów, skróty do akcji (dodaj temat, rozpocznij naukę).  
   Kluczowe komponenty: Karty tematyczne, wykresy/statystyki, globalny pasek nawigacyjny.  
   UX/dostępność: Przejrzysty układ, responsywność, kontrastowe kolory.
 
-- **Widok zarządzania tematami**  
+- **Widok zarządzania tematami** `[Częściowo zaimplementowany]`
   Ścieżka: `/topics`  
   Cel: Dodawanie, edycja i usuwanie tematów.  
   Kluczowe informacje: Lista tematów, przycisk dodawania nowego tematu.  
   Kluczowe komponenty: Lista, formularz dodawania/edycji, przyciski akcji.  
   UX/dostępność: Jasno oznakowane akcje, potwierdzenia usunięcia.
 
-- **Widok szczegółowy tematu i fiszek**  
+- **Widok szczegółowy tematu i fiszek** `[Do zaimplementowania]`
   Ścieżka: `/topics/:id`  
   Cel: Przegląd i zarządzanie fiszkami w obrębie wybranego tematu.  
   Kluczowe informacje: Lista fiszek, przyciski edycji/usunięcia, opcje dodania nowej fiszki.  
   Kluczowe komponenty: Lista, modale edycji/usunięcia, przycisk do generowania AI.  
   UX/dostępność: Łatwa nawigacja między operacjami, intuicyjne potwierdzenia.
 
-- **Widok generowania fiszek przez AI**  
+- **Widok generowania fiszek przez AI** `[Zaimplementowany]`
   Ścieżka: `/topics/:id/generate`  
   Cel: Umożliwienie wygenerowania fiszek na podstawie podanego tekstu.  
   Kluczowe informacje: Pole do wklejenia tekstu, przycisk "Generuj", prezentacja propozycji AI.  
   Kluczowe komponenty: Formularz, przyciski "OK", "Wygeneruj nową", "Edytuj".  
   UX/dostępność: Informowanie o przekraczaniu limitów znaków, loader dla oczekiwania na wynik.
 
-- **Panel użytkownika (zarządzanie kontem)**  
+- **Panel użytkownika (zarządzanie kontem)** `[Do zaimplementowania]`
   Ścieżka: `/profile`  
   Cel: Zarządzanie danymi konta i opcja usunięcia konta.  
   Kluczowe informacje: Dane użytkownika, opcje zmiany hasła, usunięcia konta.  
   Kluczowe komponenty: Formularze, przyciski akcji, komunikaty potwierdzające.  
   UX/dostępność: Jasne instrukcje, bezpieczne operacje na danych konta.
 
-- **Widok sesji nauki**  
+- **Widok sesji nauki** `[Do zaimplementowania]`
   Ścieżka: `/learning/session`  
   Cel: Przeprowadzenie sesji nauki z fiszkami i ich oceną.  
   Kluczowe informacje: Wyświetlany awers fiszki, przycisk odsłonięcia rewersu, opcje oceny.  
