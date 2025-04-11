@@ -97,8 +97,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .from('topics')
       .insert({
         name: name,
-    //     user_id: user.id // Associate with the current user
-    //   })
+        user_id: user.id // Associate with the current user
+      })
       .select('id, name, created_at, updated_at') // Select fields matching TopicResponseDto
       .single();
 
