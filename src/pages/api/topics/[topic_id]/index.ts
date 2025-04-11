@@ -32,11 +32,11 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       .from('topics')
       .select(`
         id,
-    //     name,
-    //     created_at,
-    //     updated_at,
-    //     flashcards ( id, front, back, source, created_at, updated_at )
-    //   `)
+        name,
+        created_at,
+        updated_at,
+        flashcards ( id, front, back, source, created_at, updated_at )
+      `)
       .eq('id', topicIdNum)
       // .eq('user_id', user.id) // RLS should handle this automatically if configured
       .single();
