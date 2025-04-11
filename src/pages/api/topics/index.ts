@@ -28,11 +28,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
       .from('topics')
       .select(`
         id,
-    //     name,
-    //     created_at,
-    //     updated_at,
-    //     flashcards ( count )
-    //   `)
+        name,
+        created_at,
+        updated_at,
+        flashcards ( count )
+      `)
       // .eq('user_id', user.id) // RLS should handle this automatically if configured
       .order('created_at', { ascending: false }); // Example ordering
 
