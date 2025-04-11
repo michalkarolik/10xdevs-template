@@ -19,10 +19,12 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   if (!topic_id) {
     return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Missing topic ID' } as ErrorResponse), { status: 400 });
   }
-  const topicIdNum = parseInt(topic_id, 10);
-  if (isNaN(topicIdNum)) {
-    return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid topic ID format' } as ErrorResponse), { status: 400 });
+  // Validate if topic_id looks like a UUID (basic check) - PostgreSQL will validate it strictly anyway
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  if (!uuidRegex.test(topic_id)) {
+     return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid topic ID format (must be a UUID)' } as ErrorResponse), { status: 400 });
   }
+  // We no longer parse topic_id to a number (topicIdNum)
 
   // 3. Database Interaction
   try {
@@ -37,7 +39,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
         updated_at,
         flashcards ( id, front, back, source, created_at, updated_at )
       `)
-      .eq('id', topicIdNum)
+      .eq('id', topic_id) // Use the topic_id string directly
       // .eq('user_id', user.id) // RLS should handle this automatically if configured
       .single();
 
