@@ -47,9 +47,9 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       if (topicError.code === 'PGRST116') {
          return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
       }
-      // Log other errors for debugging
-      console.error("Unexpected Supabase error:", topicError);
-      throw new Error("Failed to fetch topic details due to database error.");
+      // Log other errors for debugging with more detail
+      console.error("Unexpected Supabase error object:", JSON.stringify(topicError, null, 2)); // Log the full error object
+      throw new Error(`Failed to fetch topic details due to database error. Code: ${topicError.code}, Message: ${topicError.message}`); // Include code and message in thrown error
     }
 
     // Although RLS handles access, double-check if data is null (might happen if RLS prevents access but no error is thrown explicitly in some cases)
