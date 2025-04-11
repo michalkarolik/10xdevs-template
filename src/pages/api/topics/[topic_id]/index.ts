@@ -5,11 +5,14 @@ import type { TopicDetailDto, ErrorResponse, FlashcardResponseDto } from "@/type
 // import { getUser } from '@/lib/auth';
 
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization (Placeholder)
-  // const user = await getUser(request);
-  // if (!user) {
-  //   return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
-  // }
+  // 1. Authentication & Authorization
+  // TODO: Implement proper user fetching, potentially from locals if middleware sets it up
+  // const { user } = await locals.supabase.auth.getUser(); // Example using Supabase client from locals
+  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !! Replace with actual auth logic
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
+  }
 
   // 2. Validate Topic ID
   const { topic_id } = params;
