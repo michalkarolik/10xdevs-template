@@ -115,7 +115,7 @@ export const useAIGeneration = (topicId: string) => {
 
       if (!response.ok) {
         const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
-        const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
+        // Removed duplicate declaration of errorMessage
         console.error(`[handleAccept] API call failed for ID: ${suggestionId}. Status: ${response.status}`); // Log API failure
         throw new Error(errorMessage);
       }
