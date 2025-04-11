@@ -95,11 +95,14 @@ export const useAIGeneration = (topicId: string) => {
     if (!suggestionToAccept) {
         setError("Suggestion not found.");
         setIsLoading(false);
+        setError("Suggestion not found.");
+        setIsLoading(false);
         return;
     }
-    console.log(`Accepting suggestion ${suggestionId}`);
+    console.log(`[handleAccept] Attempting to accept suggestion ID: ${suggestionId}`); // Log start
 
     try {
+      console.log(`[handleAccept] Suggestion data:`, suggestionToAccept); // Log data being sent
       const requestBody: FlashcardAcceptDto = {
         front: suggestionToAccept.front,
         back: suggestionToAccept.back,
