@@ -15,44 +15,31 @@ if (!topicId || isNaN(parseInt(topicId, 10))) {
   // return Astro.redirect('/topics');
 } else {
   try {
-    // TODO: Replace with actual fetch from API endpoint
-    // const response = await fetch(`${Astro.url.origin}/api/topics/${topicId}`);
-    // if (!response.ok) {
-    //   if (response.status === 404) {
-    //     error = "Topic not found.";
-    //   } else {
-    //     const errorData = await response.json();
-    //     error = errorData.message || `Failed to load topic data (Status: ${response.status})`;
-    //   }
-    // } else {
-    //   topicData = await response.json() as TopicDetailDto;
-    // }
+    // Fetch data from the API endpoint
+    const response = await fetch(`${Astro.url.origin}/api/topics/${topicId}`);
 
-    // Simulate fetch for now
-    const simulatedFlashcards: FlashcardResponseDto[] = [
-        { id: 101, front: "What is Astro?", back: "A web framework for building fast, content-focused websites.", source: "manual", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-        { id: 102, front: "What is React?", back: "A JavaScript library for building user interfaces.", source: "ai-generated", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-        { id: 103, front: "Simulated Front from AI Edit", back: "Simulated Back from AI Edit", source: "ai-edited", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    ];
-    if (topicId === '1') { // Only simulate data for topic 1
-        topicData = {
-            id: 1,
-            name: `Topic 1 Name (Simulated)`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            flashcards: simulatedFlashcards,
-        };
-    } else if (topicId === '123') { // Simulate empty topic
-         topicData = {
-            id: 123,
-            name: `Topic 123 Name (Simulated Empty)`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            flashcards: [],
-        };
-    }
-     else {
-        error = "Topic not found (Simulated).";
+    if (!response.ok) {
+      if (response.status === 404) {
+        error = "Topic not found or you don't have access."; // More specific message
+      } else {
+        try {
+            // Try to parse error message from API response body
+            const errorData = await response.json();
+            error = errorData.message || `Failed to load topic data (Status: ${response.status})`;
+        } catch (parseError) {
+            // Fallback if response body is not JSON or empty
+            error = `Failed to load topic data (Status: ${response.status})`;
+        }
+      }
+    } else {
+      // Parse successful response
+      topicData = await response.json() as TopicDetailDto;
+      // Basic validation of received data structure
+      if (!topicData || typeof topicData !== 'object' || !topicData.id || !Array.isArray(topicData.flashcards)) {
+          console.error("Received invalid topic data format from API:", topicData);
+          error = "Received invalid data format from the server.";
+          topicData = null; // Reset topicData on invalid format
+      }
     }
 
   } catch (e) {

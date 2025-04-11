@@ -21,50 +21,48 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid topic ID format' } as ErrorResponse), { status: 400 });
   }
 
-  // 3. Database Interaction (Placeholder)
+  // 3. Database Interaction
   try {
-    // Placeholder: Fetch topic details and its flashcards, ensuring user owns the topic
-    // const { data: topicData, error: topicError } = await locals.supabase
-    //   .from('topics')
-    //   .select(`
-    //     id,
+    // Fetch topic details and its flashcards, ensuring user owns the topic
+    // Ensure RLS is enabled in Supabase for topics and flashcards tables based on user_id
+    const { data: topicData, error: topicError } = await locals.supabase
+      .from('topics')
+      .select(`
+        id,
     //     name,
     //     created_at,
     //     updated_at,
     //     flashcards ( id, front, back, source, created_at, updated_at )
     //   `)
-    //   .eq('id', topicIdNum)
-    //   .eq('user_id', user.id) // Assuming user_id column exists
-    //   .single();
+      .eq('id', topicIdNum)
+      // .eq('user_id', user.id) // RLS should handle this automatically if configured
+      .single();
 
-    // if (topicError) {
-    //   console.error("Supabase fetch error:", topicError);
-    //   if (topicError.code === 'PGRST116') { // Code for "Not found" when using .single()
-    //      return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
-    //   }
-    //   throw new Error("Failed to fetch topic details.");
-    // }
-    // if (!topicData) {
-    //    return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
-    // }
+    if (topicError) {
+      console.error("Supabase fetch error:", topicError);
+      // PGRST116 is the code Supabase returns when .single() finds no rows (or more than one)
+      if (topicError.code === 'PGRST116') {
+         return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
+      }
+      // Log other errors for debugging
+      console.error("Unexpected Supabase error:", topicError);
+      throw new Error("Failed to fetch topic details due to database error.");
+    }
 
-    // Simulate successful fetch for now
-    const simulatedFlashcards: FlashcardResponseDto[] = [
-        { id: 101, front: "What is Astro?", back: "A web framework for building fast, content-focused websites.", source: "manual", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-        { id: 102, front: "What is React?", back: "A JavaScript library for building user interfaces.", source: "ai-generated", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-        { id: 103, front: "Simulated Front from AI Edit", back: "Simulated Back from AI Edit", source: "ai-edited", created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    ];
-    const simulatedTopicData: TopicDetailDto = {
-        id: topicIdNum,
-        name: `Topic ${topicIdNum} Name`, // Simulate name
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        flashcards: topicIdNum === 1 ? simulatedFlashcards : [], // Only return flashcards for topic 1 for testing
+    // Although RLS handles access, double-check if data is null (might happen if RLS prevents access but no error is thrown explicitly in some cases)
+    if (!topicData) {
+       console.warn(`No topic data returned for ID ${topicIdNum}, potentially due to RLS.`);
+       return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
+    }
+
+    // Ensure flashcards array exists, even if empty
+    const responsePayload: TopicDetailDto = {
+        ...topicData,
+        flashcards: topicData.flashcards || [],
     };
 
-
     // 4. Return Success Response
-    return new Response(JSON.stringify(simulatedTopicData), {
+    return new Response(JSON.stringify(responsePayload), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
