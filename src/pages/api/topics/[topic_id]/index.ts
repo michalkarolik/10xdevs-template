@@ -5,12 +5,12 @@ import type { TopicDetailDto, ErrorResponse, FlashcardResponseDto } from "@/type
 // import { getUser } from '@/lib/auth';
 
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization
-  // TODO: Implement proper user fetching, potentially from locals if middleware sets it up
-  // const { user } = await locals.supabase.auth.getUser(); // Example using Supabase client from locals
-  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !! Replace with actual auth logic
+  // 1. Authentication & Authorization (TEMPORARILY USING PLACEHOLDER)
+  // TODO: Implement proper user fetching
+  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
 
   if (!user) {
+     // This condition will likely not be met with the placeholder, but keep for structure
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
   }
 

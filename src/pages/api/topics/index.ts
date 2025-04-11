@@ -12,11 +12,11 @@ const createTopicSchema = z.object({
 
 // --- GET Handler ---
 export const GET: APIRoute = async ({ request, locals }) => {
-  // 1. Authentication
-  // TODO: Ensure middleware correctly handles Supabase session and provides user info
-  const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
-  if (authError || !user) {
-    console.error("Auth error in GET /api/topics:", authError);
+  // 1. Authentication (TEMPORARILY USING PLACEHOLDER)
+  // TODO: Implement proper user fetching
+  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
+  if (!user) {
+    // This condition will likely not be met with the placeholder, but keep for structure
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
   }
 
@@ -67,11 +67,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
 // --- POST Handler ---
 export const POST: APIRoute = async ({ request, locals }) => {
-  // 1. Authentication
-  // TODO: Ensure middleware correctly handles Supabase session and provides user info
-  const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
-   if (authError || !user) {
-     console.error("Auth error in POST /api/topics:", authError);
+  // 1. Authentication (TEMPORARILY USING PLACEHOLDER)
+  // TODO: Implement proper user fetching
+  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
+   if (!user) {
+     // This condition will likely not be met with the placeholder, but keep for structure
      return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
    }
 

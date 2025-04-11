@@ -13,11 +13,11 @@ const inputSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization
-  // TODO: Ensure middleware correctly handles Supabase session and provides user info
-  const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
-  if (authError || !user) {
-    console.error("Auth error in POST /api/topics/.../accept-edited:", authError);
+  // 1. Authentication & Authorization (TEMPORARILY USING PLACEHOLDER)
+  // TODO: Implement proper user fetching
+  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
+  if (!user) {
+     // This condition will likely not be met with the placeholder, but keep for structure
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
   }
 
