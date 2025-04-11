@@ -115,17 +115,25 @@ export const useAIGeneration = (topicId: string) => {
 
       if (!response.ok) {
         const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
+        const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
+        console.error(`[handleAccept] API call failed for ID: ${suggestionId}. Status: ${response.status}`); // Log API failure
         throw new Error(errorMessage);
       }
 
       // const savedFlashcard: FlashcardAcceptResponseDto = await response.json();
       await response.json(); // Consume body even if not used directly
+      console.log(`[handleAccept] API call successful for ID: ${suggestionId}`); // Log success
 
       // Remove the accepted suggestion from the list
-      setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+      setSuggestions(prev => {
+        console.log(`[handleAccept] Updating suggestions state. Removing ID: ${suggestionId}`); // Log state update
+        const newState = prev.filter(s => s.id !== suggestionId);
+        console.log("[handleAccept] New suggestions state:", newState); // Log new state
+        return newState;
+      });
 
     } catch (err) {
-      console.error("Acceptance failed:", err);
+      console.error("[handleAccept] Error caught:", err); // Log caught error
       setError(err instanceof Error ? err.message : "An unknown error occurred during acceptance.");
     } finally {
       setIsLoading(false); // Ensure loading state is reset
