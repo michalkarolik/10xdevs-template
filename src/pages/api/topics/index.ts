@@ -12,53 +12,48 @@ const createTopicSchema = z.object({
 
 // --- GET Handler ---
 export const GET: APIRoute = async ({ request, locals }) => {
-  // 1. Authentication (Placeholder)
-  // TODO: Implement proper user fetching
-  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
-  if (!user) {
+  // 1. Authentication
+  // TODO: Ensure middleware correctly handles Supabase session and provides user info
+  const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
+  if (authError || !user) {
+    console.error("Auth error in GET /api/topics:", authError);
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
   }
 
-  // 2. Database Interaction (Placeholder)
+  // 2. Database Interaction
   try {
-    // Placeholder: Fetch topics for the user, including flashcard count
+    // Fetch topics for the user, including flashcard count
     // Ensure RLS is set up for topics and flashcards
-    // const { data, error } = await locals.supabase
-    //   .from('topics')
-    //   .select(`
-    //     id,
+    const { data, error } = await locals.supabase
+      .from('topics')
+      .select(`
+        id,
     //     name,
     //     created_at,
     //     updated_at,
     //     flashcards ( count )
     //   `)
-    //   .eq('user_id', user.id) // RLS should handle this, but explicit check is safer if needed
-    //   .order('created_at', { ascending: false }); // Example ordering
+      // .eq('user_id', user.id) // RLS should handle this automatically if configured
+      .order('created_at', { ascending: false }); // Example ordering
 
-    // if (error) {
-    //   console.error("Supabase fetch topics error:", error);
-    //   throw new Error("Failed to fetch topics.");
-    // }
+    if (error) {
+      console.error("Supabase fetch topics error:", error);
+      throw new Error("Failed to fetch topics.");
+    }
 
-    // // Map data to DTO, handling the flashcard count structure
-    // const topicsResponse: TopicsResponseDto = data?.map(topic => ({
-    //   id: topic.id,
-    //   name: topic.name,
-    //   created_at: topic.created_at,
-    //   updated_at: topic.updated_at,
-    //   // Supabase returns count in an array like [{ count: 5 }]
-    //   flashcard_count: Array.isArray(topic.flashcards) && topic.flashcards.length > 0 ? topic.flashcards[0].count : 0,
-    // })) || [];
-
-    // Simulate successful fetch for now
-     const simulatedTopics: TopicsResponseDto = [
-       { id: "a1b2c3d4-e5f6-7890-1234-567890abcdef", name: "Biology Basics (Simulated API)", flashcard_count: 15, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-       { id: "b2c3d4e5-f6a7-8901-2345-67890abcdef0", name: "Astro Framework (Simulated API)", flashcard_count: 8, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-     ];
+    // Map data to DTO, handling the flashcard count structure
+    const topicsResponse: TopicsResponseDto = data?.map(topic => ({
+      id: topic.id,
+      name: topic.name,
+      created_at: topic.created_at,
+      updated_at: topic.updated_at,
+      // Supabase returns count in an array like [{ count: 5 }]
+      flashcard_count: Array.isArray(topic.flashcards) && topic.flashcards.length > 0 ? topic.flashcards[0].count : 0,
+    })) || [];
 
 
     // 3. Return Success Response
-    return new Response(JSON.stringify(simulatedTopics), {
+    return new Response(JSON.stringify(topicsResponse), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -72,12 +67,13 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
 // --- POST Handler ---
 export const POST: APIRoute = async ({ request, locals }) => {
-  // 1. Authentication (Placeholder)
-  // TODO: Implement proper user fetching
-  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
-  if (!user) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
-  }
+  // 1. Authentication
+  // TODO: Ensure middleware correctly handles Supabase session and provides user info
+  const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
+   if (authError || !user) {
+     console.error("Auth error in POST /api/topics:", authError);
+     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
+   }
 
   // 2. Parse and Validate Request Body
   let requestBody: TopicCreateDto;
@@ -94,41 +90,33 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const { name } = validationResult.data;
 
-  // 3. Database Interaction (Placeholder)
+  // 3. Database Interaction
   try {
-    // Placeholder: Insert the new topic
-    // const { data: newTopic, error: insertError } = await locals.supabase
-    //   .from('topics')
-    //   .insert({
-    //     name: name,
+    // Insert the new topic
+    const { data: newTopic, error: insertError } = await locals.supabase
+      .from('topics')
+      .insert({
+        name: name,
     //     user_id: user.id // Associate with the current user
     //   })
-    //   .select('id, name, created_at, updated_at') // Select fields matching TopicResponseDto
-    //   .single();
+      .select('id, name, created_at, updated_at') // Select fields matching TopicResponseDto
+      .single();
 
-    // if (insertError) {
-    //   console.error("Supabase insert topic error:", insertError);
-    //   // Handle potential unique constraint violation for topic name if needed
-    //   if (insertError.code === '23505') { // Unique violation code
-    //      return new Response(JSON.stringify({ error: true, code: 'CONFLICT', message: 'A topic with this name already exists.' } as ErrorResponse), { status: 409 });
-    //   }
-    //   throw new Error("Failed to create topic in database.");
-    // }
-    // if (!newTopic) {
-    //    throw new Error("Database did not return the newly created topic.");
-    // }
-
-     // Simulate successful database insertion for now
-     const simulatedNewTopic: TopicResponseDto = {
-         id: crypto.randomUUID(), // Generate a new UUID
-         name: name,
-         created_at: new Date().toISOString(),
-         updated_at: new Date().toISOString(),
-     };
+    if (insertError) {
+      console.error("Supabase insert topic error:", insertError);
+      // Handle potential unique constraint violation for topic name if needed
+      if (insertError.code === '23505') { // Unique violation code
+         return new Response(JSON.stringify({ error: true, code: 'CONFLICT', message: 'A topic with this name already exists.' } as ErrorResponse), { status: 409 });
+      }
+      throw new Error("Failed to create topic in database.");
+    }
+    if (!newTopic) {
+       throw new Error("Database did not return the newly created topic.");
+    }
 
 
     // 4. Return Success Response
-    return new Response(JSON.stringify(simulatedNewTopic), {
+    return new Response(JSON.stringify(newTopic), {
       status: 201, // 201 Created
       headers: { "Content-Type": "application/json" },
     });
