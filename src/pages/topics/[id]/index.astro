@@ -9,8 +9,9 @@ const { id: topicId } = Astro.params;
 let topicData: TopicDetailDto | null = null;
 let error: string | null = null;
 
-if (!topicId || isNaN(parseInt(topicId, 10))) {
-  error = "Invalid Topic ID provided.";
+// Removed the isNaN(parseInt(topicId, 10)) check as topicId is now a UUID string
+if (!topicId) {
+  error = "Missing Topic ID in URL.";
   // Optionally redirect or handle error differently
   // return Astro.redirect('/topics');
 } else {
