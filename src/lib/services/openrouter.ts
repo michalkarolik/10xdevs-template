@@ -164,6 +164,101 @@ export class OpenRouterService {
     }
   }
 
-  // Metoda parseAndValidateResponse zostanie zaimplementowana w Kroku 5 (część 2)
-  // Metoda publiczna completeChat zostanie zaimplementowana w Kroku 6
+  private async parseAndValidateResponse<T extends z.ZodSchema | undefined>(
+    response: Response,
+    schema?: T
+  ): Promise<T extends z.ZodSchema ? z.infer<T> : string> {
+    let responseData: any;
+
+    // Sprawdzenie statusu odpowiedzi
+    if (!response.ok) {
+      let errorDetails: OpenRouterErrorResponse['error'] | undefined;
+      let errorMessage = `OpenRouter API Error: ${response.status} ${response.statusText}`;
+      try {
+        // Spróbuj sparsować ciało błędu, może zawierać więcej informacji
+        const errorBody = await response.json();
+        if (errorBody && typeof errorBody === 'object' && 'error' in errorBody) {
+          errorDetails = (errorBody as OpenRouterErrorResponse).error;
+          errorMessage = `OpenRouter API Error: ${errorDetails?.message || errorMessage}`;
+        }
+      } catch (parseError) {
+        // Ignoruj błąd parsowania ciała błędu, użyj domyślnej wiadomości
+        console.warn('Could not parse error response body:', parseError);
+      }
+      throw new OpenRouterAPIError(errorMessage, response.status, errorDetails);
+    }
+
+    // Parsowanie ciała odpowiedzi sukcesu
+    try {
+      responseData = await response.json();
+    } catch (error) {
+      console.error('Error parsing JSON response from OpenRouter:', error);
+      throw new ResponseParsingError('Failed to parse JSON response from OpenRouter API.', error);
+    }
+
+    // Wyodrębnienie treści wiadomości
+    // Standardowa odpowiedź OpenRouter/OpenAI ma strukturę: { choices: [{ message: { content: "..." } }] }
+    const messageContent = responseData?.choices?.[0]?.message?.content;
+
+    if (typeof messageContent !== 'string') {
+        console.error('Invalid response structure from OpenRouter:', responseData);
+        throw new ResponseParsingError('Invalid response structure: message content not found or not a string.');
+    }
+
+    // Walidacja schematem, jeśli został podany
+    if (schema) {
+      let parsedJsonContent: any;
+      try {
+        // Model zwraca JSON jako string w polu 'content', więc musimy go sparsować
+        parsedJsonContent = JSON.parse(messageContent);
+      } catch (error) {
+        console.error('Error parsing message content as JSON:', error);
+        console.error('Raw message content:', messageContent); // Logujemy surową zawartość do debugowania
+        throw new ResponseParsingError('Failed to parse message content as JSON. The AI might not have returned valid JSON.', error);
+      }
+
+      const validationResult = schema.safeParse(parsedJsonContent);
+
+      if (!validationResult.success) {
+        console.error('Schema validation failed:', validationResult.error.issues);
+        console.error('Parsed JSON content that failed validation:', parsedJsonContent); // Logujemy obiekt, który nie przeszedł walidacji
+        throw new SchemaValidationError(
+          'Response validation failed against the provided schema.',
+          validationResult.error.issues
+        );
+      }
+      // Zwracamy zwalidowane dane
+      return validationResult.data as z.infer<T>;
+    } else {
+      // Zwracamy surową treść tekstową, jeśli schemat nie był wymagany
+      return messageContent as (T extends z.ZodSchema ? never : string);
+    }
+  }
+
+  /**
+   * Główna metoda do wysyłania zapytania do modelu LLM.
+   * @param messages Tablica obiektów wiadomości.
+   * @param options Opcje żądania, w tym model, parametry i opcjonalny schemat odpowiedzi Zod.
+   * @returns Promise z obiektem zwalidowanym według schematu (jeśli podano responseSchema) lub string z odpowiedzią tekstową.
+   * @throws {OpenRouterConfigurationError} Błąd konfiguracji (np. brak klucza API).
+   * @throws {NetworkError} Błąd połączenia sieciowego z API.
+   * @throws {OpenRouterAPIError} Błąd zwrócony przez API OpenRouter (np. 4xx, 5xx).
+   * @throws {ResponseParsingError} Błąd parsowania odpowiedzi API (np. nieprawidłowy JSON).
+   * @throws {SchemaValidationError} Błąd walidacji odpowiedzi względem podanego schematu Zod.
+   */
+  public async completeChat<T extends z.ZodSchema | undefined = undefined>(
+    messages: Message[],
+    options?: RequestOptions & { responseSchema?: T }
+  ): Promise<T extends z.ZodSchema ? z.infer<T> : string> {
+    // Sprawdzenie podstawowe - czy są jakieś wiadomości
+    if (!messages || messages.length === 0) {
+        throw new OpenRouterConfigurationError("Messages array cannot be empty.");
+    }
+    // Można dodać bardziej szczegółową walidację wiadomości, np. czy jest rola 'user'
+
+    const requestBody = this.buildRequestBody(messages, options);
+    const response = await this.makeRequest(requestBody);
+    // Przekazujemy responseSchema do metody parseAndValidateResponse
+    return this.parseAndValidateResponse(response, options?.responseSchema);
+  }
 }
