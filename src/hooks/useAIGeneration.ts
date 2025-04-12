@@ -159,8 +159,8 @@ export const useAIGeneration = (topicId: string) => {
         return newState;
       });
 
-      // Redirect to the topic page after successful acceptance
-      window.location.href = `/topics/${topicId}`;
+      // Redirect to the topic page after successful acceptance - REMOVED to allow accepting multiple cards
+      // window.location.href = `/topics/${topicId}`;
 
     } catch (err) {
       console.error("[handleAccept] Error caught:", err); // Log caught error
