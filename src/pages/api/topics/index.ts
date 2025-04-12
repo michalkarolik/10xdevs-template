@@ -22,11 +22,17 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   // 2. Database Interaction
   try {
-    // Fetch topics for the user, including flashcard count
+    // Fetch topics for the user, including flashcard count using Supabase foreign table counting
     // Ensure RLS is set up for topics and flashcards
     const { data, error } = await locals.supabase
       .from('topics')
-      .select(`id, name, created_at, updated_at`)
+      .select(`
+        id,
+        name,
+        created_at,
+        updated_at,
+        flashcards ( count )
+      `)
       // .eq('user_id', user.id) // RLS should handle this automatically if configured
       .order('created_at', { ascending: false }); // Example ordering
 
@@ -35,13 +41,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
       throw new Error("Failed to fetch topics.");
     }
 
-    // Map data to DTO without flashcard_count aggregation
-    const topicsResponse: TopicsResponseDto = data?.map(topic => ({
-      id: topic.id,
-      name: topic.name,
-      created_at: topic.created_at,
-      updated_at: topic.updated_at,
-    })) || [];
+    // Map data to DTO, extracting the flashcard count
+    const topicsResponse: TopicsResponseDto = data?.map(topic => {
+      // Supabase returns the count in an array, handle potential null/undefined
+      // Ensure 'topic.flashcards' is treated as potentially holding the count structure
+      const flashcardCount = Array.isArray(topic.flashcards) && topic.flashcards.length > 0 && typeof topic.flashcards[0] === 'object' && topic.flashcards[0] !== null && 'count' in topic.flashcards[0]
+        ? topic.flashcards[0].count ?? 0
+        : 0;
+
+      return {
+        id: topic.id,
+        name: topic.name,
+        created_at: topic.created_at,
+        updated_at: topic.updated_at,
+        flashcard_count: flashcardCount, // Include the count
+      };
+    }) || [];
 
 
     // 3. Return Success Response
