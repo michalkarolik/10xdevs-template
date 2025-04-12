@@ -65,14 +65,18 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
   const showAcceptedCheck = suggestion.id === lastAcceptedId;
 
   return (
-    // Add relative positioning for the absolute checkmark overlay
-    <Card className={cn("shadow-md transition-opacity duration-500", showAcceptedCheck ? "opacity-50" : "opacity-100", "relative")}>
-      {/* Accepted Checkmark Overlay */}
-      {showAcceptedCheck && (
+    // Apply conditional border instead of overlay
+    <Card className={cn(
+      "shadow-md transition-all duration-300", // General transition
+      showAcceptedCheck ? "border-green-500 border-2" : "border-transparent border-2" // Conditional border
+      // Removed relative positioning as overlay is gone
+    )}>
+      {/* Removed Accepted Checkmark Overlay */}
+      {/* {showAcceptedCheck && (
         <div className="absolute inset-0 flex items-center justify-center bg-green-100/70 dark:bg-green-900/70 rounded-xl z-10 pointer-events-none">
           <CheckCircle className="h-16 w-16 text-green-500 dark:text-green-400 animate-pulse" />
         </div>
-      )}
+      )} */}
 
       <CardHeader className="pb-3"> {/* Reduced bottom padding */}
         <CardTitle className="text-lg">Suggested Flashcard</CardTitle> {/* Slightly smaller title */}
