@@ -46,11 +46,16 @@ export const useAIGeneration = (topicId: string) => {
 
     setIsLoading(true);
     setError(null);
-    console.log(`Generating flashcards for topic ${topicId}`);
+    console.log(`Generating flashcards for topic ${topicId} using new endpoint`);
 
     try {
-      const requestBody: FlashcardGenerateDto = { source_text: sourceText };
-      const response = await fetch(`/api/topics/${topicId}/generate`, {
+      // Prepare request body according to the new endpoint's schema
+      const requestBody = {
+        sourceText: sourceText,
+        topicId: topicId,
+        // count: 5 // Można dodać opcję wyboru liczby fiszek w UI i przekazać ją tutaj
+      };
+      const response = await fetch(`/api/ai/generate-flashcards`, { // Use the new endpoint
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
@@ -61,20 +66,22 @@ export const useAIGeneration = (topicId: string) => {
         throw new Error(errorMessage);
       }
 
-      const generatedData: FlashcardGeneratedResponseDto = await response.json();
+      // Expect response in the format { flashcards: [...] }
+      const generatedResponse: { flashcards: Array<{ front: string; back: string }> } = await response.json();
 
-      if (!Array.isArray(generatedData)) {
-         console.error("Invalid response format from generate API:", generatedData);
-         throw new Error("Received invalid data from server.");
+      if (!generatedResponse || !Array.isArray(generatedResponse.flashcards)) {
+         console.error("Invalid response format from generate API:", generatedResponse);
+         throw new Error("Received invalid data structure from server.");
       }
 
-      const newSuggestions: FlashcardSuggestionViewModel[] = generatedData.map((dto: FlashcardGeneratedDto) => ({
+      // Map the response to the updated ViewModel (without exceeds_limit)
+      const newSuggestions: FlashcardSuggestionViewModel[] = generatedResponse.flashcards.map((dto) => ({
         id: crypto.randomUUID(), // Generate client-side ID
         front: dto.front,
         back: dto.back,
-        exceeds_limit: dto.exceeds_limit,
+        // exceeds_limit is removed
         isEditing: false,
-        originalFront: dto.front, // Store original for potential revert/regenerate
+        originalFront: dto.front, // Store original for potential revert/edit
         originalBack: dto.back,
       }));
       setSuggestions(newSuggestions);

@@ -158,8 +158,8 @@ export interface FlashcardSuggestionViewModel {
   id: string; // Client-side unique ID
   front: string;
   back: string;
-  exceeds_limit: boolean;
+  // exceeds_limit: boolean; // Removed as it's not provided by the new endpoint
   isEditing: boolean;
-  originalFront?: string;
+  originalFront?: string; // Keep original values for editing/reverting
   originalBack?: string;
 }
