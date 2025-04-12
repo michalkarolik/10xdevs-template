@@ -15,23 +15,43 @@ import type {
 
 // Helper to handle API errors consistently
 const handleApiError = async (response: Response, defaultMessage: string): Promise<string> => {
-  if (response.ok) return defaultMessage; // Should not happen if called correctly, but safe check
+	if (response.ok) return defaultMessage; // Should not happen if called correctly, but safe check
 
-  try {
-    const errorData: ErrorResponse | { error: string } | { message: string } = await response.json();
-    if (typeof errorData === 'object' && errorData !== null) {
-      if ('message' in errorData && typeof errorData.message === 'string') {
-        return errorData.message;
-      }
-      if ('error' in errorData && typeof errorData.error === 'string') {
-         return errorData.error; // Handle simple error string responses too
-      }
-    }
-  } catch (e) {
-    // Ignore JSON parsing error, fall back to default message
-    console.error("Failed to parse error response:", e);
-  }
-  return `${defaultMessage} (Status: ${response.status})`;
+	try {
+		// Attempt to parse the error response body
+		const errorData: ErrorResponse | { error: string; details?: any } | { message: string } = await response.json();
+
+		if (typeof errorData === 'object' && errorData !== null) {
+			// Check for Zod validation errors (status 400 from our API)
+			if (response.status === 400 && 'error' in errorData && errorData.error === 'Invalid request body' && 'details' in errorData && Array.isArray(errorData.details) && errorData.details.length > 0) {
+				// Extract the message from the first Zod issue
+				const firstIssue = errorData.details[0];
+				if (firstIssue && typeof firstIssue.message === 'string') {
+					// Optionally include the field path:
+					// const fieldPath = firstIssue.path?.join('.') || '';
+					// return `Validation Error: ${fieldPath ? `${fieldPath}: ` : ''}${firstIssue.message}`;
+					return `Validation Error: ${firstIssue.message}`; // Return the specific validation message
+				}
+			}
+
+			// Check for standard { message: '...' } format
+			if ('message' in errorData && typeof errorData.message === 'string') {
+				return errorData.message;
+			}
+
+			// Check for simple { error: '...' } format
+			if ('error' in errorData && typeof errorData.error === 'string') {
+				return errorData.error;
+			}
+		}
+	} catch (e) {
+		// Ignore JSON parsing error, fall back to status text or default message
+		console.error("Failed to parse error response:", e);
+		return `${defaultMessage} (Status: ${response.status}${response.statusText ? ` - ${response.statusText}` : ''})`;
+	}
+
+	// Fallback if parsing failed or format was unexpected
+	return `${defaultMessage} (Status: ${response.status}${response.statusText ? ` - ${response.statusText}` : ''})`;
 };
 
 
