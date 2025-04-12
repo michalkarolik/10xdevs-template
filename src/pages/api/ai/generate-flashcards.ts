@@ -24,8 +24,9 @@ const FlashcardsResponseSchema = z.object({
 
 // Schemat dla ciała żądania POST
 const RequestBodySchema = z.object({
-  sourceText: z.string().min(10, "Source text must be at least 10 characters long.")
-                         .max(5000, "Source text cannot exceed 5000 characters."), // Przykładowa walidacja
+  sourceText: z.string()
+                         // Removed min(10) constraint to allow shorter inputs
+                         .max(5000, "Source text cannot exceed 5000 characters."),
   count: z.number().int().min(1, "Must generate at least 1 flashcard.")
                    .max(10, "Cannot generate more than 10 flashcards at once.") // Limituj liczbę generowanych fiszek
                    .optional().default(5),
