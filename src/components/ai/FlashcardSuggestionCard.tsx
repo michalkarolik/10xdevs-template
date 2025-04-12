@@ -76,16 +76,7 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
 
       <CardHeader className="pb-3"> {/* Reduced bottom padding */}
         <CardTitle className="text-lg">Suggested Flashcard</CardTitle> {/* Slightly smaller title */}
-        {/* Removed exceeds_limit alert as the field is gone */}
-        {/* {suggestion.exceeds_limit && !suggestion.isEditing && (
-           <Alert variant="destructive" className="mt-3 p-3"> {/* Adjusted margin and padding */}
-             <AlertTriangle className="h-4 w-4" />
-             <AlertTitle className="text-sm font-semibold">Character Limit Exceeded</AlertTitle> {/* Adjusted text size */}
-             <AlertDescription className="text-xs"> {/* Adjusted text size */}
-               The generated content exceeds the character limits. Please edit the card before accepting.
-             </AlertDescription>
-           </Alert>
-        )} */}
+        {/* The exceeds_limit alert block has been completely removed */}
       </CardHeader>
       <CardContent className="space-y-3 pt-0"> {/* Removed top padding, adjusted spacing */}
         {suggestion.isEditing ? (
