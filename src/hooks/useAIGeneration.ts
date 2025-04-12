@@ -159,23 +159,26 @@ export const useAIGeneration = (topicId: string) => {
         clearTimeout(acceptTimeoutRef.current);
       }
 
-      // Update accepted count and last accepted ID
+      // Update accepted count and last accepted ID to show the visual feedback
       setAcceptedCount(prev => prev + 1);
       setLastAcceptedId(suggestionId);
 
-      // Set timeout to clear the last accepted ID after 500ms
+      // Set timeout to clear the visual feedback AND remove the card after 500ms
       acceptTimeoutRef.current = setTimeout(() => {
-        setLastAcceptedId(null);
-        acceptTimeoutRef.current = null;
-      }, 500);
+        setLastAcceptedId(null); // Clear the visual feedback trigger
 
-      // Remove the accepted suggestion from the list *after* setting state for the checkmark
-      setSuggestions(prev => {
-        console.log(`[handleAccept] Updating suggestions state. Removing ID: ${suggestionId}`); // Log state update
-        const newState = prev.filter(s => s.id !== suggestionId);
-        console.log("[handleAccept] New suggestions state:", newState); // Log new state
-        return newState;
-      });
+        // Remove the accepted suggestion from the list *inside* the timeout
+        setSuggestions(prev => {
+          console.log(`[handleAccept] Removing suggestion ID: ${suggestionId} after timeout`); // Log removal
+          const newState = prev.filter(s => s.id !== suggestionId);
+          console.log("[handleAccept] New suggestions state after removal:", newState); // Log new state
+          return newState;
+        });
+
+        acceptTimeoutRef.current = null; // Clear the ref after execution
+      }, 500); // 500ms delay
+
+      // Note: The setSuggestions call that removes the card is now inside the setTimeout
 
     } catch (err) {
       console.error("[handleAccept] Error caught:", err); // Log caught error
