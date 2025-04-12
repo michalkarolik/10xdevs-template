@@ -85,7 +85,7 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
                The generated content exceeds the character limits. Please edit the card before accepting.
              </AlertDescription>
            </Alert>
-        )}
+        )} */}
       </CardHeader>
       <CardContent className="space-y-3 pt-0"> {/* Removed top padding, adjusted spacing */}
         {suggestion.isEditing ? (
