@@ -13,6 +13,7 @@ interface GeneratedFlashcardsDisplayProps {
   onEditToggle: (suggestionId: string) => void;
   onSaveEdit: (suggestionId: string, editedFront: string, editedBack: string) => void;
   onCancelEdit: (suggestionId: string) => void;
+  lastAcceptedId?: string | null; // Add prop for last accepted ID
 }
 
 const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
@@ -24,6 +25,7 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
   onEditToggle,
   onSaveEdit,
   onCancelEdit,
+  lastAcceptedId, // Destructure the new prop
 }) => {
   if (isLoading) {
     return (
@@ -69,6 +71,7 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
           onEditToggle={onEditToggle}
           onSaveEdit={onSaveEdit} // Pass down save handler
           onCancelEdit={onCancelEdit} // Pass down cancel handler
+          lastAcceptedId={lastAcceptedId} // Pass last accepted ID to card
         />
       ))}
     </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@/lib/utils"; // Import cn utility
 import {
   Card,
   CardContent,
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, Check, Edit, RefreshCw } from "lucide-react"; // Icons
+import { AlertTriangle, Check, Edit, RefreshCw, CheckCircle } from "lucide-react"; // Added CheckCircle
 import type { FlashcardSuggestionViewModel } from "@/types";
 // Placeholder for Edit Form - will be implemented later
 import FlashcardEditForm from './FlashcardEditForm';
@@ -21,6 +22,7 @@ interface FlashcardSuggestionCardProps {
   onEditToggle: (suggestionId: string) => void;
   onSaveEdit: (suggestionId: string, editedFront: string, editedBack: string) => void;
   onCancelEdit: (suggestionId: string) => void;
+  lastAcceptedId?: string | null; // Add prop for last accepted ID
 }
 
 const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
@@ -30,6 +32,7 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
   onEditToggle,
   onSaveEdit,
   onCancelEdit,
+  lastAcceptedId, // Destructure the new prop
 }) => {
   const handleAcceptClick = () => {
     onAccept(suggestion.id);
@@ -55,13 +58,26 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
   };
 
 
-  const isOkButtonDisabled = suggestion.exceeds_limit && !suggestion.isEditing;
+  // Removed isOkButtonDisabled calculation as exceeds_limit is no longer in ViewModel
+  // const isOkButtonDisabled = suggestion.exceeds_limit && !suggestion.isEditing;
+  const isOkButtonDisabled = false; // Re-enable button, limit check removed
+
+  const showAcceptedCheck = suggestion.id === lastAcceptedId;
 
   return (
-    <Card className="shadow-md"> {/* Added shadow */}
+    // Add relative positioning for the absolute checkmark overlay
+    <Card className={cn("shadow-md transition-opacity duration-500", showAcceptedCheck ? "opacity-50" : "opacity-100", "relative")}>
+      {/* Accepted Checkmark Overlay */}
+      {showAcceptedCheck && (
+        <div className="absolute inset-0 flex items-center justify-center bg-green-100/70 dark:bg-green-900/70 rounded-xl z-10 pointer-events-none">
+          <CheckCircle className="h-16 w-16 text-green-500 dark:text-green-400 animate-pulse" />
+        </div>
+      )}
+
       <CardHeader className="pb-3"> {/* Reduced bottom padding */}
         <CardTitle className="text-lg">Suggested Flashcard</CardTitle> {/* Slightly smaller title */}
-        {suggestion.exceeds_limit && !suggestion.isEditing && (
+        {/* Removed exceeds_limit alert as the field is gone */}
+        {/* {suggestion.exceeds_limit && !suggestion.isEditing && (
            <Alert variant="destructive" className="mt-3 p-3"> {/* Adjusted margin and padding */}
              <AlertTriangle className="h-4 w-4" />
              <AlertTitle className="text-sm font-semibold">Character Limit Exceeded</AlertTitle> {/* Adjusted text size */}

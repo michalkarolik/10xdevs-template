@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react"; // Import useRef
 import type {
   FlashcardSuggestionViewModel,
   FlashcardGeneratedDto,
@@ -60,6 +60,9 @@ export const useAIGeneration = (topicId: string) => {
   const [suggestions, setSuggestions] = useState<FlashcardSuggestionViewModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [acceptedCount, setAcceptedCount] = useState<number>(0); // State for accepted count
+  const [lastAcceptedId, setLastAcceptedId] = useState<string | null>(null); // State for last accepted ID
+  const acceptTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref for timeout
 
   const handleGenerate = useCallback(async () => {
     if (!sourceText || isLoading) return;
@@ -151,16 +154,28 @@ export const useAIGeneration = (topicId: string) => {
       await response.json(); // Consume body even if not used directly
       console.log(`[handleAccept] API call successful for ID: ${suggestionId}`); // Log success
 
-      // Remove the accepted suggestion from the list
+      // Clear previous timeout if exists
+      if (acceptTimeoutRef.current) {
+        clearTimeout(acceptTimeoutRef.current);
+      }
+
+      // Update accepted count and last accepted ID
+      setAcceptedCount(prev => prev + 1);
+      setLastAcceptedId(suggestionId);
+
+      // Set timeout to clear the last accepted ID after 500ms
+      acceptTimeoutRef.current = setTimeout(() => {
+        setLastAcceptedId(null);
+        acceptTimeoutRef.current = null;
+      }, 500);
+
+      // Remove the accepted suggestion from the list *after* setting state for the checkmark
       setSuggestions(prev => {
         console.log(`[handleAccept] Updating suggestions state. Removing ID: ${suggestionId}`); // Log state update
         const newState = prev.filter(s => s.id !== suggestionId);
         console.log("[handleAccept] New suggestions state:", newState); // Log new state
         return newState;
       });
-
-      // Redirect to the topic page after successful acceptance - REMOVED to allow accepting multiple cards
-      // window.location.href = `/topics/${topicId}`;
 
     } catch (err) {
       console.error("[handleAccept] Error caught:", err); // Log caught error
@@ -288,5 +303,7 @@ export const useAIGeneration = (topicId: string) => {
     handleEditToggle,
     handleSaveEdit,
     handleCancelEdit,
+    acceptedCount, // Return accepted count
+    lastAcceptedId, // Return last accepted ID
   };
 };

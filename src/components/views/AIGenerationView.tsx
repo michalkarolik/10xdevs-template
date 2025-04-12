@@ -20,11 +20,20 @@ const AIGenerationView: React.FC<AIGenerationViewProps> = ({ topicId }) => {
     handleEditToggle,
     handleSaveEdit,
     handleCancelEdit,
+    acceptedCount, // Get accepted count
+    lastAcceptedId, // Get last accepted ID
   } = useAIGeneration(topicId);
 
   return (
     // Adjusted spacing, added max-width and centering for the main content block
     <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto">
+      {/* Display Accepted Count */}
+      {acceptedCount > 0 && (
+        <div className="text-center text-green-600 dark:text-green-400 font-medium">
+          Accepted Flashcards: {acceptedCount}
+        </div>
+      )}
+
       <SourceTextInput
         sourceText={sourceText}
         onSourceTextChange={setSourceText}
@@ -43,6 +52,7 @@ const AIGenerationView: React.FC<AIGenerationViewProps> = ({ topicId }) => {
         onEditToggle={handleEditToggle}
         onSaveEdit={handleSaveEdit}
         onCancelEdit={handleCancelEdit}
+        lastAcceptedId={lastAcceptedId} // Pass last accepted ID down
       />
     </div>
   );
