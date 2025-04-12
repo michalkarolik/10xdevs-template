@@ -132,6 +132,9 @@ export const useAIGeneration = (topicId: string) => {
         return newState;
       });
 
+      // Redirect to the topic page after successful acceptance
+      window.location.href = `/topics/${topicId}`;
+
     } catch (err) {
       console.error("[handleAccept] Error caught:", err); // Log caught error
       setError(err instanceof Error ? err.message : "An unknown error occurred during acceptance.");
@@ -217,6 +220,9 @@ export const useAIGeneration = (topicId: string) => {
 
         // Remove the saved suggestion from the list
         setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
+
+        // Redirect to the topic page after successful save
+        window.location.href = `/topics/${topicId}`;
 
     } catch (err) {
         console.error("Saving edited suggestion failed:", err);
