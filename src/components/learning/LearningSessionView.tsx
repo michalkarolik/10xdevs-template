@@ -42,7 +42,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
       };
 
       fetchFlashcards();
-  }, [topicId]);
+  }, [topicId]); // Remove this line
+  }, [topicId]); // This line should be kept
 
   const handleResponse = async (flashcardId, response) => {
       // Save user response
