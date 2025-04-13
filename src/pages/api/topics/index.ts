@@ -41,6 +41,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
       throw new Error("Failed to fetch topics.");
     }
 
+    console.log("Raw Supabase data for topics:", JSON.stringify(data, null, 2)); // Log the raw data
+
     // Map data to DTO, extracting the flashcard count
     const topicsResponse: TopicsResponseDto = data?.map(topic => {
       // Supabase returns the count as an object like { count: N } when using `related_table(count)`
