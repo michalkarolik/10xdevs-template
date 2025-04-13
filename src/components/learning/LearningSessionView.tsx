@@ -15,6 +15,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     topics,
     selectedTopicId,
     selectedTopicName,
+    flashcards, // Add flashcards to destructuring
     currentCard,
     currentCardIndex,
     sessionState,
