@@ -43,10 +43,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     // Map data to DTO, extracting the flashcard count
     const topicsResponse: TopicsResponseDto = data?.map(topic => {
-      // Supabase returns the count in an array, handle potential null/undefined
-      // Ensure 'topic.flashcards' is treated as potentially holding the count structure
-      const flashcardCount = Array.isArray(topic.flashcards) && topic.flashcards.length > 0 && typeof topic.flashcards[0] === 'object' && topic.flashcards[0] !== null && 'count' in topic.flashcards[0]
-        ? topic.flashcards[0].count ?? 0
+      // Supabase returns the count as an object like { count: N } when using `related_table(count)`
+      // Ensure 'topic.flashcards' is treated as this object.
+      const flashcardCount = (typeof topic.flashcards === 'object' && topic.flashcards !== null && 'count' in topic.flashcards)
+        ? topic.flashcards.count ?? 0
         : 0;
 
       return {
