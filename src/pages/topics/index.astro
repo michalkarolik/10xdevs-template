@@ -1,8 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import TopicsPage from './index.tsx';
+
+// Define breadcrumbs for this page
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Topics" }, // Last item doesn't need href
+];
 ---
 
-<Layout title="Topics | AI Flashcard Generator">
+<Layout title="Topics | AI Flashcard Generator" breadcrumbs={breadcrumbs}>
+  {/* Removed redundant container/padding as Layout provides it */}
+  {/* Removed h1 as breadcrumbs provide context */}
   <TopicsPage client:load />
 </Layout>
