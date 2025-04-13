@@ -1,8 +1,21 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import { Button } from "@/components/ui/button"; // Import Button for styling links
 ---
 
 <Layout>
-  <Welcome />
+  <main class="container mx-auto px-4 py-12 flex flex-col items-center space-y-8">
+    <h1 class="text-3xl font-bold text-center">Flashcard App</h1>
+    <p class="text-lg text-muted-foreground text-center max-w-md">
+      Zarządzaj swoimi tematami i fiszkami lub rozpocznij sesję nauki.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a href="/topics">
+        <Button size="lg">Zarządzaj Tematami</Button>
+      </a>
+      <a href="/learning-session"> {/* Placeholder link */}
+        <Button size="lg" variant="secondary">Rozpocznij Sesję Nauki</Button>
+      </a>
+    </div>
+  </main>
 </Layout>
