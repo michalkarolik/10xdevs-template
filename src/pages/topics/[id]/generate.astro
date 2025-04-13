@@ -1,19 +1,52 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import AIGenerationView from "@/components/views/AIGenerationView"; // Assuming React component
+import type { TopicResponseDto } from "@/types"; // Import type for topic data
 
-const { id } = Astro.params;
+const { id: topicId } = Astro.params; // Renamed to topicId for clarity
 
-if (!id) {
+if (!topicId) {
   // Handle missing ID, maybe redirect or show error
   return Astro.redirect("/topics"); // Example redirect
 }
+
+// Fetch topic name for breadcrumbs
+let topicName = "Loading...";
+let fetchError = null;
+try {
+  // Use the same API endpoint as the topic detail page
+  const response = await fetch(`${Astro.url.origin}/api/topics/${topicId}`);
+  if (response.ok) {
+    const topicData: TopicResponseDto = await response.json(); // Use TopicResponseDto or similar
+    topicName = topicData?.name ?? "Unknown Topic";
+  } else {
+     fetchError = `Failed to fetch topic name (Status: ${response.status})`;
+     topicName = "Error";
+     console.error(fetchError); // Log the error
+  }
+} catch (e) {
+   console.error("Error fetching topic name for breadcrumbs:", e);
+   fetchError = "Error fetching topic name.";
+   topicName = "Error";
+}
+
+
+// Define breadcrumbs
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Topics", href: "/topics" },
+  // Link back to topic details, handle error case for label
+  { label: fetchError ? "Error" : topicName, href: `/topics/${topicId}` },
+  { label: "Generate" }, // Current page
+];
 ---
 
-<Layout title={`Generate Flashcards for Topic ${id}`}>
-  {/* Added max-w-4xl for better readability on large screens, adjusted padding and margin */}
-  <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10">
-    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center md:text-left">Generate Flashcards with AI</h1>
-    <AIGenerationView client:load topicId={id} />
-  </div>
+<Layout title={`Generate Flashcards for Topic ${topicName === "Loading..." || fetchError ? topicId : topicName}`} breadcrumbs={breadcrumbs}>
+  {/* Removed redundant container/padding as Layout provides it */}
+  {/* <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10"> */}
+    {/* Removed h1 as breadcrumbs provide context */}
+    {/* <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center md:text-left">Generate Flashcards with AI</h1> */}
+    {fetchError && <p class="text-destructive mb-4">{fetchError}</p>} {/* Display fetch error if any */}
+    <AIGenerationView client:load topicId={topicId} />
+  {/* </div> */}
 </Layout>

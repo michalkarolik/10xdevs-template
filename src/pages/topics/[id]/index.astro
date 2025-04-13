@@ -48,10 +48,19 @@ if (!topicId) {
     error = "An unexpected error occurred while loading topic data.";
   }
 }
+
+// Define breadcrumbs dynamically after fetching data
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Topics", href: "/topics" },
+  // Use topic name if available, otherwise show placeholder or error
+  { label: topicData ? topicData.name : (error ? "Error" : "Loading...") },
+];
 ---
 
-<Layout title={topicData ? `Topic: ${topicData.name}` : (error ? 'Error' : 'Loading Topic...')}>
-  <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10">
+<Layout title={topicData ? `Topic: ${topicData.name}` : (error ? 'Error' : 'Loading Topic...')} breadcrumbs={breadcrumbs}>
+  {/* Removed redundant container/padding as Layout provides it */}
+  {/* <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10"> */}
     {error && (
       <div class="bg-destructive/10 border border-destructive text-destructive p-4 rounded mb-6">
         <h2 class="font-bold">Error</h2>
@@ -127,5 +136,5 @@ if (!topicId) {
          <p>Loading topic data...</p> {/* Or a spinner component */}
        </div>
      )}
-  </div>
+  {/* </div> */}
 </Layout>
