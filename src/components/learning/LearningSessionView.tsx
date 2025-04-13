@@ -42,7 +42,6 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
       };
 
       fetchFlashcards();
-  }, [topicId]); // Remove this line
   }, [topicId]); // This line should be kept
 
   const handleResponse = async (flashcardId, response) => {
@@ -65,7 +64,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     useEffect(() => {
       startSession(topicId);
     }, [topicId]);
-  }, [topicId]);
+  }, [topicId]); // Correctly close the useEffect hook
 
   // Topic Selection View
   if (sessionState === SessionState.SELECTING_TOPIC) {
