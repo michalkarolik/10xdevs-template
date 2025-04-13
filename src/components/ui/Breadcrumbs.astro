@@ -32,3 +32,37 @@ const { items } = Astro.props;
     </ol>
   </nav>
 )}
+---
+// src/components/ui/Breadcrumbs.astro
+import { ChevronRight } from 'lucide-react';
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string; // Optional href for the last item or non-link items
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{items && items.length > 0 && (
+  <nav aria-label="Breadcrumb" class="mb-6 text-sm text-muted-foreground">
+    <ol class="flex items-center space-x-1.5">
+      {items.map((item, index) => (
+        <li class="flex items-center">
+          {index > 0 && <ChevronRight className="h-4 w-4 mx-1.5" />}
+          {item.href ? (
+            <a href={item.href} class="hover:text-foreground hover:underline underline-offset-2">
+              {item.label}
+            </a>
+          ) : (
+            <span class="font-medium text-foreground">{item.label}</span> // Last item is not a link
+          )}
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
