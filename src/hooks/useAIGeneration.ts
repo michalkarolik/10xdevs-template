@@ -29,8 +29,8 @@ const handleApiError = async (response: Response, defaultMessage: string): Promi
 				if (firstIssue && typeof firstIssue.message === 'string') {
 					// Optionally include the field path:
 					// const fieldPath = firstIssue.path?.join('.') || '';
-					// return `Validation Error: ${fieldPath ? `${fieldPath}: ` : ''}${firstIssue.message}`;
-					return `Validation Error: ${firstIssue.message}`; // Return the specific validation message
+					// return `Błąd walidacji: ${fieldPath ? `${fieldPath}: ` : ''}${firstIssue.message}`;
+					return `Błąd walidacji: ${firstIssue.message}`; // Return the specific validation message
 				}
 			}
 
@@ -46,7 +46,7 @@ const handleApiError = async (response: Response, defaultMessage: string): Promi
 		}
 	} catch (e) {
 		// Ignore JSON parsing error, fall back to status text or default message
-		console.error("Failed to parse error response:", e);
+		console.error("Nie udało się sparsować odpowiedzi błędu:", e);
 		return `${defaultMessage} (Status: ${response.status}${response.statusText ? ` - ${response.statusText}` : ''})`;
 	}
 
@@ -85,7 +85,7 @@ export const useAIGeneration = (topicId: string) => {
       });
 
       if (!response.ok) {
-        const errorMessage = await handleApiError(response, 'Failed to generate flashcards');
+        const errorMessage = await handleApiError(response, 'Nie udało się wygenerować fiszek');
         throw new Error(errorMessage);
       }
 
@@ -94,7 +94,7 @@ export const useAIGeneration = (topicId: string) => {
 
       if (!generatedResponse || !Array.isArray(generatedResponse.flashcards)) {
          console.error("Invalid response format from generate API:", generatedResponse);
-         throw new Error("Received invalid data structure from server.");
+         throw new Error("Otrzymano nieprawidłową strukturę danych z serwera.");
       }
 
       // Map the response to the updated ViewModel (without exceeds_limit)
@@ -110,8 +110,8 @@ export const useAIGeneration = (topicId: string) => {
       setSuggestions(newSuggestions);
 
     } catch (err) {
-      console.error("Generation failed:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred during generation.");
+      console.error("Generowanie nie powiodło się:", err);
+      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd podczas generowania.");
       setSuggestions([]); // Clear suggestions on error
     } finally {
       setIsLoading(false);
@@ -123,9 +123,7 @@ export const useAIGeneration = (topicId: string) => {
     setError(null);
     const suggestionToAccept = suggestions.find(s => s.id === suggestionId);
     if (!suggestionToAccept) {
-        setError("Suggestion not found.");
-        setIsLoading(false);
-        setError("Suggestion not found.");
+        setError("Nie znaleziono sugestii.");
         setIsLoading(false);
         return;
     }
@@ -144,7 +142,7 @@ export const useAIGeneration = (topicId: string) => {
       });
 
       if (!response.ok) {
-        const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
+        const errorMessage = await handleApiError(response, 'Nie udało się zaakceptować sugestii');
         // Removed duplicate declaration of errorMessage
         console.error(`[handleAccept] API call failed for ID: ${suggestionId}. Status: ${response.status}`); // Log API failure
         throw new Error(errorMessage);
@@ -182,7 +180,7 @@ export const useAIGeneration = (topicId: string) => {
 
     } catch (err) {
       console.error("[handleAccept] Error caught:", err); // Log caught error
-      setError(err instanceof Error ? err.message : "An unknown error occurred during acceptance.");
+      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd podczas akceptacji.");
     } finally {
       setIsLoading(false); // Ensure loading state is reset
     }
@@ -193,12 +191,11 @@ export const useAIGeneration = (topicId: string) => {
      setError(null);
      const suggestionToRegenerate = suggestions.find(s => s.id === suggestionId);
      if (!suggestionToRegenerate || !suggestionToRegenerate.originalFront || !suggestionToRegenerate.originalBack) {
-         setError("Suggestion data incomplete for regeneration.");
-         setIsLoading(false);
+         setError("Dane sugestii niekompletne do regeneracji.");
          setIsLoading(false);
          return;
      }
-     console.log(`Regenerating suggestion ${suggestionId}`);
+     console.log(`Regenerowanie sugestii ${suggestionId}`);
 
      try {
         const requestBody: FlashcardGenerateAlternativeDto = {
@@ -213,7 +210,7 @@ export const useAIGeneration = (topicId: string) => {
         });
 
         if (!response.ok) {
-            const errorMessage = await handleApiError(response, 'Failed to regenerate suggestion');
+            const errorMessage = await handleApiError(response, 'Nie udało się wygenerować ponownie sugestii');
             throw new Error(errorMessage);
         }
 
@@ -223,11 +220,11 @@ export const useAIGeneration = (topicId: string) => {
         setSuggestions(prev => prev.map(s =>
             s.id === suggestionId
                  ? { ...s, front: regeneratedData.front, back: regeneratedData.back, exceeds_limit: regeneratedData.exceeds_limit, originalFront: regeneratedData.front, originalBack: regeneratedData.back, isEditing: false }
-                 : s // Corrected ternary operator - removed duplicate logic
+                 : s
          ));
      } catch (err) {
-         console.error("Regeneration failed:", err);
-         setError(err instanceof Error ? err.message : "An unknown error occurred during regeneration.");
+         console.error("Regeneracja nie powiodła się:", err);
+         setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd podczas regeneracji.");
      } finally {
          setIsLoading(false);
      }
@@ -242,7 +239,7 @@ export const useAIGeneration = (topicId: string) => {
   const handleSaveEdit = useCallback(async (suggestionId: string, editedFront: string, editedBack: string) => {
     setIsLoading(true); // Consider more granular loading
     setError(null);
-    console.log(`Saving edited suggestion ${suggestionId}`);
+    console.log(`Zapisywanie edytowanej sugestii ${suggestionId}`);
 
     try {
         const requestBody: FlashcardAcceptEditedDto = {
@@ -256,7 +253,7 @@ export const useAIGeneration = (topicId: string) => {
         });
 
         if (!response.ok) {
-            const errorMessage = await handleApiError(response, 'Failed to save edited suggestion');
+            const errorMessage = await handleApiError(response, 'Nie udało się zapisać edytowanej sugestii');
             throw new Error(errorMessage);
         }
 
@@ -270,8 +267,8 @@ export const useAIGeneration = (topicId: string) => {
         window.location.href = `/topics/${topicId}`;
 
     } catch (err) {
-        console.error("Saving edited suggestion failed:", err);
-        setError(err instanceof Error ? err.message : "An unknown error occurred while saving.");
+        console.error("Zapisywanie edytowanej sugestii nie powiodło się:", err);
+        setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd podczas zapisywania.");
     } finally {
         setIsLoading(false);
     }

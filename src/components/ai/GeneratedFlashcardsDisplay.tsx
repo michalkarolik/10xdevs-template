@@ -31,7 +31,7 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
     return (
       <div className="flex justify-center items-center py-10">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Generating suggestions...</span>
+        <span className="ml-2">Generowanie sugestii...</span>
       </div>
     );
   }
@@ -40,7 +40,7 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
+        <AlertTitle>Błąd</AlertTitle>
         <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
@@ -50,9 +50,9 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
     return (
       <Alert>
         <Info className="h-4 w-4" />
-        <AlertTitle>No Suggestions</AlertTitle>
+        <AlertTitle>Brak sugestii</AlertTitle>
         <AlertDescription>
-          No flashcard suggestions were generated. Try modifying your source text or generating again.
+          Nie wygenerowano żadnych sugestii fiszek. Spróbuj zmodyfikować tekst źródłowy lub wygenerować ponownie.
         </AlertDescription>
       </Alert>
     );
@@ -61,7 +61,7 @@ const GeneratedFlashcardsDisplay: React.FC<GeneratedFlashcardsDisplayProps> = ({
   return (
     // Added margin top, adjusted internal spacing
     <div className="space-y-6 mt-8">
-      <h2 className="text-xl font-semibold border-b pb-2">Generated Suggestions</h2>
+      <h2 className="text-xl font-semibold border-b pb-2">Wygenerowane sugestie</h2>
       {suggestions.map((suggestion) => (
         <FlashcardSuggestionCard
           key={suggestion.id} // Client-side ID is fine for key here

@@ -30,7 +30,7 @@ const AIGenerationView: React.FC<AIGenerationViewProps> = ({ topicId }) => {
       {/* Display Accepted Count */}
       {acceptedCount > 0 && (
         <div className="text-center text-green-600 dark:text-green-400 font-medium">
-          Accepted Flashcards: {acceptedCount}
+          Zaakceptowane fiszki: {acceptedCount}
         </div>
       )}
 

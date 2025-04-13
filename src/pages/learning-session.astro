@@ -23,15 +23,15 @@ try {
 }
 ---
 
-<Layout title="Learning Session">
+<Layout title="Sesja Nauki">
   <main class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-center">Learning Session</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center">Sesja Nauki</h1>
 
     {fetchError && (
       <div class="text-center text-red-500 mb-6">
-        <p>Could not load topics: {fetchError}</p>
+        <p>Nie można załadować tematów: {fetchError}</p>
         <a href="/learning-session">
-          <Button variant="outline" class="mt-2">Retry</Button>
+          <Button variant="outline" class="mt-2">Spróbuj ponownie</Button>
         </a>
       </div>
     )}
