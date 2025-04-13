@@ -25,6 +25,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     resetSession,
   } = useLearningSession(initialTopics);
 
+  console.log('[LearningSessionView] Rendering with state:', sessionState, 'Selected Topic ID:', selectedTopicId, 'Current Card:', currentCard); // Add logging
+
   const handleTopicChange = (topicId: string) => {
     startSession(topicId);
   };
