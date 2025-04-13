@@ -61,8 +61,10 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
           await saveFlashcardResponse(sessionId, flashcardId, response);
       }
   };
-    startSession(topicId);
-  };
+    useEffect(() => {
+      startSession(topicId);
+    }, [topicId]);
+  }, [topicId]);
 
   // Topic Selection View
   if (sessionState === SessionState.SELECTING_TOPIC) {
