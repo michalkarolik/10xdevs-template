@@ -51,13 +51,26 @@ CREATE INDEX idx_flashcards_topic_id ON flashcards(topic_id);
 
 ## 5. Design Notes
 
-### learning_session
+### learning_sessions
 | Column        | Type   | Constraints                                   | Description                                      |
 |---------------|--------|-----------------------------------------------|--------------------------------------------------|
-| id            | uuid   | PRIMARY KEY, DEFAULT uuid_generate_v4()      | Unique identifier for the learning session entry |
+| id            | uuid   | PRIMARY KEY, DEFAULT uuid_generate_v4()      | Unique identifier for the learning session       |
+| user_id       | uuid   | NOT NULL, REFERENCES users(id) ON DELETE CASCADE | Foreign key referencing the user                  |
+| created_at    | timestamptz | NOT NULL, DEFAULT now()                  | When the learning session was created            |
+
+### learning_session_flashcards
+| Column        | Type   | Constraints                                   | Description                                      |
+|---------------|--------|-----------------------------------------------|--------------------------------------------------|
+| id            | uuid   | PRIMARY KEY, DEFAULT uuid_generate_v4()      | Unique identifier for the learning session flashcard entry |
+| learning_session_id | uuid | NOT NULL, REFERENCES learning_sessions(id) ON DELETE CASCADE | Foreign key referencing the learning session      |
 | flashcard_id  | uuid   | NOT NULL, REFERENCES flashcards(id) ON DELETE CASCADE | Foreign key referencing the flashcard            |
 | user_response  | text   | NOT NULL CHECK (user_response IN ('Again', 'Hard', 'Easy')) | User's response to the flashcard                 |
 | created_at    | timestamptz | NOT NULL, DEFAULT now()                  | When the response was recorded                   |
+
+### 6. Indexes
+CREATE INDEX idx_learning_sessions_user_id ON learning_sessions(user_id);
+CREATE INDEX idx_learning_session_flashcards_learning_session_id ON learning_session_flashcards(learning_session_id);
+CREATE INDEX idx_learning_session_flashcards_flashcard_id ON learning_session_flashcards(flashcard_id);
 
 ### 6. Indexes
 CREATE INDEX idx_learning_session_flashcard_id ON learning_session(flashcard_id);
