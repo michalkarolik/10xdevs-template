@@ -12,7 +12,7 @@ interface LearningSessionViewProps {
 }
 
 const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics }) => {
-    const [flashcards, setFlashcards] = useState([]);
+    const [userFlashcards, setFlashcards] = useState([]);
     const [userResponses, setUserResponses] = useState({});
   const {
     topics,
@@ -38,7 +38,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
       const fetchFlashcards = async () => {
           const response = await fetch(`/api/flashcards?topicId=${topicId}`);
           const data = await response.json();
-          setFlashcards(data);
+          setUserFlashcards(data);
       };
 
       fetchFlashcards();
@@ -142,7 +142,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
   // Flashcard Display View (SHOWING_FRONT or SHOWING_BACK)
   if (currentCard && (sessionState === SessionState.SHOWING_FRONT || sessionState === SessionState.SHOWING_BACK)) {
-    const totalCards = flashcards.length;
+    const totalCards = userFlashcards.length;
     return (
       <Card className="max-w-lg mx-auto">
         <CardHeader>
