@@ -71,7 +71,7 @@ export interface FlashcardGenerateDto {
 export interface FlashcardGeneratedDto {
   front: string;
   back: string;
-  exceeds_limit: boolean;
+  // exceeds_limit: boolean; // Removed
 }
 
 export type FlashcardGeneratedResponseDto = FlashcardGeneratedDto[];
@@ -90,13 +90,13 @@ export interface FlashcardAcceptDto {
 }
 
 export interface FlashcardAcceptResponseDto extends Pick<Flashcard, "id" | "front" | "back" | "created_at" | "updated_at"> {
-  source: FlashcardSource;
+  source: FlashcardSource; // Source is determined by the API endpoint logic
 }
 
 export type FlashcardAcceptEditedDto = FlashcardAcceptDto;
 
 export interface FlashcardAcceptEditedResponseDto extends Pick<Flashcard, "id" | "front" | "back" | "created_at" | "updated_at"> {
-  source: FlashcardSource;
+  source: FlashcardSource; // Source is determined by the API endpoint logic
 }
 
 /**
