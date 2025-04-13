@@ -26,16 +26,13 @@ const { title = "10x Astro Starter", breadcrumbs = [] } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  {/* Add base body styles */}
+  <!-- Add base body styles -->
   <body class="min-h-screen bg-background font-sans antialiased">
-    {/* Add a container for consistent padding and layout */}
+    <!-- Add a container for consistent padding and layout -->
     <div class="container mx-auto px-4 py-6">
-      {/* Add a temporary border for debugging breadcrumbs rendering */}
-      <div class="border border-dashed border-red-500 mb-4">
-        <Breadcrumbs items={breadcrumbs} />
-        {/* Display a debug message if no breadcrumbs are passed - REMOVED */}
-      </div>
-      {/* Render the page content */}
+      <!-- Render breadcrumbs if items are provided -->
+      <Breadcrumbs items={breadcrumbs} />
+      <!-- Render the page content -->
       <slot />
     </div>
   </body>
