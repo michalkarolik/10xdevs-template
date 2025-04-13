@@ -64,7 +64,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
   useEffect(() => {
       startSession(topicId);
     }, [topicId]);
-  }, [topicId]); // Remove this line
+  }, [topicId]); // Correctly close the useEffect hook
 
   // Topic Selection View
   if (sessionState === SessionState.SELECTING_TOPIC) {
