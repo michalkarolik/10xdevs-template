@@ -27,32 +27,53 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
   }, [topics, selectedTopicId]);
 
   const startSession = useCallback(async (topicId: string) => {
-    if (!topicId) return;
-    setSelectedTopicId(topicId);
+    console.log('[useLearningSession] startSession called with topicId:', topicId);
+    if (!topicId) {
+      console.log('[useLearningSession] topicId is empty, returning.');
+      return;
+    }
+    setSelectedTopicId(topicId); // Set selected topic ID immediately
     setSessionState(SessionState.LOADING_FLASHCARDS);
     setError(null);
     setFlashcards([]);
     setCurrentCardIndex(0);
 
+    setCurrentCardIndex(0);
+    console.log('[useLearningSession] State set to LOADING_FLASHCARDS for topic:', topicId);
+
     try {
+      console.log(`[useLearningSession] Fetching flashcards from: /api/topics/${topicId}`);
       // Fetch flashcards for the selected topic
       // Assuming API endpoint /api/topics/[topic_id] returns TopicDetailDto which includes flashcards
       const response = await fetch(`/api/topics/${topicId}`);
+      console.log('[useLearningSession] Fetch response status:', response.status);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Failed to fetch flashcards: ${response.status} ${errorData?.error || response.statusText}`);
+        let errorText = response.statusText;
+        try {
+          const errorData = await response.json();
+          errorText = errorData?.error || errorText;
+          console.error('[useLearningSession] Fetch error data:', errorData);
+        } catch {
+          // Ignore if response body is not JSON
+        }
+        throw new Error(`Failed to fetch flashcards: ${response.status} ${errorText}`);
       }
+
       const topicDetail: TopicDetailDto = await response.json();
+      console.log('[useLearningSession] Fetched topic detail:', topicDetail);
 
       if (!topicDetail.flashcards || topicDetail.flashcards.length === 0) {
+        console.log('[useLearningSession] Topic has no flashcards.');
         throw new Error("This topic has no flashcards to study.");
       }
 
+      console.log(`[useLearningSession] Found ${topicDetail.flashcards.length} flashcards. Setting state to SHOWING_FRONT.`);
       // TODO: Implement shuffling later if needed
       setFlashcards(topicDetail.flashcards);
       setSessionState(SessionState.SHOWING_FRONT);
     } catch (err) {
-      console.error("Error starting session:", err);
+      console.error("[useLearningSession] Error starting session:", err);
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
       setSessionState(SessionState.ERROR);
     }
