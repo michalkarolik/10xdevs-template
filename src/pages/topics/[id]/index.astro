@@ -59,8 +59,8 @@ const breadcrumbs = [
 ---
 
 <Layout title={topicData ? `Topic: ${topicData.name}` : (error ? 'Error' : 'Loading Topic...')} breadcrumbs={breadcrumbs}>
-  {/* Removed redundant container/padding as Layout provides it */}
-  {/* <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10"> */}
+  {/* Wrap content in a div with max-width to prevent stretching */}
+  <div class="max-w-4xl mx-auto">
     {error && (
       <div class="bg-destructive/10 border border-destructive text-destructive p-4 rounded mb-6">
         <h2 class="font-bold">Error</h2>
@@ -136,5 +136,5 @@ const breadcrumbs = [
          <p>Loading topic data...</p> {/* Or a spinner component */}
        </div>
      )}
-  {/* </div> */}
+  </div>
 </Layout>
