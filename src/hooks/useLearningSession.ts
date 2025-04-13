@@ -33,17 +33,20 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
       return;
     }
     setSelectedTopicId(topicId); // Set selected topic ID immediately
+    console.log('[useLearningSession] DEBUG: Setting state directly to ERROR for testing re-render.');
+    setError("DEBUG: Testing state update.");
+    setSessionState(SessionState.ERROR); // Directly set to ERROR state for testing
+    return; // Skip the fetch logic for now
+
+    /* --- Original Fetch Logic (Temporarily Disabled) ---
     setSessionState(SessionState.LOADING_FLASHCARDS);
     setError(null);
     setFlashcards([]);
-    setCurrentCardIndex(0);
-
     setCurrentCardIndex(0);
     console.log('[useLearningSession] State set to LOADING_FLASHCARDS for topic:', topicId);
 
     try {
       console.log(`[useLearningSession] Fetching flashcards from: /api/topics/${topicId}`);
-      // Fetch flashcards for the selected topic
       // Assuming API endpoint /api/topics/[topic_id] returns TopicDetailDto which includes flashcards
       const response = await fetch(`/api/topics/${topicId}`);
       console.log('[useLearningSession] Fetch response status:', response.status);
@@ -77,8 +80,9 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
       setSessionState(SessionState.ERROR);
     }
-    // Add state setters to dependency array for useCallback
-  }, [setSelectedTopicId, setSessionState, setError, setFlashcards, setCurrentCardIndex]);
+    */ // --- End of Temporarily Disabled Logic ---
+
+  }, [setSelectedTopicId, setSessionState, setError]); // Adjusted dependencies for the simplified test
 
   const showAnswer = useCallback(() => {
     if (sessionState === SessionState.SHOWING_FRONT) {
