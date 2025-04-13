@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLearningSession, SessionState } from '@/hooks/useLearningSession';
 import type { TopicSummaryDto } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react'; // Icons
+import { createLearningSession, saveFlashcardResponse } from '@/lib/api'; // Import API functions
 
 interface LearningSessionViewProps {
   initialTopics: TopicSummaryDto[];
 }
 
 const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics }) => {
+    const [flashcards, setFlashcards] = useState([]);
+    const [userResponses, setUserResponses] = useState({});
   const {
     topics,
     selectedTopicId,
@@ -28,7 +31,36 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
   console.log('[LearningSessionView] Rendering with state:', sessionState, 'Selected Topic ID:', selectedTopicId, 'Current Card:', currentCard); // Add logging
 
-  const handleTopicChange = (topicId: string) => {
+  const { topicId } = useParams(); // Get topic ID from URL
+
+  useEffect(() => {
+      // Fetch flashcards based on the selected topic
+      const fetchFlashcards = async () => {
+          const response = await fetch(`/api/flashcards?topicId=${topicId}`);
+          const data = await response.json();
+          setFlashcards(data);
+      };
+
+      fetchFlashcards();
+  }, [topicId]);
+
+  const handleResponse = async (flashcardId, response) => {
+      // Save user response
+      setUserResponses((prev) => ({ ...prev, [flashcardId]: response }));
+
+      // Save response to the database
+      await saveFlashcardResponse(flashcardId, response);
+  };
+
+  const handleSessionEnd = async () => {
+      // Create a new learning session
+      const sessionId = await createLearningSession();
+
+      // Save all user responses
+      for (const [flashcardId, response] of Object.entries(userResponses)) {
+          await saveFlashcardResponse(sessionId, flashcardId, response);
+      }
+  };
     startSession(topicId);
   };
 
@@ -100,7 +132,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
           <CardDescription>You have reviewed all cards for {selectedTopicName}.</CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button onClick={resetSession}>
+          <Button onClick={handleSessionEnd}>
             <RotateCcw className="mr-2 h-4 w-4" /> Start New Session
           </Button>
         </CardFooter>
