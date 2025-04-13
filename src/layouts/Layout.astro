@@ -1,11 +1,20 @@
 ---
 import "../styles/global.css";
+import Breadcrumbs from "@/components/ui/Breadcrumbs.astro"; // Import the Breadcrumbs component
+
+// Define the structure for a breadcrumb item
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
 
 interface Props {
   title?: string;
+  breadcrumbs?: BreadcrumbItem[]; // Add breadcrumbs prop to the interface
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+// Set default title and default breadcrumbs to an empty array
+const { title = "10x Astro Starter", breadcrumbs = [] } = Astro.props;
 ---
 
 <!doctype html>
@@ -17,8 +26,19 @@ const { title = "10x Astro Starter" } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body>
-    <slot />
+  {/* Add base body styles */}
+  <body class="min-h-screen bg-background font-sans antialiased">
+    {/* Add a container for consistent padding and layout */}
+    <div class="container mx-auto px-4 py-6">
+      {/* Add a temporary border for debugging breadcrumbs rendering */}
+      <div class="border border-dashed border-red-500 mb-4">
+        <Breadcrumbs items={breadcrumbs} />
+        {/* Display a debug message if no breadcrumbs are passed */}
+        { breadcrumbs && breadcrumbs.length === 0 && <p class="text-xs text-red-500 p-1">Debug: No breadcrumbs passed to layout.</p> }
+      </div>
+      {/* Render the page content */}
+      <slot />
+    </div>
   </body>
 </html>
 
