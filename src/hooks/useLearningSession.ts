@@ -77,7 +77,8 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
       setSessionState(SessionState.ERROR);
     }
-  }, []);
+    // Add state setters to dependency array for useCallback
+  }, [setSelectedTopicId, setSessionState, setError, setFlashcards, setCurrentCardIndex]);
 
   const showAnswer = useCallback(() => {
     if (sessionState === SessionState.SHOWING_FRONT) {
@@ -98,7 +99,8 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
     } else {
       setSessionState(SessionState.FINISHED);
     }
-  }, [sessionState, currentCardIndex, flashcards.length, currentCard?.id]);
+    // Add dependencies
+  }, [sessionState, currentCardIndex, flashcards.length, currentCard?.id, setSessionState, setCurrentCardIndex]);
 
   const resetSession = useCallback(() => {
     setSelectedTopicId(null);
@@ -106,7 +108,8 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
     setCurrentCardIndex(0);
     setSessionState(SessionState.SELECTING_TOPIC);
     setError(null);
-  }, []);
+    // Add dependencies
+  }, [setSelectedTopicId, setFlashcards, setCurrentCardIndex, setSessionState, setError]);
 
   return {
     topics,
