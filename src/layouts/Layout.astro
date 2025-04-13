@@ -33,8 +33,7 @@ const { title = "10x Astro Starter", breadcrumbs = [] } = Astro.props;
       {/* Add a temporary border for debugging breadcrumbs rendering */}
       <div class="border border-dashed border-red-500 mb-4">
         <Breadcrumbs items={breadcrumbs} />
-        {/* Display a debug message if no breadcrumbs are passed */}
-        { breadcrumbs && breadcrumbs.length === 0 && <p class="text-xs text-red-500 p-1">Debug: No breadcrumbs passed to layout.</p> }
+        {/* Display a debug message if no breadcrumbs are passed - REMOVED */}
       </div>
       {/* Render the page content */}
       <slot />
