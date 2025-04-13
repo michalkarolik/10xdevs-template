@@ -56,7 +56,7 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
         } catch {
           // Ignore if response body is not JSON
         }
-        throw new Error(`Nie udało się pobrać fiszek: ${response.status} ${errorText}`);
+        throw new Error(`Failed to fetch flashcards: ${response.status} ${errorText}`);
       }
 
       const topicDetail: TopicDetailDto = await response.json();
@@ -64,7 +64,7 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
 
       if (!topicDetail.flashcards || topicDetail.flashcards.length === 0) {
         console.log('[useLearningSession] Topic has no flashcards.');
-        throw new Error("Ten temat nie ma fiszek do nauki.");
+        throw new Error("This topic has no flashcards to study.");
       }
 
       console.log(`[useLearningSession] Found ${topicDetail.flashcards.length} flashcards. Setting state to SHOWING_FRONT.`);
@@ -75,7 +75,7 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
       console.log('[useLearningSession] State successfully set to SHOWING_FRONT.'); // Add log here
     } catch (err) {
       console.error("[useLearningSession] Error starting session:", err);
-      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd.");
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
       setSessionState(SessionState.ERROR);
     }
     // --- End of Restored Logic ---

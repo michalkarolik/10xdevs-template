@@ -88,8 +88,8 @@ export class OpenRouterService {
     const defaultModel = import.meta.env.APP_OPENROUTER_DEFAULT_MODEL || 'openai/gpt-3.5-turbo';
 
     if (!apiKey) {
-      console.error("Brak zmiennej środowiskowej APP_OPENROUTER_API_KEY.");
-      throw new OpenRouterConfigurationError('Brak zmiennej środowiskowej APP_OPENROUTER_API_KEY.');
+      console.error("Missing APP_OPENROUTER_API_KEY environment variable.");
+      throw new OpenRouterConfigurationError('Missing APP_OPENROUTER_API_KEY environment variable.');
     }
 
     this.apiKey = apiKey;
@@ -130,11 +130,11 @@ export class OpenRouterService {
       } catch (error) {
         // Rzucenie błędu konfiguracji, jeśli schemat jest nieprawidłowy
         // Chociaż zodToJsonSchema rzadko rzuca błędy dla poprawnych schematów Zod.
-        console.error("Błąd konwersji schematu Zod na JSON schema:", error);
-        throw new OpenRouterConfigurationError(`Podano nieprawidłowy schemat odpowiedzi dla '${options.schemaName}'.`);
+        console.error("Error converting Zod schema to JSON schema:", error);
+        throw new OpenRouterConfigurationError(`Invalid response schema provided for '${options.schemaName}'.`);
       }
     } else if (options?.responseSchema && !options?.schemaName) {
-        throw new OpenRouterConfigurationError("Parametr schemaName jest wymagany, gdy podano responseSchema.");
+        throw new OpenRouterConfigurationError("schemaName is required when responseSchema is provided.");
     }
 
 
@@ -158,9 +158,9 @@ export class OpenRouterService {
       });
       return response;
     } catch (error) {
-      console.error('Błąd sieci podczas fetch do OpenRouter:', error);
+      console.error('Network error during fetch to OpenRouter:', error);
       // Rzucamy niestandardowy błąd, przekazując oryginalny błąd jako przyczynę
-      throw new NetworkError('Nie udało się połączyć z API OpenRouter.', error);
+      throw new NetworkError('Failed to connect to OpenRouter API.', error);
     }
   }
 
@@ -183,7 +183,7 @@ export class OpenRouterService {
         }
       } catch (parseError) {
         // Ignoruj błąd parsowania ciała błędu, użyj domyślnej wiadomości
-        console.warn('Nie można sparsować ciała odpowiedzi błędu:', parseError);
+        console.warn('Could not parse error response body:', parseError);
       }
       throw new OpenRouterAPIError(errorMessage, response.status, errorDetails);
     }
@@ -192,8 +192,8 @@ export class OpenRouterService {
     try {
       responseData = await response.json();
     } catch (error) {
-      console.error('Błąd parsowania odpowiedzi JSON z OpenRouter:', error);
-      throw new ResponseParsingError('Nie udało się sparsować odpowiedzi JSON z API OpenRouter.', error);
+      console.error('Error parsing JSON response from OpenRouter:', error);
+      throw new ResponseParsingError('Failed to parse JSON response from OpenRouter API.', error);
     }
 
     // Wyodrębnienie treści wiadomości
@@ -201,8 +201,8 @@ export class OpenRouterService {
     const messageContent = responseData?.choices?.[0]?.message?.content;
 
     if (typeof messageContent !== 'string') {
-        console.error('Nieprawidłowa struktura odpowiedzi z OpenRouter:', responseData);
-        throw new ResponseParsingError('Nieprawidłowa struktura odpowiedzi: nie znaleziono treści wiadomości lub nie jest ona ciągiem znaków.');
+        console.error('Invalid response structure from OpenRouter:', responseData);
+        throw new ResponseParsingError('Invalid response structure: message content not found or not a string.');
     }
 
     // Walidacja schematem, jeśli został podany
@@ -212,9 +212,9 @@ export class OpenRouterService {
         // Model zwraca JSON jako string w polu 'content', więc musimy go sparsować
         parsedJsonContent = JSON.parse(messageContent);
       } catch (error) {
-        console.error('Błąd parsowania treści wiadomości jako JSON:', error);
+        console.error('Error parsing message content as JSON:', error);
         console.error('Raw message content:', messageContent); // Logujemy surową zawartość do debugowania
-        throw new ResponseParsingError('Nie udało się sparsować treści wiadomości jako JSON. AI mogło nie zwrócić poprawnego JSON.', error);
+        throw new ResponseParsingError('Failed to parse message content as JSON. The AI might not have returned valid JSON.', error);
       }
 
       const validationResult = schema.safeParse(parsedJsonContent);
@@ -223,7 +223,7 @@ export class OpenRouterService {
         console.error('Schema validation failed:', validationResult.error.issues);
         console.error('Parsed JSON content that failed validation:', parsedJsonContent); // Logujemy obiekt, który nie przeszedł walidacji
         throw new SchemaValidationError(
-          'Walidacja odpowiedzi względem podanego schematu nie powiodła się.',
+          'Response validation failed against the provided schema.',
           validationResult.error.issues
         );
       }
@@ -252,7 +252,7 @@ export class OpenRouterService {
   ): Promise<T extends z.ZodSchema ? z.infer<T> : string> {
     // Sprawdzenie podstawowe - czy są jakieś wiadomości
     if (!messages || messages.length === 0) {
-        throw new OpenRouterConfigurationError("Tablica wiadomości nie może być pusta.");
+        throw new OpenRouterConfigurationError("Messages array cannot be empty.");
     }
     // Można dodać bardziej szczegółową walidację wiadomości, np. czy jest rola 'user'
 

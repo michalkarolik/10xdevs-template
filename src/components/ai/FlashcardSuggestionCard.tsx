@@ -79,7 +79,7 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
       )} */}
 
       <CardHeader className="pb-3"> {/* Reduced bottom padding */}
-        <CardTitle className="text-lg">Sugerowana fiszka</CardTitle> {/* Slightly smaller title */}
+        <CardTitle className="text-lg">Suggested Flashcard</CardTitle> {/* Slightly smaller title */}
         {/* The exceeds_limit alert block has been completely removed */}
       </CardHeader>
       <CardContent className="space-y-3 pt-0"> {/* Removed top padding, adjusted spacing */}
@@ -94,13 +94,13 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
           <>
             {/* Improved display of front/back */}
             <div className="border-l-4 border-primary pl-3 py-1">
-              <h3 className="font-medium text-sm text-muted-foreground mb-1">Przód</h3>
+              <h3 className="font-medium text-sm text-muted-foreground mb-1">Front</h3>
               <p className="text-base whitespace-pre-wrap break-words">
                 {suggestion.front}
               </p>
             </div>
             <div className="border-l-4 border-secondary pl-3 py-1">
-              <h3 className="font-medium text-sm text-muted-foreground mb-1">Tył</h3>
+              <h3 className="font-medium text-sm text-muted-foreground mb-1">Back</h3>
               <p className="text-base whitespace-pre-wrap break-words">
                 {suggestion.back}
               </p>
@@ -116,28 +116,28 @@ const FlashcardSuggestionCard: React.FC<FlashcardSuggestionCardProps> = ({
             size="sm"
             className="flex items-center" // Ensure icon and text align
             onClick={handleEditClick}
-            aria-label="Edytuj sugerowaną fiszkę"
+            aria-label="Edit suggested flashcard"
           >
-            <Edit className="mr-1 h-4 w-4" /> Edytuj
+            <Edit className="mr-1 h-4 w-4" /> Edit
           </Button>
           {/* Removed duplicate Edit button content and extra closing tag */}
           <Button
             variant="outline"
             size="sm"
             onClick={handleRegenerateClick}
-            aria-label="Wygeneruj nową wersję sugerowanej fiszki"
+            aria-label="Generate new version of suggested flashcard"
             className="flex items-center" // Ensure icon and text align
           >
-            <RefreshCw className="mr-1 h-4 w-4" /> Generuj ponownie
+            <RefreshCw className="mr-1 h-4 w-4" /> Regenerate
           </Button>
           <Button
             size="sm"
             className="flex items-center" // Ensure icon and text align
             onClick={handleAcceptClick}
             disabled={isOkButtonDisabled}
-            aria-label="Zaakceptuj sugerowaną fiszkę"
+            aria-label="Accept suggested flashcard"
           >
-            <Check className="mr-1 h-4 w-4" /> Akceptuj
+            <Check className="mr-1 h-4 w-4" /> OK
           </Button>
         </CardFooter>
       )}

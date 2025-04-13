@@ -25,12 +25,12 @@ const FlashcardsResponseSchema = z.object({
 // Schemat dla ciała żądania POST
 const RequestBodySchema = z.object({
   sourceText: z.string()
-                         .min(10, "Tekst źródłowy musi mieć co najmniej 10 znaków.") // Restore min length validation
-                         .max(5000, "Tekst źródłowy nie może przekraczać 5000 znaków."),
-  count: z.number().int().min(1, "Należy wygenerować co najmniej 1 fiszkę.")
-                   .max(10, "Nie można wygenerować więcej niż 10 fiszek naraz.") // Limituj liczbę generowanych fiszek
+                         .min(10, "Source text must be at least 10 characters long.") // Restore min length validation
+                         .max(5000, "Source text cannot exceed 5000 characters."),
+  count: z.number().int().min(1, "Must generate at least 1 flashcard.")
+                   .max(10, "Cannot generate more than 10 flashcards at once.") // Limituj liczbę generowanych fiszek
                    .optional().default(5),
-  topicId: z.string().uuid("Nieprawidłowy format ID tematu."), // Dodajemy topicId do walidacji
+  topicId: z.string().uuid("Invalid Topic ID format."), // Dodajemy topicId do walidacji
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -48,8 +48,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     requestBody = RequestBodySchema.parse(rawBody);
   } catch (error) {
     // Zwracamy błędy walidacji Zod w bardziej czytelny sposób
-    const details = error instanceof z.ZodError ? error.errors : 'Nieprawidłowy format JSON';
-    return new Response(JSON.stringify({ error: 'Nieprawidłowe ciało żądania', details }), { status: 400 });
+    const details = error instanceof z.ZodError ? error.errors : 'Invalid JSON format';
+    return new Response(JSON.stringify({ error: 'Invalid request body', details }), { status: 400 });
   }
 
   const { sourceText, count, topicId } = requestBody;
@@ -112,38 +112,38 @@ ${jsonSchemaString}
     console.error('Error during flashcard generation:', error); // Logowanie pełnego błędu na serwerze
 
     let status = 500;
-    let message = 'Wystąpił nieoczekiwany błąd podczas generowania fiszek.';
+    let message = 'An unexpected error occurred during flashcard generation.';
     let details: any = undefined; // Opcjonalne szczegóły dla klienta
 
     if (error instanceof SchemaValidationError) {
       status = 502; // Bad Gateway - problem z odpowiedzią od LLM
-      message = 'Nie udało się przetworzyć odpowiedzi AI: Nieprawidłowy format.';
+      message = 'Failed to process AI response: The format was invalid.';
       // Logujemy szczegóły walidacji, ale nie wysyłamy ich do klienta
       console.error('Schema validation errors:', error.validationErrors);
       details = error.validationErrors; // Można rozważyć wysłanie uproszczonych błędów
     } else if (error instanceof ResponseParsingError) {
       status = 502;
-      message = 'Nie udało się sparsować odpowiedzi AI. AI mogło nie zwrócić poprawnego JSON.';
+      message = 'Failed to parse AI response. The AI might not have returned valid JSON.';
       // Logujemy przyczynę, jeśli istnieje
       if (error.cause) console.error('Parsing cause:', error.cause);
     } else if (error instanceof OpenRouterAPIError) {
       // Mapuj błędy 5xx OpenRouter na 502 (Bad Gateway), 4xx na odpowiedni status (np. 400, 401, 429)
       status = error.statusCode >= 500 ? 502 : error.statusCode;
-      message = `Błąd usługi AI: ${error.message}`;
+      message = `AI service error: ${error.message}`;
       // Możemy chcieć ukryć niektóre szczegóły błędów API przed klientem
-      if (status === 429) message = 'Przekroczono limit zapytań do usługi AI. Spróbuj ponownie później.';
-      else if (status === 401) message = 'Uwierzytelnianie usługi AI nie powiodło się. Sprawdź konfigurację klucza API.';
+      if (status === 429) message = 'AI service rate limit exceeded. Please try again later.';
+      else if (status === 401) message = 'AI service authentication failed. Check API key configuration.';
       // Logujemy pełne szczegóły błędu API
       console.error('OpenRouter API Error Details:', error.details);
     } else if (error instanceof NetworkError) {
       status = 504; // Gateway Timeout
-      message = 'Błąd sieci podczas łączenia z usługą AI. Sprawdź połączenie lub spróbuj ponownie później.';
+      message = 'Network error connecting to AI service. Please check your connection or try again later.';
     } else if (error instanceof OpenRouterConfigurationError) {
         status = 500; // Błąd konfiguracji serwera
-        message = 'Błąd konfiguracji usługi AI. Skontaktuj się z administratorem.';
+        message = 'AI service configuration error. Please contact the administrator.';
     } else if (error instanceof Error) {
         // Ogólny błąd JavaScript
-        message = `Wystąpił nieoczekiwany błąd: ${error.message}`;
+        message = `An unexpected error occurred: ${error.message}`;
     }
 
     return new Response(JSON.stringify({ error: message, details }), { status });

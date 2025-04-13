@@ -36,20 +36,20 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
   if (sessionState === SessionState.SELECTING_TOPIC) {
     return (
       <div className="max-w-md mx-auto flex flex-col items-center space-y-4">
-        <h2 className="text-xl font-semibold">Wybierz temat, aby rozpocząć</h2>
+        <h2 className="text-xl font-semibold">Select a Topic to Start</h2>
         <Select onValueChange={handleTopicChange} value={selectedTopicId ?? ""}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Wybierz temat..." />
+            <SelectValue placeholder="Choose a topic..." />
           </SelectTrigger>
           <SelectContent>
             {topics.length > 0 ? (
               topics.map((topic) => (
                 <SelectItem key={topic.id} value={topic.id}>
-                  {topic.name} ({topic.flashcard_count ?? 0} fiszki)
+                  {topic.name} ({topic.flashcard_count ?? 0} cards)
                 </SelectItem>
               ))
             ) : (
-              <div className="p-4 text-center text-muted-foreground">Nie znaleziono tematów.</div>
+              <div className="p-4 text-center text-muted-foreground">No topics found.</div>
             )}
           </SelectContent>
         </Select>
@@ -63,7 +63,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     return (
       <div className="flex justify-center items-center py-10">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Ładowanie fiszek dla {selectedTopicName}...</span>
+        <span className="ml-2">Loading flashcards for {selectedTopicName}...</span>
       </div>
     );
   }
@@ -74,15 +74,15 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
       <Card className="max-w-lg mx-auto border-destructive">
         <CardHeader>
           <CardTitle className="text-destructive flex items-center">
-            <AlertCircle className="mr-2 h-5 w-5" /> Błąd ładowania sesji
+            <AlertCircle className="mr-2 h-5 w-5" /> Error Loading Session
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{error || "Wystąpił nieznany błąd."}</p>
+          <p>{error || "An unknown error occurred."}</p>
         </CardContent>
         <CardFooter>
           <Button variant="outline" onClick={resetSession}>
-            <RotateCcw className="mr-2 h-4 w-4" /> Spróbuj ponownie
+            <RotateCcw className="mr-2 h-4 w-4" /> Try Again
           </Button>
         </CardFooter>
       </Card>
@@ -95,13 +95,13 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
       <Card className="max-w-lg mx-auto border-green-500">
         <CardHeader>
           <CardTitle className="text-green-600 flex items-center">
-            <CheckCircle className="mr-2 h-5 w-5" /> Sesja zakończona!
+            <CheckCircle className="mr-2 h-5 w-5" /> Session Complete!
           </CardTitle>
-          <CardDescription>Przejrzałeś wszystkie fiszki dla {selectedTopicName}.</CardDescription>
+          <CardDescription>You have reviewed all cards for {selectedTopicName}.</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button onClick={resetSession}>
-            <RotateCcw className="mr-2 h-4 w-4" /> Rozpocznij nową sesję
+            <RotateCcw className="mr-2 h-4 w-4" /> Start New Session
           </Button>
         </CardFooter>
       </Card>
@@ -116,20 +116,20 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         <CardHeader>
           <CardTitle>{selectedTopicName}</CardTitle>
           <CardDescription>
-            Fiszka {currentCardIndex + 1} z {totalCards}
+            Card {currentCardIndex + 1} of {totalCards}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 min-h-[200px] flex flex-col justify-center">
           {/* Front */}
           <div className="p-4 border rounded-md bg-muted/20">
-            <h3 className="font-medium text-sm text-muted-foreground mb-1">Przód</h3>
+            <h3 className="font-medium text-sm text-muted-foreground mb-1">Front</h3>
             <p className="text-lg whitespace-pre-wrap break-words">{currentCard.front}</p>
           </div>
 
           {/* Back (conditionally rendered) */}
           {sessionState === SessionState.SHOWING_BACK && (
             <div className="p-4 border rounded-md bg-muted/20 animate-in fade-in duration-300">
-              <h3 className="font-medium text-sm text-muted-foreground mb-1">Tył</h3>
+              <h3 className="font-medium text-sm text-muted-foreground mb-1">Back</h3>
               <p className="text-lg whitespace-pre-wrap break-words">{currentCard.back}</p>
             </div>
           )}
@@ -137,12 +137,12 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         <CardFooter className="flex flex-col items-center space-y-4">
           {sessionState === SessionState.SHOWING_FRONT && (
             <Button onClick={showAnswer} size="lg" className="w-full">
-              Pokaż odpowiedź
+              Show Answer
             </Button>
           )}
           {sessionState === SessionState.SHOWING_BACK && (
             <div className="w-full space-y-3">
-               <p className="text-center text-sm text-muted-foreground">Jak dobrze to znałeś/aś?</p>
+               <p className="text-center text-sm text-muted-foreground">How well did you know this?</p>
                <div className="grid grid-cols-3 gap-2">
                  {/* Bad */}
                  <Button
@@ -150,7 +150,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                    className="bg-red-500 hover:bg-red-600 text-white"
                    onClick={() => rateCard('bad')}
                  >
-                   <XCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Powtórz</span><span className="sm:hidden">1</span>
+                   <XCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Again</span><span className="sm:hidden">1</span>
                  </Button>
                  {/* Medium */}
                  <Button
@@ -158,7 +158,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-100 hover:text-yellow-700 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
                    onClick={() => rateCard('medium')}
                  >
-                   <HelpCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Trudne</span><span className="sm:hidden">2</span>
+                   <HelpCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Hard</span><span className="sm:hidden">2</span>
                  </Button>
                  {/* Good */}
                  <Button
@@ -166,7 +166,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                    className="bg-green-600 hover:bg-green-700 text-white"
                    onClick={() => rateCard('good')}
                  >
-                   <CheckCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Łatwe</span><span className="sm:hidden">3</span>
+                   <CheckCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Easy</span><span className="sm:hidden">3</span>
                  </Button>
                </div>
             </div>
@@ -177,7 +177,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
   }
 
   // Fallback if no state matches (should not happen)
-  return <div>Coś poszło nie tak.</div>;
+  return <div>Something went wrong.</div>;
 };
 
 export default LearningSessionView;
