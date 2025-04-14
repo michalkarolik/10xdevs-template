@@ -100,7 +100,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         return (
             <div className="max-w-md mx-auto flex flex-col items-center space-y-4">
                 <h2 className="text-xl font-semibold">Select a Topic to Start</h2>
-                <Select onValueChange={handleTopicChange} value={selectedTopicId ?? ""}>
+                <Select onValueChange={handleTopicChange} value={selectedTopicId ?? ""} className="w-full">
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Choose a topic..." />
                     </SelectTrigger>
