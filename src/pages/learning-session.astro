@@ -5,6 +5,7 @@ import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs"; // Co
 import LearningSessionView from "@/components/learning/LearningSessionView"; // Ensure correct import
 import type { TopicsResponseDto } from "@/types";
 import { Button } from "@/components/ui/button";
+import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 
 // Fetch topics on the server
 let topics: TopicsResponseDto = [];
@@ -44,7 +45,9 @@ try {
     )}
 
     {!fetchError && (
-      <LearningSessionView client:load initialTopics={topics} />
+      <BrowserRouter>
+        <LearningSessionView client:load initialTopics={topics} />
+      </BrowserRouter>
     )}
   </main>
 </Layout>
