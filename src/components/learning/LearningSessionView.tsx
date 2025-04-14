@@ -36,10 +36,17 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
     console.log('[LearningSessionView] Rendering with state:', sessionState, 'Selected Topic ID:', selectedTopicId, 'Current Card:', currentCard); // Add logging
 
+    // State to track if the component has mounted
+    const [hasMounted, setHasMounted] = useState(false);
+
+    // Effect to set hasMounted to true after the component mounts
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
 
     // Effect to fetch flashcards when topicId changes
     useEffect(() => {
-        if (topicId) { // Only fetch if topicId is available
+        if (topicId && hasMounted) { // Only fetch if topicId is available AND component has mounted
             const fetchFlashcards = async () => {
                 try {
                     // TODO: Update the API endpoint if necessary
@@ -57,14 +64,14 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
             };
             fetchFlashcards();
         }
-    }, [topicId]);
+    }, [topicId, hasMounted]);
 
     // Effect to start the session when topicId changes
     useEffect(() => {
-        if (topicId) { // Ensure topicId is present before starting
+        if (topicId && hasMounted) { // Ensure topicId is present before starting AND component has mounted
             startSession(topicId);
         }
-    }, [topicId, startSession]); // Add startSession to dependency array
+    }, [topicId, startSession, hasMounted]); // Add startSession to dependency array
 
     const handleResponse = async (flashcardId: string, response: string) => {
         // Save user response locally
