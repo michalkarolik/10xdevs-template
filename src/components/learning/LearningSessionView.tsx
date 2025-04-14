@@ -75,6 +75,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
     // Effect to start the session when topicId changes
     useEffect(() => {
+        console.log("useEffect - topicId:", topicId, "hasMounted:", hasMounted);
         if (topicId && hasMounted) { // Ensure topicId is present before starting AND component has mounted
             console.log("Attempting to initialize session with topicId:", topicId, "and hasMounted:", hasMounted);
             // Create a learning session in the database
