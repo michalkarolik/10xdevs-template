@@ -5,7 +5,8 @@ import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs"; // Co
 import LearningSessionView from "@/components/learning/LearningSessionView"; // Ensure correct import
 import type { TopicsResponseDto } from "@/types";
 import { Button } from "@/components/ui/button";
-import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
+import pkg from 'react-router-dom'; // Import the entire module
+const { BrowserRouter } = pkg; // Destructure BrowserRouter
 
 // Fetch topics on the server
 let topics: TopicsResponseDto = [];
