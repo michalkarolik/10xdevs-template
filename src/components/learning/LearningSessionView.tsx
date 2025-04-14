@@ -258,6 +258,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                     className="bg-red-500 hover:bg-red-600 text-white"
                                     onClick={() => {
                                         if (currentCard) {
+                                            // Log before calling handleResponse
+                                            console.log("handleResponse called with sessionId:", sessionId, "flashcardId:", currentCard.id);
                                             // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
                                             handleResponse(currentCard.id, 'bad')
                                                 .then(() => rateCard('bad'))
@@ -277,6 +279,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                     className="border-yellow-500 text-yellow-600 hover:bg-yellow-100 hover:text-yellow-700 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
                                     onClick={() => {
                                         if (currentCard) {
+                                            // Log before calling handleResponse
+                                            console.log("handleResponse called with sessionId:", sessionId, "flashcardId:", currentCard.id);
                                             // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
                                             handleResponse(currentCard.id, 'medium')
                                                 .then(() => rateCard('medium'))
@@ -296,6 +300,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                     className="bg-green-600 hover:bg-green-700 text-white"
                                     onClick={() => {
                                         if (currentCard) {
+                                            // Log before calling handleResponse
+                                            console.log("handleResponse called with sessionId:", sessionId, "flashcardId:", currentCard.id);
                                             // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
                                             handleResponse(currentCard.id, 'good')
                                                 .then(() => rateCard('good'))
