@@ -2,11 +2,10 @@
 // src/pages/learning-session.astro
 import Layout from "@/layouts/Layout.astro";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs"; // Corrected import path
-import LearningSessionView from "@/components/learning/LearningSessionView"; // Ensure correct import
+import LearningSessionClientWrapper from "@/components/learning/LearningSessionClientWrapper"; // Import the new wrapper
 import type { TopicsResponseDto } from "@/types";
 import { Button } from "@/components/ui/button";
-import pkg from 'react-router-dom'; // Import the entire module
-const { BrowserRouter } = pkg; // Destructure BrowserRouter
+
 
 // Fetch topics on the server
 let topics: TopicsResponseDto = [];
@@ -46,9 +45,7 @@ try {
     )}
 
     {!fetchError && (
-      <BrowserRouter>
-        <LearningSessionView client:only="react" initialTopics={topics} />
-      </BrowserRouter>
+      <LearningSessionClientWrapper client:only="react" initialTopics={topics} />
     )}
   </main>
 </Layout>
