@@ -17,7 +17,10 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     const [userFlashcards, setFlashcards] = useState([]);
     const [userResponses, setUserResponses] = useState<Record<string, string>>({}); // Added type annotation
     const [sessionId, setSessionId] = useState<string | null>(null);
-    const { topicId } = useParams<{ topicId: string }>(); // Get topic ID from URL and type it
+    const [topicId, setTopicId] = useState<string | null>(null); // State to hold topicId
+
+    // Get topic ID from URL and type it
+    const { topicId: topicIdFromParams } = useParams<{ topicId: string }>();
 
     // Always call hooks at the top level, never conditionally
     const {
@@ -41,6 +44,14 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     useEffect(() => {
         setHasMounted(true);
     }, []);
+
+    // Effect to get topicId from params only once
+    useEffect(() => {
+        if (topicIdFromParams) {
+            setTopicId(topicIdFromParams);
+            console.log("Topic ID from params:", topicIdFromParams);
+        }
+    }, [topicIdFromParams]);
 
     // Define handleTopicChange function
     const handleTopicChange = (topicId: string) => {
@@ -149,6 +160,15 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         }
     };
 
+    // Show a loading indicator while waiting for topicId
+    if (!topicId) {
+        return (
+            <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2">Loading topic...</span>
+            </div>
+        );
+    }
 
     // Topic Selection View (Only if no topicId is provided by URL/props initially)
     if (!topicId && sessionState === SessionState.SELECTING_TOPIC) {
