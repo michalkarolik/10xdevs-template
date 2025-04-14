@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react'; // Icons
 import { createLearningSession, saveFlashcardResponse } from '@/lib/api/learning-sessions'; // Import API functions
-import { useParams } from 'react-router-dom'; // Correct named import
+import { useParams, useNavigate } from 'react-router-dom'; // Correct named import
 import { toast } from "sonner"; // Import toast for notifications
 
 interface LearningSessionViewProps {
@@ -18,6 +18,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     const [userResponses, setUserResponses] = useState<Record<string, string>>({}); // Added type annotation
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [topicId, setTopicId] = useState<string | null>(null); // State to hold topicId
+    const navigate = useNavigate();
 
     // Get topic ID from URL and type it
     const { topicId: topicIdFromParams } = useParams<{ topicId: string }>();
@@ -56,6 +57,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     // Define handleTopicChange function
     const handleTopicChange = (topicId: string) => {
         if (topicId) {
+            // Update the URL to reflect the selected topic
+            navigate(`/learning-session/${topicId}`);
             startSession(topicId);
         }
     };
@@ -160,18 +163,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         }
     };
 
-    // Show a loading indicator while waiting for topicId
+    // If there's no topicId in the URL, show the topic selection view
     if (!topicId) {
-        return (
-            <div className="flex justify-center items-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="ml-2">Loading topic...</span>
-            </div>
-        );
-    }
-
-    // Topic Selection View (Only if no topicId is provided by URL/props initially)
-    if (!topicId && sessionState === SessionState.SELECTING_TOPIC) {
         return (
             <div className="max-w-md mx-auto flex flex-col items-center space-y-4">
                 <h2 className="text-xl font-semibold">Select a Topic to Start</h2>
