@@ -103,18 +103,21 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         setUserResponses((prev) => ({ ...prev, [flashcardId]: mappedResponse }));
 
         // Save response to database if we have a session ID
-        if (sessionId && currentCard) {
+        if (sessionId && flashcardId) {
             try {
-                await saveFlashcardResponse(
+                console.log(`Saving response "${mappedResponse}" for card ${flashcardId} in session ${sessionId}`);
+                const result = await saveFlashcardResponse(
                     sessionId,
                     flashcardId,
                     mappedResponse as 'Again' | 'Hard' | 'Easy'
                 );
-                console.log(`Saved response "${mappedResponse}" for card ${flashcardId}`);
+                console.log(`Successfully saved response:`, result);
             } catch (error) {
                 console.error("Failed to save flashcard response:", error);
                 toast.error("Failed to save your response");
             }
+        } else {
+            console.warn("Cannot save response - missing sessionId or flashcardId", { sessionId, flashcardId });
         }
     };
 
@@ -255,9 +258,15 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                     className="bg-red-500 hover:bg-red-600 text-white"
                                     onClick={() => {
                                         if (currentCard) {
-                                            handleResponse(currentCard.id, 'bad');
+                                            // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
+                                            handleResponse(currentCard.id, 'bad')
+                                                .then(() => rateCard('bad'))
+                                                .catch(err => {
+                                                    console.error("Error handling 'Again' response:", err);
+                                                    // Kontynuuj mimo błędu zapisu
+                                                    rateCard('bad');
+                                                });
                                         }
-                                        rateCard('bad');
                                     }}
                                 >
                                     <XCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Again</span><span className="sm:hidden">1</span>
@@ -268,9 +277,15 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                     className="border-yellow-500 text-yellow-600 hover:bg-yellow-100 hover:text-yellow-700 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
                                     onClick={() => {
                                         if (currentCard) {
-                                            handleResponse(currentCard.id, 'medium');
+                                            // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
+                                            handleResponse(currentCard.id, 'medium')
+                                                .then(() => rateCard('medium'))
+                                                .catch(err => {
+                                                    console.error("Error handling 'Hard' response:", err);
+                                                    // Kontynuuj mimo błędu zapisu
+                                                    rateCard('medium');
+                                                });
                                         }
-                                        rateCard('medium');
                                     }}
                                 >
                                     <HelpCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Hard</span><span className="sm:hidden">2</span>
@@ -281,9 +296,15 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                     className="bg-green-600 hover:bg-green-700 text-white"
                                     onClick={() => {
                                         if (currentCard) {
-                                            handleResponse(currentCard.id, 'good');
+                                            // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
+                                            handleResponse(currentCard.id, 'good')
+                                                .then(() => rateCard('good'))
+                                                .catch(err => {
+                                                    console.error("Error handling 'Easy' response:", err);
+                                                    // Kontynuuj mimo błędu zapisu
+                                                    rateCard('good');
+                                                });
                                         }
-                                        rateCard('good');
                                     }}
                                 >
                                     <CheckCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Easy</span><span className="sm:hidden">3</span>

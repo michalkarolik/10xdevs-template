@@ -80,6 +80,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
+    console.log(`Saving flashcard response to database:`, {
+      learning_session_id: session_id,
+      flashcard_id: flashcard_id,
+      user_response: user_response
+    });
+
     // Save the flashcard response
     const { data: newResponse, error: responseError } = await locals.supabase
       .from('learning_session_flashcards')

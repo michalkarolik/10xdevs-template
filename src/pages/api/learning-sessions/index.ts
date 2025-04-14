@@ -67,6 +67,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .from('learning_sessions')
       .insert({
         user_id: user.id,
+        topic_id: topic_id, // Dodajemy powiązanie z tematem
       })
       .select('id, created_at')
       .single();

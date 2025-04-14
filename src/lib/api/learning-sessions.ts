@@ -36,22 +36,33 @@ export async function saveFlashcardResponse(
   flashcardId: string,
   userResponse: 'Again' | 'Hard' | 'Easy'
 ): Promise<{ id: string, created_at: string }> {
-  const response = await fetch('/api/learning-sessions/responses', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      session_id: sessionId,
-      flashcard_id: flashcardId,
-      user_response: userResponse,
-    }),
-  });
+  console.log(`API call: saveFlashcardResponse(${sessionId}, ${flashcardId}, ${userResponse})`);
+  
+  try {
+    const response = await fetch('/api/learning-sessions/responses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        session_id: sessionId,
+        flashcard_id: flashcardId,
+        user_response: userResponse,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to save flashcard response');
+    console.log(`Response status: ${response.status}`);
+    
+    const responseData = await response.json();
+    console.log(`Response data:`, responseData);
+    
+    if (!response.ok) {
+      throw new Error(responseData.message || `Failed to save flashcard response: ${response.status}`);
+    }
+
+    return responseData;
+  } catch (error) {
+    console.error('Error in saveFlashcardResponse:', error);
+    throw error;
   }
-
-  return response.json();
 }
