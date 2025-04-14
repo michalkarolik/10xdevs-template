@@ -76,6 +76,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     // Effect to start the session when topicId changes
     useEffect(() => {
         if (topicId && hasMounted) { // Ensure topicId is present before starting AND component has mounted
+            console.log("Attempting to initialize session with topicId:", topicId, "and hasMounted:", hasMounted);
             // Create a learning session in the database
             const initSession = async () => {
                 try {
@@ -99,6 +100,8 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
             };
             
             initSession();
+        } else {
+            console.log("Not initializing session: topicId is", topicId, "and hasMounted is", hasMounted);
         }
     }, [topicId, startSession, hasMounted]); // Add startSession to dependency array
 
