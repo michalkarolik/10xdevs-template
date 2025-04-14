@@ -47,7 +47,7 @@ try {
 
     {!fetchError && (
       <BrowserRouter>
-        <LearningSessionView client:load initialTopics={topics} />
+        <LearningSessionView client:only="react" initialTopics={topics} />
       </BrowserRouter>
     )}
   </main>
