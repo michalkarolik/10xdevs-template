@@ -17,25 +17,11 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     const [userResponses, setUserResponses] = useState<Record<string, string>>({}); // Added type annotation
     const { topicId } = useParams<{ topicId: string }>(); // Get topic ID from URL and type it
 
-    // State to track if the component has mounted
-    const [hasMounted, setHasMounted] = useState(false);
-
-    // Effect to set hasMounted to true after the component mounts
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
-
-    // Conditionally render the hook
-    let learningSessionData = null;
-    if (hasMounted) {
-        learningSessionData = useLearningSession(initialTopics);
-    }
-
+    // Always call hooks at the top level, never conditionally
     const {
         topics,
         selectedTopicId,
         selectedTopicName,
-        // flashcards, // This comes from the hook, might conflict with userFlashcards state
         currentCard,
         currentCardIndex,
         sessionState,
@@ -44,20 +30,21 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         showAnswer,
         rateCard,
         resetSession,
-        handleTopicChange, // Assuming this comes from the hook or needs to be defined
-    } = learningSessionData || { // Provide default values
-        topics: [],
-        selectedTopicId: null,
-        selectedTopicName: null,
-        currentCard: null,
-        currentCardIndex: 0,
-        sessionState: SessionState.SELECTING_TOPIC,
-        error: null,
-        startSession: () => {},
-        showAnswer: () => {},
-        rateCard: () => {},
-        resetSession: () => {},
-        handleTopicChange: () => {},
+    } = useLearningSession(initialTopics);
+
+    // State to track if the component has mounted - moved after the hook call
+    const [hasMounted, setHasMounted] = useState(false);
+
+    // Effect to set hasMounted to true after the component mounts
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    // Define handleTopicChange function
+    const handleTopicChange = (topicId: string) => {
+        if (topicId) {
+            startSession(topicId);
+        }
     };
 
     console.log('[LearningSessionView] Rendering with state:', sessionState, 'Selected Topic ID:', selectedTopicId, 'Current Card:', currentCard); // Add logging
@@ -198,7 +185,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
     // Flashcard Display View (SHOWING_FRONT or SHOWING_BACK)
     if (currentCard && (sessionState === SessionState.SHOWING_FRONT || sessionState === SessionState.SHOWING_BACK)) {
-        const totalCards = useLearningSession.length; // Get total from the hook's flashcards
+        const totalCards = userFlashcards.length || 0; // Use userFlashcards instead of accessing the hook directly
         const cardPosition = currentCardIndex + 1;
 
         return (
