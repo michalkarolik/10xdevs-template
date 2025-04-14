@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useLearningSession, SessionState } from '@/hooks/useLearningSession';
 import type { TopicSummaryDto } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -79,10 +79,19 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
             // Create a learning session in the database
             const initSession = async () => {
                 try {
+                    console.log("Creating learning session for topic:", topicId);
                     const session = await createLearningSession(topicId);
-                    setSessionId(session.session_id);
-                    console.log("Created learning session:", session);
-                    startSession(topicId);
+                    console.log("createLearningSession response:", session); // Log the response
+
+                    if (session && session.session_id) {
+                        console.log("Setting sessionId:", session.session_id);
+                        setSessionId(session.session_id);
+                        console.log("Session ID set:", session.session_id);
+                        startSession(topicId);
+                    } else {
+                        console.error("Session ID is missing in the response:", session);
+                        toast.error("Failed to start learning session: Session ID missing");
+                    }
                 } catch (error) {
                     console.error("Failed to create learning session:", error);
                     toast.error("Failed to start learning session");
@@ -211,6 +220,16 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                      </Button>
                 </CardFooter>
             </Card>
+        );
+    }
+
+    // Conditional rendering: only render flashcard display if sessionId is available
+    if (!sessionId) {
+        return (
+            <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2">Initializing session...</span>
+            </div>
         );
     }
 
