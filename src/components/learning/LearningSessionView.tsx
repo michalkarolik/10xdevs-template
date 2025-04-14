@@ -103,7 +103,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         } else {
             console.log("Not initializing session: topicId is", topicId, "and hasMounted is", hasMounted);
         }
-    }, [topicId, startSession, hasMounted]); // Add startSession to dependency array
+    }, [topicId, startSession, hasMounted, sessionId]); // Add sessionId to dependency array
 
     const handleResponse = async (flashcardId: string, response: string) => {
         // Map the response to the expected format
@@ -116,6 +116,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
         // Save response to database if we have a session ID
         if (sessionId && flashcardId) {
+            console.log("Session ID inside handleResponse:", sessionId); // Add logging
             try {
                 console.log(`Saving response "${mappedResponse}" for card ${flashcardId} in session ${sessionId}`);
                 const result = await saveFlashcardResponse(
