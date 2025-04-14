@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react'; // Icons
-import { createLearningSession, saveFlashcardResponse } from '@/lib/api'; // Import API functions
+import { createLearningSession, saveFlashcardResponse } from '@/lib/api/learning-sessions'; // Import API functions
 import { useParams } from 'react-router-dom'; // Correct named import
+import { toast } from "sonner"; // Import toast for notifications
 
 interface LearningSessionViewProps {
   initialTopics: TopicSummaryDto[];
@@ -15,6 +16,7 @@ interface LearningSessionViewProps {
 const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics }) => {
     const [userFlashcards, setFlashcards] = useState([]);
     const [userResponses, setUserResponses] = useState<Record<string, string>>({}); // Added type annotation
+    const [sessionId, setSessionId] = useState<string | null>(null);
     const { topicId } = useParams<{ topicId: string }>(); // Get topic ID from URL and type it
 
     // Always call hooks at the top level, never conditionally
@@ -74,33 +76,59 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     // Effect to start the session when topicId changes
     useEffect(() => {
         if (topicId && hasMounted) { // Ensure topicId is present before starting AND component has mounted
-            startSession(topicId);
+            // Create a learning session in the database
+            const initSession = async () => {
+                try {
+                    const session = await createLearningSession(topicId);
+                    setSessionId(session.session_id);
+                    console.log("Created learning session:", session);
+                    startSession(topicId);
+                } catch (error) {
+                    console.error("Failed to create learning session:", error);
+                    toast.error("Failed to start learning session");
+                }
+            };
+            
+            initSession();
         }
     }, [topicId, startSession, hasMounted]); // Add startSession to dependency array
 
     const handleResponse = async (flashcardId: string, response: string) => {
+        // Map the response to the expected format
+        const mappedResponse = response === 'bad' ? 'Again' : 
+                              response === 'medium' ? 'Hard' : 
+                              response === 'good' ? 'Easy' : 'Again';
+        
         // Save user response locally
-        setUserResponses((prev) => ({ ...prev, [flashcardId]: response }));
+        setUserResponses((prev) => ({ ...prev, [flashcardId]: mappedResponse }));
 
-        // TODO: Decide if saving individual responses immediately is needed,
-        // or only at the end of the session.
-        // await saveFlashcardResponse(flashcardId, response); // This API function might need sessionId
+        // Save response to database if we have a session ID
+        if (sessionId && currentCard) {
+            try {
+                await saveFlashcardResponse(
+                    sessionId,
+                    flashcardId,
+                    mappedResponse as 'Again' | 'Hard' | 'Easy'
+                );
+                console.log(`Saved response "${mappedResponse}" for card ${flashcardId}`);
+            } catch (error) {
+                console.error("Failed to save flashcard response:", error);
+                toast.error("Failed to save your response");
+            }
+        }
     };
 
     const handleSessionEnd = async () => {
-        console.log("Ending session, saving responses:", userResponses);
+        console.log("Ending session, responses saved individually");
         try {
-            // TODO: Ensure createLearningSession API exists and works as expected
-            // const sessionResult = await createLearningSession({ topicId: selectedTopicId, responses: userResponses }); // Example: Pass data needed
-            // console.log("Learning session created/updated:", sessionResult);
-
-            // Example: If saving happens individually per card response, this might just reset the state
+            // Since we're saving responses individually, we just need to reset state
             setUserResponses({}); // Clear responses for the next session
+            setSessionId(null); // Clear session ID
             resetSession(); // Reset the learning session hook state
-
+            toast.success("Learning session completed!");
         } catch (endSessionError) {
-            console.error("Failed to save session data:", endSessionError);
-            // Handle error state, maybe show a toast notification
+            console.error("Failed to end session:", endSessionError);
+            toast.error("Failed to complete session");
         }
     };
 
@@ -225,7 +253,12 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                 <Button
                                     variant="destructive"
                                     className="bg-red-500 hover:bg-red-600 text-white"
-                                    onClick={() => rateCard('bad')}
+                                    onClick={() => {
+                                        if (currentCard) {
+                                            handleResponse(currentCard.id, 'bad');
+                                        }
+                                        rateCard('bad');
+                                    }}
                                 >
                                     <XCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Again</span><span className="sm:hidden">1</span>
                                 </Button>
@@ -233,7 +266,12 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                 <Button
                                     variant="outline"
                                     className="border-yellow-500 text-yellow-600 hover:bg-yellow-100 hover:text-yellow-700 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
-                                    onClick={() => rateCard('medium')}
+                                    onClick={() => {
+                                        if (currentCard) {
+                                            handleResponse(currentCard.id, 'medium');
+                                        }
+                                        rateCard('medium');
+                                    }}
                                 >
                                     <HelpCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Hard</span><span className="sm:hidden">2</span>
                                 </Button>
@@ -241,7 +279,12 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                 <Button
                                     variant="default"
                                     className="bg-green-600 hover:bg-green-700 text-white"
-                                    onClick={() => rateCard('good')}
+                                    onClick={() => {
+                                        if (currentCard) {
+                                            handleResponse(currentCard.id, 'good');
+                                        }
+                                        rateCard('good');
+                                    }}
                                 >
                                     <CheckCircle className="mr-1 h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Easy</span><span className="sm:hidden">3</span>
                                 </Button>
