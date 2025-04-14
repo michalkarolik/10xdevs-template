@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react'; // Icons
 import { createLearningSession, saveFlashcardResponse } from '@/lib/api'; // Import API functions
+import ReactRouterDom from 'react-router-dom';
 
-const { useParams } = require('react-router-dom');
+const useParams = ReactRouterDom.useParams;
 
 interface LearningSessionViewProps {
   initialTopics: TopicSummaryDto[];
