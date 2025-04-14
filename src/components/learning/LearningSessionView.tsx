@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react'; // Icons
 import { createLearningSession, saveFlashcardResponse } from '@/lib/api'; // Import API functions
-import { useParams } from 'react-router-dom'; // Direct named import
+import pkg from 'react-router-dom';
+const { useParams } = pkg;
 
 interface LearningSessionViewProps {
   initialTopics: TopicSummaryDto[];
@@ -36,8 +37,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     console.log('[LearningSessionView] Rendering with state:', sessionState, 'Selected Topic ID:', selectedTopicId, 'Current Card:', currentCard); // Add logging
 
 
-    // Effect to fetch flashcards when topicId changes (if needed independently of the hook)
-    // Consider if this logic should be inside the useLearningSession hook instead
+    // Effect to fetch flashcards when topicId changes
     useEffect(() => {
         if (topicId) { // Only fetch if topicId is available
             const fetchFlashcards = async () => {
@@ -94,7 +94,6 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
 
     // Topic Selection View (Only if no topicId is provided by URL/props initially)
-    // This might be handled by a different component/route if topicId is always expected
     if (!topicId && sessionState === SessionState.SELECTING_TOPIC) {
         return (
             <div className="max-w-md mx-auto flex flex-col items-center space-y-4">
@@ -115,7 +114,6 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                         )}
                     </SelectContent>
                 </Select>
-                {/* Button might be needed if selection doesn't automatically navigate/start */}
             </div>
         );
     }
@@ -162,14 +160,10 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                     <CardDescription>You have reviewed all cards for {selectedTopicName || 'this topic'}.</CardDescription>
                 </CardHeader>
                 <CardFooter className="flex justify-between">
-                    <Button variant="outline" onClick={resetSession}> {/* Changed to resetSession which likely goes back to topic selection */}
+                    <Button variant="outline" onClick={resetSession}>
                         Select New Topic
                     </Button>
-                    {/* Optional: Add a button to review the same topic again */}
-                    {/* <Button onClick={() => startSession(selectedTopicId)}>
-                        <RotateCcw className="mr-2 h-4 w-4" /> Review Again
-                    </Button> */}
-                     <Button onClick={handleSessionEnd}> {/* Keep if explicit save action is needed */}
+                     <Button onClick={handleSessionEnd}>
                        End Session & Save
                      </Button>
                 </CardFooter>
@@ -179,7 +173,6 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
     // Flashcard Display View (SHOWING_FRONT or SHOWING_BACK)
     if (currentCard && (sessionState === SessionState.SHOWING_FRONT || sessionState === SessionState.SHOWING_BACK)) {
-        // Use flashcards from the hook if available, otherwise fallback or show loading/error
         const totalCards = useLearningSession.length; // Get total from the hook's flashcards
         const cardPosition = currentCardIndex + 1;
 
@@ -248,25 +241,12 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         );
     }
 
-    // Fallback if no state matches or topicId is missing but session isn't SELECTING_TOPIC
-    // This might indicate an issue with routing or state management
-    if (topicId && sessionState === SessionState.SELECTING_TOPIC) {
-      // If we have a topicId but are stuck in SELECTING_TOPIC, it might be loading or an initial state issue
-      return (
-        <div className="flex justify-center items-center py-10">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2">Initializing session...</span>
-        </div>
-      );
-    }
-
-
-    // General fallback
+    // Fallback
     return (
         <div className="text-center py-10">
             <p>Something went wrong or the session state is unexpected.</p>
             <Button variant="outline" onClick={resetSession} className="mt-4">
-                <RotateCcw className="mr-2 h-4 w-4" /> Go back to Topic Selection
+                Go back to Topic Selection
             </Button>
         </div>
     );
