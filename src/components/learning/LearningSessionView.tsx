@@ -56,6 +56,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
     // Define handleTopicChange function
     const handleTopicChange = (topicId: string) => {
+        console.log("handleTopicChange called with topicId:", topicId);
         if (topicId) {
             // Update the URL to reflect the selected topic
             navigate(`/learning-session/${topicId}`);
