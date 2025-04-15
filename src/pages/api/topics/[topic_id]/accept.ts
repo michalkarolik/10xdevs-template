@@ -14,7 +14,7 @@ const inputSchema = z.object({
 export const POST: APIRoute = async ({ params, request, locals }) => {
   // 1. Authentication & Authorization (TEMPORARILY USING PLACEHOLDER)
   // TODO: Implement proper user fetching
-  const user = { id: 'test-user-id' }; // !! TEMPORARY PLACEHOLDER USER !!
+  const user = { id: '11111111-1111-1111-1111-111111111111' }; // !! TEMPORARY PLACEHOLDER USER (Valid UUID format) !!
   if (!user) {
      // This condition will likely not be met with the placeholder, but keep for structure
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });

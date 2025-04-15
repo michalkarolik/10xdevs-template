@@ -19,10 +19,11 @@ const saveResponseSchema = z.object({
 // POST endpoint to create a new learning session
 export const POST: APIRoute = async ({ request, locals }) => {
   // Authentication check (using placeholder for now)
-  const user = { id: 'test-user-id' }; // TEMPORARY PLACEHOLDER USER
+  // TODO: Replace with actual user fetching/validation
+  const user = { id: '11111111-1111-1111-1111-111111111111' }; // TEMPORARY PLACEHOLDER USER (Valid UUID format)
   if (!user) {
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: true, 
         code: 'UNAUTHORIZED', 
         message: 'Not authenticated' 
@@ -67,7 +68,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .from('learning_sessions')
       .insert({
         user_id: user.id,
-        topic_id: topic_id, // Dodajemy powiązanie z tematem
+        // topic_id: topic_id, // Usunięto - brak kolumny w tabeli wg migracji
       })
       .select('id, created_at')
       .single();

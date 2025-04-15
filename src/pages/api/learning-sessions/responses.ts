@@ -14,10 +14,11 @@ const saveResponseSchema = z.object({
 // POST endpoint to save a flashcard response
 export const POST: APIRoute = async ({ request, locals }) => {
   // Authentication check (using placeholder for now)
-  const user = { id: 'test-user-id' }; // TEMPORARY PLACEHOLDER USER
+  // TODO: Replace with actual user fetching/validation
+  const user = { id: '11111111-1111-1111-1111-111111111111' }; // TEMPORARY PLACEHOLDER USER (Valid UUID format)
   if (!user) {
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: true, 
         code: 'UNAUTHORIZED', 
         message: 'Not authenticated' 
