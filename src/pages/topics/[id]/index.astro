@@ -56,6 +56,10 @@ const breadcrumbs = [
   // Use topic name if available, otherwise show placeholder or error
   { label: topicData ? topicData.name : (error ? "Error" : "Loading...") },
 ];
+
+function handleAddManualFlashcard() {
+  console.log('Manual flashcard added for topic ' + (topicData?.id || 'N/A'));
+}
 ---
 
 <Layout title={topicData ? `Topic: ${topicData.name}` : (error ? 'Error' : 'Loading Topic...')} breadcrumbs={breadcrumbs}>
@@ -74,10 +78,11 @@ const breadcrumbs = [
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 class="text-2xl md:text-3xl font-bold">{topicData.name}</h1>
           <div class="flex space-x-2 flex-shrink-0">
-             {/* Placeholder Button for adding manually */}
-            <Button variant="outline" size="sm">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Manual Flashcard
-            </Button>
+            <a href={`/topics/${topicData?.id}/manual`}>
+              <Button variant="outline" size="sm">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Manual Flashcard
+              </Button>
+            </a>
             <a href={`/topics/${topicData.id}/generate`}>
               <Button size="sm">
                 <Bot className="mr-2 h-4 w-4" /> Generate with AI

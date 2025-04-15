@@ -28,42 +28,64 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 
   // 3. Database Interaction
   try {
-    // Fetch topic details and its flashcards, ensuring user owns the topic
-    // Ensure RLS is enabled in Supabase for topics and flashcards tables based on user_id
-    const { data: topicData, error: topicError } = await locals.supabase
+    // Step 3.1: Fetch basic topic details first to verify existence and access
+    const { data: topicBaseData, error: topicBaseError } = await locals.supabase
       .from('topics')
-      .select(`
-        id,
-        name,
-        created_at,
-        updated_at,
-        flashcards ( id, front, back, source, created_at, updated_at )
-      `)
-      .eq('id', topic_id) // Use the topic_id string directly
-      // .eq('user_id', user.id) // RLS should handle this automatically if configured
+      .select('id, name, created_at, updated_at') // Select only topic fields
+      .eq('id', topic_id)
+      // .eq('user_id', user.id) // RLS should handle this
       .single();
 
-    if (topicError) {
-      console.error("Supabase fetch error:", topicError);
-      // PGRST116 is the code Supabase returns when .single() finds no rows (or more than one)
-      if (topicError.code === 'PGRST116') {
+    if (topicBaseError) {
+      console.error("Supabase topic fetch error:", topicBaseError);
+      // PGRST116 is the code Supabase returns when .single() finds no rows
+      if (topicBaseError.code === 'PGRST116') {
          return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
       }
-      // Log other errors for debugging with more detail
-      console.error("Unexpected Supabase error object:", JSON.stringify(topicError, null, 2)); // Log the full error object
-      throw new Error(`Failed to fetch topic details due to database error. Code: ${topicError.code}, Message: ${topicError.message}`); // Include code and message in thrown error
+      // Log other errors
+      console.error("Unexpected Supabase error object:", JSON.stringify(topicBaseError, null, 2));
+      throw new Error(`Failed to fetch topic base details. Code: ${topicBaseError.code}, Message: ${topicBaseError.message}`);
     }
 
-    // Although RLS handles access, double-check if data is null (might happen if RLS prevents access but no error is thrown explicitly in some cases)
-    if (!topicData) {
-       console.warn(`No topic data returned for ID ${topic_id}, potentially due to RLS.`); // Use topic_id string in log
+    // Double-check if data is null (should be caught by PGRST116, but good practice)
+    if (!topicBaseData) {
+       console.warn(`No topic base data returned for ID ${topic_id}, potentially due to RLS.`);
        return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
     }
 
-    // Ensure flashcards array exists, even if empty
+    // Step 3.2: Call the RPC function to get sorted flashcards
+    const { data: flashcardsData, error: rpcError } = await locals.supabase.rpc(
+      'get_topic_flashcards_with_history',
+      {
+        p_topic_id: topic_id, // Pass topic ID
+        p_user_id: user.id    // Pass user ID
+      }
+    );
+
+    if (rpcError) {
+      console.error("Supabase RPC call error (get_topic_flashcards_with_history):", rpcError);
+      throw new Error(`Failed to fetch sorted flashcards via RPC. Code: ${rpcError.code}, Message: ${rpcError.message}`);
+    }
+
+    // The RPC function returns an array of flashcards (or null/empty array if none)
+    // We need to ensure the structure matches FlashcardResponseDto expected by TopicDetailDto
+    const formattedFlashcards: FlashcardResponseDto[] = (flashcardsData || []).map(fc => ({
+      id: fc.id,
+      front: fc.front,
+      back: fc.back,
+      source: fc.source,
+      created_at: fc.created_at,
+      updated_at: fc.updated_at,
+      // Add last_response and last_reviewed_at if needed in the DTO, otherwise omit
+      // last_response: fc.last_response,
+      // last_reviewed_at: fc.last_reviewed_at,
+    }));
+
+
+    // Step 3.3: Combine topic data and sorted flashcards into the response payload
     const responsePayload: TopicDetailDto = {
-        ...topicData,
-        flashcards: topicData.flashcards || [],
+      ...topicBaseData, // Use the base topic data fetched earlier
+      flashcards: formattedFlashcards, // Use the sorted flashcards from RPC
     };
 
     // 4. Return Success Response
