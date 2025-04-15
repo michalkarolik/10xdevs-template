@@ -1,0 +1,120 @@
+sequenceDiagram
+    autonumber
+    participant Browser as Przeglądarka
+    participant Middleware as Middleware Astro
+    participant API as Astro API
+    participant Auth as Supabase Auth
+    
+    Note over Browser,Auth: Proces Rejestracji Użytkownika
+
+    Browser->>API: Żądanie strony rejestracji
+    API-->>Browser: Renderowanie strony rejestracji
+    Browser->>Browser: Wypełnienie formularza rejestracji
+    Browser->>Auth: Wysłanie danych rejestracyjnych (email, hasło)
+    activate Auth
+    Auth->>Auth: Walidacja danych
+    
+    alt Dane poprawne
+        Auth->>Auth: Utworzenie konta użytkownika
+        Auth-->>Browser: Zwrócenie tokenu sesji
+        Browser->>Browser: Zapisanie tokenu w localStorage
+        Browser->>API: Przekierowanie do panelu głównego
+        API->>Middleware: Sprawdzenie tokenu sesji
+        Middleware->>Auth: Weryfikacja tokenu
+        Auth-->>Middleware: Token poprawny
+        Middleware-->>API: Autoryzacja pomyślna
+        API-->>Browser: Renderowanie panelu głównego
+    else Dane niepoprawne
+        Auth-->>Browser: Zwrócenie błędu rejestracji
+        Browser->>Browser: Wyświetlenie komunikatu błędu
+    end
+    deactivate Auth
+    
+    Note over Browser,Auth: Proces Logowania Użytkownika
+    
+    Browser->>API: Żądanie strony logowania
+    API-->>Browser: Renderowanie strony logowania
+    Browser->>Browser: Wypełnienie formularza logowania
+    Browser->>Auth: Wysłanie danych logowania (email, hasło)
+    activate Auth
+    Auth->>Auth: Weryfikacja danych
+    
+    alt Dane poprawne
+        Auth-->>Browser: Zwrócenie tokenu sesji
+        Browser->>Browser: Zapisanie tokenu w localStorage
+        Browser->>API: Przekierowanie do panelu głównego
+        API->>Middleware: Sprawdzenie tokenu sesji
+        Middleware->>Auth: Weryfikacja tokenu
+        Auth-->>Middleware: Token poprawny
+        Middleware-->>API: Autoryzacja pomyślna
+        API-->>Browser: Renderowanie panelu głównego
+    else Dane niepoprawne
+        Auth-->>Browser: Zwrócenie błędu logowania
+        Browser->>Browser: Wyświetlenie komunikatu błędu
+    end
+    deactivate Auth
+    
+    Note over Browser,Auth: Weryfikacja Sesji i Odświeżanie Tokenu
+    
+    Browser->>API: Żądanie dostępu do chronionej strony
+    API->>Middleware: Przechwycenie żądania
+    activate Middleware
+    Middleware->>Browser: Pobranie tokenu z localStorage
+    Browser-->>Middleware: Zwrócenie tokenu sesji
+    
+    alt Token ważny
+        Middleware->>Auth: Weryfikacja tokenu
+        Auth-->>Middleware: Token poprawny
+        Middleware-->>API: Autoryzacja pomyślna
+        API-->>Browser: Renderowanie żądanej strony
+    else Token wygasł
+        Middleware->>Auth: Próba odświeżenia tokenu
+        
+        alt Odświeżanie udane
+            Auth-->>Middleware: Nowy token sesji
+            Middleware->>Browser: Zapisanie nowego tokenu
+            Middleware-->>API: Autoryzacja pomyślna
+            API-->>Browser: Renderowanie żądanej strony
+        else Odświeżanie nieudane
+            Auth-->>Middleware: Błąd odświeżania
+            Middleware-->>API: Autoryzacja nieudana
+            API-->>Browser: Przekierowanie do strony logowania
+        end
+    end
+    deactivate Middleware
+    
+    Note over Browser,Auth: Proces Wylogowania Użytkownika
+    
+    Browser->>Auth: Kliknięcie przycisku "Wyloguj"
+    activate Auth
+    Auth->>Auth: Unieważnienie tokenu sesji
+    Auth-->>Browser: Potwierdzenie wylogowania
+    Browser->>Browser: Usunięcie tokenu z localStorage
+    Browser->>API: Przekierowanie do strony głównej
+    API-->>Browser: Renderowanie strony głównej
+    deactivate Auth
+    
+    Note over Browser,Auth: Proces Usunięcia Konta
+    
+    Browser->>API: Żądanie strony ustawień konta
+    API->>Middleware: Sprawdzenie tokenu sesji
+    Middleware->>Auth: Weryfikacja tokenu
+    Auth-->>Middleware: Token poprawny
+    Middleware-->>API: Autoryzacja pomyślna
+    API-->>Browser: Renderowanie strony ustawień
+    
+    Browser->>Auth: Kliknięcie "Usuń konto" i potwierdzenie
+    activate Auth
+    Auth->>Auth: Wywołanie funkcji RPC usuwania konta
+    
+    par Usunięcie danych użytkownika
+        Auth->>Auth: Usunięcie tematów i fiszek
+    and Usunięcie konta
+        Auth->>Auth: Usunięcie rekordu użytkownika
+    end
+    
+    Auth-->>Browser: Potwierdzenie usunięcia konta
+    Browser->>Browser: Usunięcie tokenu z localStorage
+    Browser->>API: Przekierowanie do strony głównej
+    API-->>Browser: Renderowanie strony głównej
+    deactivate Auth

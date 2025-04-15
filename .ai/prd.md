@@ -62,7 +62,7 @@ Następujące funkcjonalności NIE wchodzą w zakres MVP:
     - Formularz logowania zawiera pola na login i hasło.
     - Po poprawnym wprowadzeniu danych użytkownik jest zalogowany i przekierowany do panelu głównego.
     - W przypadku błędnych danych (nieprawidłowy login lub hasło) wyświetlany jest czytelny komunikat.
-    - Istnieje mechanizm typu "zapomniałem hasła" (poza MVP, ale warto zanotować).
+    - uzytkownik moze sie takze wylogowac co przeniesie go do glownej strony aplikacji na "/"
 
 - ID: US-003
 - Tytuł: Usuwanie konta
