@@ -1,21 +1,54 @@
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import LearningSessionView from './LearningSessionView';
 import type { TopicSummaryDto } from '@/types';
 
 interface LearningSessionClientWrapperProps {
-  initialTopics: TopicSummaryDto[];
+  topics: TopicSummaryDto[];
 }
 
-const LearningSessionClientWrapper: React.FC<LearningSessionClientWrapperProps> = ({ initialTopics }) => {
-  // This component will only render on the client thanks to client:only in the Astro file.
-  // Therefore, BrowserRouter and LearningSessionView (with its useParams hook)
-  // will only execute in a browser environment.
-  return (
-    <BrowserRouter>
-      <LearningSessionView initialTopics={initialTopics} />
-    </BrowserRouter>
-  );
-};
+export default function LearningSessionClientWrapper({ topics = [] }: LearningSessionClientWrapperProps) {
+  const [localTopics, setLocalTopics] = useState<TopicSummaryDto[]>(topics);
+  const topicsFetchedRef = useRef(false);
+  
+  // Only fetch topics once on mount if they're empty, using a ref to track this
+  useEffect(() => {
+    if (topics.length > 0) {
+      setLocalTopics(topics);
+      return;
+    }
+    
+    // Only fetch if topics are empty AND we haven't fetched yet
+    if (topics.length === 0 && !topicsFetchedRef.current) {
+      console.log('No topics provided from server, fetching once from client...');
+      topicsFetchedRef.current = true;
+      
+      fetch('/api/topics')
+        .then(response => {
+          if (!response.ok) throw new Error(`Error: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Topics fetched from client:', data.length);
+          setLocalTopics(data);
+        })
+        .catch(error => {
+          console.error('Failed to fetch topics from client:', error);
+        });
+    }
+  }, [topics]);
 
-export default LearningSessionClientWrapper;
+  // Function to handle navigation when a topic is selected
+  const navigateToTopic = (topicId: string) => {
+    // For client-side routing in Astro
+    if (window.location.pathname !== `/learning-session/${topicId}`) {
+      window.history.pushState({}, '', `/learning-session/${topicId}`);
+    }
+  };
+
+  return (
+    <LearningSessionView 
+      topics={localTopics} 
+      navigate={navigateToTopic}
+    />
+  );
+}

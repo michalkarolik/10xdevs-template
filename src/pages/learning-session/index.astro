@@ -1,0 +1,26 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import LearningSessionClientWrapper from '@/components/learning/LearningSessionClientWrapper';
+
+// Get topics from the server or API - fix the URL to match the API endpoint
+let topics = [];
+try {
+  // Use just "/api/topics" without any prefix - this will use the correct API base URL
+  const response = await fetch('/api/topics');
+  if (response.ok) {
+    topics = await response.json();
+    console.log('Topics fetched on server:', topics.length);
+  } else {
+    console.error('Failed to fetch topics:', response.status);
+  }
+} catch (error) {
+  console.error('Error fetching topics:', error);
+}
+---
+
+<Layout title="Learning Session">
+  <div class="container mx-auto py-6">
+    <h1 class="text-3xl font-bold mb-6">Learning Session</h1>
+    <LearningSessionClientWrapper topics={topics} client:only="react" />
+  </div>
+</Layout>

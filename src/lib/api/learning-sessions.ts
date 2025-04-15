@@ -1,68 +1,31 @@
 /**
- * API functions for learning sessions
- */
-
-/**
- * Creates a new learning session for a topic
- * @param topicId The ID of the topic for the learning session
- * @returns The created session data
- */
-export async function createLearningSession(topicId: string): Promise<{ session_id: string, created_at: string }> {
-  const response = await fetch('/api/learning-sessions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ topic_id: topicId }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to create learning session');
-  }
-
-  return response.json();
-}
-
-/**
- * Saves a user's response to a flashcard during a learning session
- * @param sessionId The ID of the learning session
- * @param flashcardId The ID of the flashcard
- * @param userResponse The user's response (Again, Hard, Easy)
- * @returns The saved response data
+ * Save a flashcard response during a learning session
  */
 export async function saveFlashcardResponse(
   sessionId: string,
   flashcardId: string,
-  userResponse: 'Again' | 'Hard' | 'Easy'
-): Promise<{ id: string, created_at: string }> {
-  console.log(`API call: saveFlashcardResponse(${sessionId}, ${flashcardId}, ${userResponse})`);
-  
+  response: 'Again' | 'Hard' | 'Easy'
+) {
   try {
-    const response = await fetch('/api/learning-sessions/responses', {
+    const apiResponse = await fetch(`/api/learning/session/${sessionId}/rate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        session_id: sessionId,
-        flashcard_id: flashcardId,
-        user_response: userResponse,
+        card_id: flashcardId,
+        rating: response,
       }),
     });
 
-    console.log(`Response status: ${response.status}`);
-    
-    const responseData = await response.json();
-    console.log(`Response data:`, responseData);
-    
-    if (!response.ok) {
-      throw new Error(responseData.message || `Failed to save flashcard response: ${response.status}`);
+    if (!apiResponse.ok) {
+      const error = await apiResponse.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to save response');
     }
 
-    return responseData;
+    return apiResponse.json();
   } catch (error) {
-    console.error('Error in saveFlashcardResponse:', error);
+    console.error('Error saving flashcard response:', error);
     throw error;
   }
 }

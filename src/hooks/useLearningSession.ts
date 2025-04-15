@@ -1,120 +1,129 @@
-import { useState, useCallback, useMemo } from 'react';
-import type { TopicSummaryDto, FlashcardResponseDto, TopicDetailDto } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import type { Flashcard, TopicSummaryDto, TopicDetailDto } from '@/types'; // Dodano TopicDetailDto
 
 export enum SessionState {
-  SELECTING_TOPIC = 'SELECTING_TOPIC',
-  LOADING_FLASHCARDS = 'LOADING_FLASHCARDS',
-  SHOWING_FRONT = 'SHOWING_FRONT',
-  SHOWING_BACK = 'SHOWING_BACK',
-  FINISHED = 'FINISHED',
-  ERROR = 'ERROR',
+  IDLE = 'idle',
+  LOADING_FLASHCARDS = 'loading_flashcards',
+  SHOWING_FRONT = 'showing_front',
+  SHOWING_BACK = 'showing_back',
+  FINISHED = 'finished',
+  ERROR = 'error'
 }
 
-export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
-  const [topics] = useState<TopicSummaryDto[]>(initialTopics);
+export function useLearningSession(topics: TopicSummaryDto[] = []) {
+  const [sessionState, setSessionState] = useState<SessionState>(SessionState.IDLE);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
-  const [flashcards, setFlashcards] = useState<FlashcardResponseDto[]>([]);
-  const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
-  const [sessionState, setSessionState] = useState<SessionState>(SessionState.SELECTING_TOPIC);
+  const [selectedTopicName, setSelectedTopicName] = useState<string | null>(null);
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  
+  const currentCard = flashcards?.length > 0 ? flashcards[currentCardIndex] : null;
 
-  const currentCard = useMemo(() => {
-    return flashcards[currentCardIndex] ?? null;
-  }, [flashcards, currentCardIndex]);
-
-  const selectedTopicName = useMemo(() => {
-    return topics.find(t => t.id === selectedTopicId)?.name ?? 'Unknown Topic';
-  }, [topics, selectedTopicId]);
+  // Effect to set the topic name when topic ID changes
+  useEffect(() => {
+    if (selectedTopicId && topics?.length > 0) {
+      const topic = topics.find(t => t.id === selectedTopicId);
+      if (topic) {
+        setSelectedTopicName(topic.name);
+      }
+    }
+  }, [selectedTopicId, topics]);
 
   const startSession = useCallback(async (topicId: string) => {
-    console.log('[useLearningSession] startSession called with topicId:', topicId);
-    if (!topicId) {
-      console.log('[useLearningSession] topicId is empty, returning.');
-      return;
-    }
-    setSelectedTopicId(topicId); // Set selected topic ID immediately
-
-    // --- Restore Original Fetch Logic ---
-    setSessionState(SessionState.LOADING_FLASHCARDS);
-    setError(null);
-    setFlashcards([]);
-    setCurrentCardIndex(0);
-    console.log('[useLearningSession] State set to LOADING_FLASHCARDS for topic:', topicId);
-
     try {
-      console.log(`[useLearningSession] Fetching flashcards from: /api/topics/${topicId}`);
-      // Assuming API endpoint /api/topics/[topic_id] returns TopicDetailDto which includes flashcards
-      const response = await fetch(`/api/topics/${topicId}`);
-      console.log('[useLearningSession] Fetch response status:', response.status);
+      setSessionState(SessionState.LOADING_FLASHCARDS);
+      setError(null);
+      
+      // Find topic name from the topics array
+      const topic = topics?.find(t => t.id === topicId);
+      setSelectedTopicId(topicId);
+      setSelectedTopicName(topic?.name || 'Selected Topic');
+      
+      // API call to load flashcards
+      console.log(`Fetching topic details (including flashcards) for topic: ${topicId}`);
 
-      if (!response.ok) {
-        let errorText = response.statusText;
-        try {
-          const errorData = await response.json();
-          errorText = errorData?.error || errorText;
-          console.error('[useLearningSession] Fetch error data:', errorData);
-        } catch {
-          // Ignore if response body is not JSON
+      // Use a relative URL instead of an absolute one - works better across environments
+      // Zmieniono URL na endpoint zwracający szczegóły tematu (w tym fiszki)
+      const apiUrl = `/api/topics/${topicId}`;
+      console.log(`Trying to fetch from: ${apiUrl}`);
+      // To debug API issues, fetch with more options
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-        throw new Error(`Failed to fetch flashcards: ${response.status} ${errorText}`);
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`API error (${response.status}):`, errorData);
+        throw new Error(errorData.message || `Failed to fetch topic details (${response.status})`);
       }
 
-      const topicDetail: TopicDetailDto = await response.json();
-      console.log('[useLearningSession] Fetched topic detail:', topicDetail);
+      // Oczekujemy obiektu TopicDetailDto, który zawiera tablicę flashcards
+      const data: TopicDetailDto = await response.json();
+      console.log(`Received topic details:`, data);
 
-      if (!topicDetail.flashcards || topicDetail.flashcards.length === 0) {
-        console.log('[useLearningSession] Topic has no flashcards.');
-        throw new Error("This topic has no flashcards to study.");
+      // Sprawdź, czy odpowiedź ma oczekiwaną strukturę i zawiera tablicę flashcards
+      if (!data || typeof data !== 'object' || !Array.isArray(data.flashcards)) {
+        console.error("Invalid response format. Expected object with flashcards array:", data);
+        throw new Error('Invalid response format received from server');
       }
 
-      console.log(`[useLearningSession] Found ${topicDetail.flashcards.length} flashcards. Setting state to SHOWING_FRONT.`);
-      // TODO: Implement shuffling later if needed
-      setFlashcards(topicDetail.flashcards);
-      setFlashcards(topicDetail.flashcards);
+      if (data.flashcards.length === 0) {
+        // Można rozważyć inną obsługę - np. informacja dla użytkownika zamiast błędu
+        setError('No flashcards available for this topic.');
+        setSessionState(SessionState.ERROR); // Ustaw stan błędu, ale nie rzucaj wyjątku, aby umożliwić reset
+        return; // Zakończ funkcję startSession
+        // throw new Error('No flashcards available for this topic'); // Alternatywnie, rzuć błąd
+      }
+
+      // Create a unique session ID
+      const newSessionId = `session_${Date.now()}`;
+
+      setFlashcards(data.flashcards); // Użyj tablicy flashcards z odpowiedzi
+      setCurrentCardIndex(0);
+      setSessionId(newSessionId);
       setSessionState(SessionState.SHOWING_FRONT);
-      console.log('[useLearningSession] State successfully set to SHOWING_FRONT.'); // Add log here
     } catch (err) {
-      console.error("[useLearningSession] Error starting session:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      console.error("Error starting session:", err);
+      setError(err instanceof Error ? err.message : 'Failed to start learning session');
       setSessionState(SessionState.ERROR);
     }
-    // --- End of Restored Logic ---
+  }, [topics]);
 
-  }, [setSelectedTopicId, setSessionState, setError, setFlashcards, setCurrentCardIndex]); // Restore original dependencies
-
-  const showAnswer = useCallback(() => {
+  const showAnswer = () => {
     if (sessionState === SessionState.SHOWING_FRONT) {
       setSessionState(SessionState.SHOWING_BACK);
     }
-  }, [sessionState]);
+  };
 
-  const rateCard = useCallback((rating: 'good' | 'medium' | 'bad') => {
-    if (sessionState !== SessionState.SHOWING_BACK) return;
-
-    console.log(`Card ${currentCard?.id} rated as: ${rating}`); // Placeholder for rating logic
-
-    // Move to the next card or finish session
-    const nextIndex = currentCardIndex + 1;
-    if (nextIndex < flashcards.length) {
-      setCurrentCardIndex(nextIndex);
-      setSessionState(SessionState.SHOWING_FRONT);
+  const rateCard = (rating: 'bad' | 'medium' | 'good') => {
+    console.log(`Card rated: ${rating}`);
+    
+    // Move to next card or finish session
+    if (currentCardIndex < flashcards.length - 1) {
+      setCurrentCardIndex(prev => prev + 1);
+      setSessionState(SessionState.SHOWING_FRONT); // Reset to front for the next card
     } else {
-      setSessionState(SessionState.FINISHED);
+      setSessionState(SessionState.FINISHED); // All cards reviewed
     }
-    // Add dependencies
-  }, [sessionState, currentCardIndex, flashcards.length, currentCard?.id, setSessionState, setCurrentCardIndex]);
+  };
 
-  const resetSession = useCallback(() => {
+  const resetSession = () => {
+    setSessionState(SessionState.IDLE);
     setSelectedTopicId(null);
+    setSelectedTopicName(null);
     setFlashcards([]);
     setCurrentCardIndex(0);
-    setSessionState(SessionState.SELECTING_TOPIC);
     setError(null);
-    // Add dependencies
-  }, [setSelectedTopicId, setFlashcards, setCurrentCardIndex, setSessionState, setError]);
+    setSessionId(null);
+  };
 
   return {
-    topics,
     selectedTopicId,
     selectedTopicName,
     flashcards,
@@ -126,5 +135,6 @@ export const useLearningSession = (initialTopics: TopicSummaryDto[]) => {
     showAnswer,
     rateCard,
     resetSession,
+    sessionId,
   };
-};
+}

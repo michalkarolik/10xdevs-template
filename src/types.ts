@@ -163,3 +163,21 @@ export interface FlashcardSuggestionViewModel {
   originalFront?: string; // Keep original values for editing/reverting
   originalBack?: string;
 }
+
+export interface TopicSummaryDto {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  flashcard_count?: number;
+}
+
+export interface Flashcard {
+  id: string;
+  front: string;
+  back: string;
+  topic_id: string;
+  source: 'ai-generated' | 'ai-edited' | 'manual';
+  created_at: string;
+  updated_at: string;
+}

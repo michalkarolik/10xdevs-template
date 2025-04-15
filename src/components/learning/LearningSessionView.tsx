@@ -1,32 +1,26 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useLearningSession, SessionState } from '@/hooks/useLearningSession';
 import type { TopicSummaryDto } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react'; // Icons
-import { createLearningSession, saveFlashcardResponse } from '@/lib/api/learning-sessions'; // Import API functions
-import { useParams, useNavigate } from 'react-router-dom'; // Correct named import
-import { toast } from "sonner"; // Import toast for notifications
+import { Loader2, AlertCircle, CheckCircle, RotateCcw, XCircle, HelpCircle } from 'lucide-react';
+import { toast } from "sonner";
+import { saveFlashcardResponse } from '@/lib/api/learning-sessions';
 
 interface LearningSessionViewProps {
-  initialTopics: TopicSummaryDto[];
+  topics: TopicSummaryDto[];
+  navigate: (topicId: string) => void;
 }
 
-const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics }) => {
-    const [userFlashcards, setFlashcards] = useState([]);
-    const [userResponses, setUserResponses] = useState<Record<string, string>>({}); // Added type annotation
-    const [sessionId, setSessionId] = useState<string | null>(null);
-    const navigate = useNavigate();
+const LearningSessionView: React.FC<LearningSessionViewProps> = ({ topics = [], navigate }) => {
+    console.log('LearningSessionView mounted, topics:', topics);
+    const [userResponses, setUserResponses] = React.useState<Record<string, string>>({});
 
-    // Get topic ID from URL and type it
-    const { topicId: topicIdFromParams } = useParams<{ topicId: string }>();
-
-    // Always call hooks at the top level, never conditionally
     const {
-        topics,
         selectedTopicId,
         selectedTopicName,
+        flashcards = [],
         currentCard,
         currentCardIndex,
         sessionState,
@@ -35,112 +29,48 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
         showAnswer,
         rateCard,
         resetSession,
-    } = useLearningSession(initialTopics, topicIdFromParams);
+        sessionId,
+    } = useLearningSession(topics);
 
     const handleTopicChange = (topicId: string) => {
-        console.log("handleTopicChange called with topicId:", topicId);
+        console.log("Topic selected:", topicId);
         if (topicId) {
-            // Update the URL to reflect the selected topic
-            navigate(`/learning-session/${topicId}`);
+            startSession(topicId);
+            navigate(topicId);
         }
     };
-
-    console.log('[LearningSessionView] Rendering with state:', sessionState, 'Selected Topic ID:', selectedTopicId, 'Current Card:', currentCard); // Add logging
-
-    // Effect to fetch flashcards when topicId changes
-    useEffect(() => {
-        if (topicIdFromParams) { // Only fetch if topicId is available
-            const fetchFlashcards = async () => {
-                try {
-                    // TODO: Update the API endpoint if necessary
-                    const response = await fetch(`/api/topics/${topicIdFromParams}/flashcards`); // Example: More RESTful endpoint
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const data = await response.json();
-                    // Assuming the API returns an array of flashcards
-                    setFlashcards(data.flashcards || []); // Adjust based on actual API response structure
-                } catch (fetchError) {
-                    console.error("Failed to fetch flashcards:", fetchError);
-                    // Handle error state if needed
-                }
-            };
-            fetchFlashcards();
-        }
-    }, [topicIdFromParams]);
-
-    // Effect to start the session when topicId changes
-    useEffect(() => {
-        console.log("useEffect - topicId:", topicIdFromParams);
-        if (topicIdFromParams) { // Ensure topicId is present before starting
-            console.log("Attempting to initialize session with topicId:", topicIdFromParams);
-            // Create a learning session in the database
-            const initSession = async () => {
-                try {
-                    console.log("Creating learning session for topic:", topicIdFromParams);
-                    const session = await createLearningSession(topicIdFromParams);
-                    console.log("createLearningSession response:", session); // Log the response
-
-                    if (session && session.session_id) {
-                        console.log("Setting sessionId:", session.session_id);
-                        setSessionId(session.session_id);
-                        console.log("Session ID set:", session.session_id);
-                        startSession(topicIdFromParams);
-                    } else {
-                        console.error("Session ID is missing in the response:", session);
-                        toast.error("Failed to start learning session: Session ID missing");
-                    }
-                } catch (error) {
-                    console.error("Failed to create learning session:", error);
-                    toast.error("Failed to start learning session");
-                }
-            };
-            
-            initSession();
-        } else {
-            console.log("Not initializing session: topicId is", topicIdFromParams);
-        }
-    }, [topicIdFromParams, startSession, sessionId]); // Add sessionId to dependency array
 
     const handleResponse = async (flashcardId: string, response: string) => {
         // Map the response to the expected format
         const mappedResponse = response === 'bad' ? 'Again' : 
-                              response === 'medium' ? 'Hard' : 
-                              response === 'good' ? 'Easy' : 'Again';
+                             response === 'medium' ? 'Hard' : 
+                             response === 'good' ? 'Easy' : 'Again';
         
         // Save user response locally
         setUserResponses((prev) => ({ ...prev, [flashcardId]: mappedResponse }));
 
         // Save response to database if we have a session ID
         if (sessionId && flashcardId) {
-            console.log("Session ID inside handleResponse:", sessionId); // Add logging
             try {
-                console.log(`Saving response "${mappedResponse}" for card ${flashcardId} in session ${sessionId}`);
-                const result = await saveFlashcardResponse(
+                await saveFlashcardResponse(
                     sessionId,
                     flashcardId,
                     mappedResponse as 'Again' | 'Hard' | 'Easy'
                 );
-                console.log(`Successfully saved response:`, result);
             } catch (error) {
                 console.error("Failed to save flashcard response:", error);
                 toast.error("Failed to save your response");
             }
-        } else {
-            console.warn("Cannot save response - missing sessionId or flashcardId", { sessionId, flashcardId });
         }
     };
 
     const handleSessionEnd = async () => {
-        console.log("Ending session, responses saved individually");
         try {
-            // Since we're saving responses individually, we just need to reset state
             setUserResponses({}); // Clear responses for the next session
-            setSessionId(null); // Clear session ID
             resetSession(); // Reset the learning session hook state
             toast.success("Learning session completed!");
         } catch (endSessionError) {
-            console.error("Failed to end session:", endSessionError);
+            console.error("Failed to save session:", endSessionError);
             toast.error("Failed to complete session");
         }
     };
@@ -148,22 +78,30 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
     return (
         <div className="max-w-md mx-auto flex flex-col items-center space-y-4">
             <h2 className="text-xl font-semibold">Select a Topic to Start</h2>
-            <Select onValueChange={handleTopicChange} value={selectedTopicId ?? ""} className="w-full">
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a topic..." />
-                </SelectTrigger>
-                <SelectContent>
-                    {topics.length > 0 ? (
-                        topics.map((topic) => (
-                            <SelectItem key={topic.id} value={topic.id}>
-                                {topic.name} ({topic.flashcard_count ?? 0} cards)
-                            </SelectItem>
-                        ))
-                    ) : (
-                        <div className="p-4 text-center text-muted-foreground">No topics found.</div>
-                    )}
-                </SelectContent>
-            </Select>
+            
+            <div className="w-full">
+                {/* Debug info */}
+                <div className="mb-2 text-sm text-gray-500">
+                    Available topics: {topics.length}
+                </div>
+                
+                <Select onValueChange={handleTopicChange} value={selectedTopicId ?? ""}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose a topic..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {topics && topics.length > 0 ? (
+                            topics.map((topic) => (
+                                <SelectItem key={topic.id} value={topic.id}>
+                                    {topic.name} ({topic.flashcard_count ?? 0} cards)
+                                </SelectItem>
+                            ))
+                        ) : (
+                            <div className="p-4 text-center text-muted-foreground">No topics found.</div>
+                        )}
+                    </SelectContent>
+                </Select>
+            </div>
 
             {/* Loading View */}
             {sessionState === SessionState.LOADING_FLASHCARDS && (
@@ -213,10 +151,9 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
             )}
 
             {/* Conditional rendering: only render flashcard display if sessionId is available */}
-            {!sessionId && sessionState !== SessionState.LOADING_FLASHCARDS && sessionState !== SessionState.ERROR && sessionState !== SessionState.FINISHED && (
+            {sessionState !== SessionState.LOADING_FLASHCARDS && sessionState !== SessionState.ERROR && sessionState !== SessionState.FINISHED && !selectedTopicId && (
                 <div className="flex justify-center items-center py-10">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="ml-2">Initializing session...</span>
+                    <p>Select a topic to start learning.</p>
                 </div>
             )}
 
@@ -226,7 +163,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                     <CardHeader>
                         <CardTitle>{selectedTopicName || 'Learning Session'}</CardTitle>
                         <CardDescription>
-                            Card {currentCardIndex + 1} of {userFlashcards.length || 0}
+                            Card {currentCardIndex + 1} of {flashcards?.length || 0}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6 min-h-[200px] flex flex-col justify-center">
@@ -260,14 +197,10 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                         className="bg-red-500 hover:bg-red-600 text-white"
                                         onClick={() => {
                                             if (currentCard) {
-                                                // Log before calling handleResponse
-                                                console.log("handleResponse called with sessionId:", sessionId, "flashcardId:", currentCard.id);
-                                                // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
                                                 handleResponse(currentCard.id, 'bad')
                                                     .then(() => rateCard('bad'))
                                                     .catch(err => {
                                                         console.error("Error handling 'Again' response:", err);
-                                                        // Kontynuuj mimo błędu zapisu
                                                         rateCard('bad');
                                                     });
                                             }
@@ -281,14 +214,10 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                         className="border-yellow-500 text-yellow-600 hover:bg-yellow-100 hover:text-yellow-700 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
                                         onClick={() => {
                                             if (currentCard) {
-                                                // Log before calling handleResponse
-                                                console.log("handleResponse called with sessionId:", sessionId, "flashcardId:", currentCard.id);
-                                                // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
                                                 handleResponse(currentCard.id, 'medium')
                                                     .then(() => rateCard('medium'))
                                                     .catch(err => {
                                                         console.error("Error handling 'Hard' response:", err);
-                                                        // Kontynuuj mimo błędu zapisu
                                                         rateCard('medium');
                                                     });
                                             }
@@ -302,14 +231,10 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
                                         className="bg-green-600 hover:bg-green-700 text-white"
                                         onClick={() => {
                                             if (currentCard) {
-                                                // Log before calling handleResponse
-                                                console.log("handleResponse called with sessionId:", sessionId, "flashcardId:", currentCard.id);
-                                                // Najpierw zapisz odpowiedź, a potem przejdź do następnej karty
                                                 handleResponse(currentCard.id, 'good')
                                                     .then(() => rateCard('good'))
                                                     .catch(err => {
                                                         console.error("Error handling 'Easy' response:", err);
-                                                        // Kontynuuj mimo błędu zapisu
                                                         rateCard('good');
                                                     });
                                             }
@@ -326,7 +251,7 @@ const LearningSessionView: React.FC<LearningSessionViewProps> = ({ initialTopics
 
             {/* Fallback */}
             {!(sessionState === SessionState.LOADING_FLASHCARDS || sessionState === SessionState.ERROR || sessionState === SessionState.FINISHED) &&
-                !currentCard && (
+                !currentCard && selectedTopicId && (
                     <div className="text-center py-10">
                         <p>Something went wrong or the session state is unexpected.</p>
                         <Button variant="outline" onClick={resetSession} className="mt-4">

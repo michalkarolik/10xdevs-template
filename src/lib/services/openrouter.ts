@@ -209,12 +209,25 @@ export class OpenRouterService {
     if (schema) {
       let parsedJsonContent: any;
       try {
-        // Model zwraca JSON jako string w polu 'content', więc musimy go sparsować
-        parsedJsonContent = JSON.parse(messageContent);
+        // Extract JSON from potential markdown code blocks
+        let jsonContent = messageContent;
+        
+        // Check if content is wrapped in markdown code blocks
+        const jsonBlockRegex = /```(?:json)?\s*\n([\s\S]*?)\n```/;
+        const match = jsonBlockRegex.exec(messageContent);
+        if (match && match[1]) {
+          jsonContent = match[1];
+        }
+        
+        parsedJsonContent = JSON.parse(jsonContent);
       } catch (error) {
-        console.error('Error parsing message content as JSON:', error);
-        console.error('Raw message content:', messageContent); // Logujemy surową zawartość do debugowania
-        throw new ResponseParsingError('Failed to parse message content as JSON. The AI might not have returned valid JSON.', error);
+        if (error instanceof z.ZodError) {
+          throw new Error(`Validation error: ${error.message}`);
+        } else if (error instanceof SyntaxError) {
+          console.error("Raw message content:", messageContent);
+          throw new ResponseParsingError("Failed to parse message content as JSON. The AI might not have returned valid JSON.");
+        }
+        throw error;
       }
 
       const validationResult = schema.safeParse(parsedJsonContent);
@@ -262,3 +275,4 @@ export class OpenRouterService {
     return this.parseAndValidateResponse(response, options?.responseSchema);
   }
 }
+
