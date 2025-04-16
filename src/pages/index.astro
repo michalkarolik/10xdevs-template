@@ -1,21 +1,148 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { Button } from "@/components/ui/button"; // Import Button for styling links
+import Layout from '../layouts/Layout.astro';
+import { createSupabaseServer } from "@/lib/supabase-server";
+
+// This page should be rendered on each request to ensure auth state is accurate
+export const prerender = false;
+
+// Get user session information
+const supabase = createSupabaseServer(Astro);
+const { data: { session } } = await supabase.auth.getSession();
+const isAuthenticated = !!session?.user;
+
+// Debug
+if (isAuthenticated) {
+  console.log("Index page: User is authenticated with email:", session?.user?.email);
+} else {
+  console.log("Index page: User is NOT authenticated");
+}
 ---
 
-<Layout>
-  <main class="container mx-auto px-4 py-12 flex flex-col items-center space-y-8">
-    <h1 class="text-3xl font-bold text-center">Flashcard App</h1>
-    <p class="text-lg text-muted-foreground text-center max-w-md">
-      Manage your topics and flashcards or start a learning session.
+<Layout title="AI Flashcard Generator">
+  <!-- Simple landing hero section -->
+  <div class="py-16 text-center">
+    <h1 class="text-4xl font-bold mb-4">AI Flashcard Generator</h1>
+    <p class="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+      Twórz i ucz się z pomocą fiszek generowanych przez sztuczną inteligencję.
     </p>
-    <div class="flex flex-col sm:flex-row gap-4">
-      <a href="/topics">
-        <Button size="lg">Manage Topics</Button>
-      </a>
-      <a href="/learning-session"> {/* Placeholder link */}
-        <Button size="lg" variant="secondary">Start Learning Session</Button>
-      </a>
+  </div>
+  
+  <!-- Authenticated user actions - moved to top -->
+  <div id="auth-section" style="display: none;" class="mb-12">
+    <div class="text-center">
+      <h2 class="text-2xl font-bold mb-6">Zacznij naukę już teraz</h2>
+      <div class="flex justify-center space-x-4">
+        <a 
+          href="/topics" 
+          class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+        >
+          Zarządzaj tematami
+        </a>
+        <a 
+          href="/learning-session" 
+          class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+        >
+          Rozpocznij sesję nauki
+        </a>
+      </div>
     </div>
-  </main>
+  </div>
+  
+  <!-- Features section -->
+  <div class="py-12 bg-muted/40">
+    <div class="container">
+      <h2 class="text-3xl font-bold text-center mb-12">Kluczowe funkcje</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-card rounded-lg p-6 shadow-sm">
+          <h3 class="text-xl font-bold mb-2">Generowanie Fiszek</h3>
+          <p>Automatyczne tworzenie fiszek na podstawie wybranego tematu.</p>
+        </div>
+        <div class="bg-card rounded-lg p-6 shadow-sm">
+          <h3 class="text-xl font-bold mb-2">Nauka</h3>
+          <p>Efektywna nauka z wykorzystaniem technik powtórek.</p>
+        </div>
+        <div class="bg-card rounded-lg p-6 shadow-sm">
+          <h3 class="text-xl font-bold mb-2">Analiza Wyników</h3>
+          <p>Śledzenie postępów nauki i skuteczności sesji.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Guest-only call to action section -->
+  <div id="guest-section" style="display: none;">
+    <div class="py-12 bg-primary/5">
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="text-3xl font-bold mb-4">Dołącz do nas już teraz</h2>
+        <p class="mb-8">
+          Utwórz darmowe konto i rozpocznij efektywną naukę z AI Flashcard Generator.
+        </p>
+        <div class="flex justify-center space-x-4">
+          <a 
+            href="/register" 
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          >
+            Zarejestruj się
+          </a>
+          <a 
+            href="/login" 
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
+            Zaloguj się
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </Layout>
+
+<script>
+  // Reliable client-side authentication check
+  import { supabase } from '../lib/supabase';
+  
+  async function checkAndUpdateAuthUI() {
+    try {
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      const isAuthenticated = !!session?.user;
+      
+      console.log("Client-side auth check:", isAuthenticated ? "authenticated" : "not authenticated");
+      
+      // Get the section elements
+      const authSection = document.getElementById('auth-section');
+      const guestSection = document.getElementById('guest-section');
+      
+      if (!authSection || !guestSection) {
+        console.error("Could not find auth or guest sections");
+        return;
+      }
+
+      // Update UI based on authentication state
+      if (isAuthenticated) {
+        authSection.style.display = 'block';
+        guestSection.style.display = 'none';
+        console.log("Showing authenticated content");
+      } else {
+        authSection.style.display = 'none';
+        guestSection.style.display = 'block';
+        console.log("Showing guest content");
+      }
+      
+      // Force a re-check if there's a mismatch between local storage and UI state
+      const hasAuthToken = Object.keys(localStorage).some(key => key.startsWith('sb-'));
+      if (hasAuthToken && !isAuthenticated) {
+        console.log("Storage has auth token but user isn't authenticated - refreshing session");
+        await supabase.auth.refreshSession();
+        setTimeout(checkAndUpdateAuthUI, 500); // Re-check after refresh
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+    }
+  }
+  
+  // Run the check when the DOM is ready
+  document.addEventListener('DOMContentLoaded', checkAndUpdateAuthUI);
+  
+  // Also check again after a short delay in case of auth state changes
+  setTimeout(checkAndUpdateAuthUI, 100);
+</script>

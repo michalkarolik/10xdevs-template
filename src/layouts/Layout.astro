@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
-import Breadcrumbs from "@/components/ui/Breadcrumbs.astro"; // Import the Breadcrumbs component
+import Breadcrumbs from "@/components/ui/Breadcrumbs.astro"; 
+import { UserMenu } from "@/components/auth/UserMenu";
+import { createSupabaseServer } from "@/lib/supabase-server";
 
 // Define the structure for a breadcrumb item
 interface BreadcrumbItem {
@@ -10,11 +12,36 @@ interface BreadcrumbItem {
 
 interface Props {
   title?: string;
-  breadcrumbs?: BreadcrumbItem[]; // Add breadcrumbs prop to the interface
+  breadcrumbs?: BreadcrumbItem[];
+  requireAuth?: boolean;
+  noAuthCheck?: boolean;
 }
 
 // Set default title and default breadcrumbs to an empty array
-const { title = "10x Astro Starter", breadcrumbs = [] } = Astro.props;
+const { title = "10x Astro Starter", breadcrumbs = [], requireAuth = false, noAuthCheck = false } = Astro.props;
+
+// Get user session information
+const supabase = createSupabaseServer(Astro);
+const { data: { session } } = await supabase.auth.getSession();
+const user = session?.user || null;
+
+// Debug session information
+console.log("Session status:", !!session ? "authenticated" : "unauthenticated");
+if (user) {
+  console.log("User email:", user.email);
+}
+
+// Check if this is a protected page and the user is not logged in
+const isAuthenticated = !!user;
+
+// Only redirect for protected pages, not for login/register pages
+const currentPath = Astro.url.pathname;
+const isAuthPage = currentPath === '/login' || currentPath === '/register' || 
+                  currentPath === '/reset-password';
+                  
+if (requireAuth && !isAuthenticated) {
+  return Astro.redirect('/login');
+}
 ---
 
 <!doctype html>
@@ -28,15 +55,82 @@ const { title = "10x Astro Starter", breadcrumbs = [] } = Astro.props;
   </head>
   <!-- Add base body styles -->
   <body class="min-h-screen bg-background font-sans antialiased">
+    <!-- Header with navigation and user menu -->
+    <div class="border-b">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="/" class="font-bold text-xl">AI Flashcard Generator</a>
+        <UserMenu user={user} client:load />
+      </div>
+    </div>
+    
     <!-- Add a container for consistent padding and layout -->
     <div class="container mx-auto px-4 py-6">
       <!-- Render breadcrumbs if items are provided -->
       <Breadcrumbs items={breadcrumbs} />
-      <!-- Render the page content -->
-      <slot />
+
+      <!-- If not authenticated and trying to access protected content, show login prompt -->
+      {!isAuthenticated && requireAuth ? (
+        <div class="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
+          <h2 class="text-2xl font-bold">Wymagane logowanie</h2>
+          <p>Aby korzystać z tej funkcji, musisz się zalogować.</p>
+          <div class="flex space-x-4 mt-4">
+            <a 
+              href="/login" 
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              Zaloguj się
+            </a>
+            <a 
+              href="/register" 
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+            >
+              Zarejestruj się
+            </a>
+          </div>
+        </div>
+      ) : (
+        <!-- Mark authenticated content blocks -->
+        <div data-auth-state={isAuthenticated ? "authenticated" : "guest"}>
+          <slot />
+        </div>
+      )}
     </div>
   </body>
 </html>
+
+<script define:vars={{ currentPath, noAuthCheck, isAuthenticated }}>
+  // Disable automatic auth state listener on the home page to prevent reload loops
+  if (!noAuthCheck && currentPath !== '/') {
+    // Import supabase client
+    import { supabase } from '../lib/supabase';
+    
+    // Set up auth state change listener with fewer reloads
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, "on path:", currentPath);
+      
+      // Avoid handling auth events on auth pages
+      if (currentPath === '/login' || currentPath === '/register' || 
+          currentPath === '/reset-password') {
+        return;
+      }
+      
+      if (event === 'SIGNED_IN') {
+        // Don't reload if we're already on the home page
+        if (window.location.pathname !== '/') {
+          console.log("Redirecting to home after sign in");
+          window.location.href = '/';
+        }
+      } 
+      else if (event === 'SIGNED_OUT') {
+        // Don't reload if we're already on the login page
+        if (window.location.pathname !== '/login') {
+          console.log("Redirecting to login after sign out");
+          window.location.href = '/login';
+        }
+      }
+    });
+  }
+</script>
 
 <style>
   html,
