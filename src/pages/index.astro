@@ -19,13 +19,7 @@ if (isAuthenticated) {
 ---
 
 <Layout title="AI Flashcard Generator">
-  <!-- Simple landing hero section -->
-  <div class="py-16 text-center">
-    <h1 class="text-4xl font-bold mb-4">AI Flashcard Generator</h1>
-    <p class="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-      Twórz i ucz się z pomocą fiszek generowanych przez sztuczną inteligencję.
-    </p>
-  </div>
+
   
   <!-- Authenticated user actions - moved to top -->
   <div id="auth-section" style="display: none;" class="mb-12">
@@ -48,29 +42,17 @@ if (isAuthenticated) {
     </div>
   </div>
   
-  <!-- Features section -->
-  <div class="py-12 bg-muted/40">
-    <div class="container">
-      <h2 class="text-3xl font-bold text-center mb-12">Kluczowe funkcje</h2>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-card rounded-lg p-6 shadow-sm">
-          <h3 class="text-xl font-bold mb-2">Generowanie Fiszek</h3>
-          <p>Automatyczne tworzenie fiszek na podstawie wybranego tematu.</p>
-        </div>
-        <div class="bg-card rounded-lg p-6 shadow-sm">
-          <h3 class="text-xl font-bold mb-2">Nauka</h3>
-          <p>Efektywna nauka z wykorzystaniem technik powtórek.</p>
-        </div>
-        <div class="bg-card rounded-lg p-6 shadow-sm">
-          <h3 class="text-xl font-bold mb-2">Analiza Wyników</h3>
-          <p>Śledzenie postępów nauki i skuteczności sesji.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+
   
   <!-- Guest-only call to action section -->
   <div id="guest-section" style="display: none;">
+    <!-- Simple landing hero section -->
+    <div class="py-16 text-center">
+      <h1 class="text-4xl font-bold mb-4">AI Flashcard Generator</h1>
+      <p class="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+        Twórz i ucz się z pomocą fiszek generowanych przez sztuczną inteligencję.
+      </p>
+    </div>
     <div class="py-12 bg-primary/5">
       <div class="text-center max-w-2xl mx-auto">
         <h2 class="text-3xl font-bold mb-4">Dołącz do nas już teraz</h2>
@@ -90,6 +72,26 @@ if (isAuthenticated) {
           >
             Zaloguj się
           </a>
+        </div>
+      </div>
+    </div>
+    <!-- Features section -->
+    <div class="py-12 bg-muted/40">
+      <div class="container">
+        <h2 class="text-3xl font-bold text-center mb-12">Kluczowe funkcje</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-card rounded-lg p-6 shadow-sm">
+            <h3 class="text-xl font-bold mb-2">Generowanie Fiszek</h3>
+            <p>Automatyczne tworzenie fiszek na podstawie wybranego tematu.</p>
+          </div>
+          <div class="bg-card rounded-lg p-6 shadow-sm">
+            <h3 class="text-xl font-bold mb-2">Nauka</h3>
+            <p>Efektywna nauka z wykorzystaniem technik powtórek.</p>
+          </div>
+          <div class="bg-card rounded-lg p-6 shadow-sm">
+            <h3 class="text-xl font-bold mb-2">Analiza Wyników</h3>
+            <p>Śledzenie postępów nauki i skuteczności sesji.</p>
+          </div>
         </div>
       </div>
     </div>

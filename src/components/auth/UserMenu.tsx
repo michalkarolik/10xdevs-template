@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { LogOut, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -8,13 +8,41 @@ interface UserMenuProps {
   user: SupabaseUser | null;
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ props }: { props: UserMenuProps }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [clientUser, setClientUser] = useState<SupabaseUser | null>(props.user);
   
-  const handleLogout = async () => {
+  // Check client-side auth status on component mount
+  useEffect(() => {
+    async function checkClientAuth() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        setClientUser(data.session.user);
+      }
+    }
+    
+    checkClientAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setClientUser(session?.user || null);
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+  
+  // Use client-side auth state if available, otherwise fall back to server props
+  const user = clientUser || props.user;
+
+  const handleLogout = useCallback(async () => {
     try {
       setIsLoggingOut(true);
+      console.log("Signing out...");
       await supabase.auth.signOut();
+      console.log("Signed out successfully");
+      setClientUser(null);
       // Reload the page to reset application state
       window.location.href = '/';
     } catch (error) {
@@ -22,8 +50,12 @@ export function UserMenu({ user }: UserMenuProps) {
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, []);
 
+  // Debugging: Log user state to console
+  console.log("UserMenu - User authenticated:", !!user, user?.email);
+
+  // For non-authenticated users: show login/register buttons
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
@@ -37,7 +69,7 @@ export function UserMenu({ user }: UserMenuProps) {
     );
   }
 
-  // User menu for authenticated users - replaced Avatar with simple user circle
+  // For authenticated users: show user info and logout button
   return (
     <div className="flex items-center space-x-2">
       <div className="flex items-center space-x-2 mr-2">
@@ -46,31 +78,15 @@ export function UserMenu({ user }: UserMenuProps) {
         </div>
         <span className="text-sm hidden md:inline">{user.email}</span>
       </div>
-      <div className="flex space-x-2">
-        <Button 
-          variant="outline" 
-          size="sm"
-          asChild
-        >
-          <a href="/topics">Tematy</a>
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          asChild
-        >
-          <a href="/learning-session">Nauka</a>
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          {isLoggingOut ? "..." : "Wyloguj"}
-        </Button>
-      </div>
+      <Button 
+        variant="destructive" 
+        size="sm"
+        onClick={handleLogout}
+        disabled={isLoggingOut}
+      >
+        <LogOut className="h-4 w-4 mr-1" />
+        {isLoggingOut ? "..." : "Wyloguj"}
+      </Button>
     </div>
   );
 }

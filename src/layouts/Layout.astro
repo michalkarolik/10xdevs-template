@@ -26,9 +26,9 @@ const { data: { session } } = await supabase.auth.getSession();
 const user = session?.user || null;
 
 // Debug session information
-console.log("Session status:", !!session ? "authenticated" : "unauthenticated");
+console.log("Layout - Session status:", !!session ? "authenticated" : "unauthenticated");
 if (user) {
-  console.log("User email:", user.email);
+  console.log("Layout - User email:", user.email);
 }
 
 // Check if this is a protected page and the user is not logged in
@@ -59,7 +59,8 @@ if (requireAuth && !isAuthenticated) {
     <div class="border-b">
       <div class="container mx-auto px-4 py-3 flex justify-between items-center">
         <a href="/" class="font-bold text-xl">AI Flashcard Generator</a>
-        <UserMenu user={user} client:load />
+        <!-- Pass user info as props object -->
+        <UserMenu props={{ user }} client:load />
       </div>
     </div>
     
