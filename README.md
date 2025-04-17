@@ -8,6 +8,7 @@
 - [Tech Stack](#tech-stack)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
+- [Testing](#testing)
 - [Project Scope](#project-scope)
   - [In Scope (MVP)](#in-scope-mvp)
   - [Out of Scope (MVP)](#out-of-scope-mvp)
@@ -40,6 +41,10 @@ The primary goal is to streamline the flashcard creation process and encourage t
 - **AI:** [Google Gemini](https://gemini.google.com/) (for flashcard generation)
 - **Package Manager:** [npm](https://www.npmjs.com/)
 - **Runtime:** [Node.js](https://nodejs.org/) (v22.14.0 specified in `.nvmrc`)
+- **Testing:**
+  - **Unit & Integration:** [Vitest](https://vitest.dev/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+  - **E2E:** [Playwright](https://playwright.dev/)
+  - **API Mocking:** [MSW](https://mswjs.io/)
 - **Linting/Formatting:** ESLint, Prettier
 - **Git Hooks:** Husky
 
@@ -84,6 +89,9 @@ In the project directory, you can run the following scripts:
 - `npm run astro`: Access Astro CLI commands.
 - `npm run format`: Formats the code using Prettier.
 - `npm run lint`: Lints the code using ESLint.
+- `npm run test`: Runs unit and integration tests with Vitest.
+- `npm run test:e2e`: Runs end-to-end tests with Playwright.
+- `npm run test:ui`: Opens Playwright UI for debugging E2E tests.
 
 ### curl example
 ```bash
@@ -92,6 +100,16 @@ curl -v -X POST localhost:3000/api/topics/123/generate \
 -d '{
   "source_text": "This is a valid source text."
 }'```
+
+## Testing
+
+The project employs a comprehensive testing strategy:
+
+- **Unit & Integration Testing**: Using Vitest and React Testing Library to test individual components and their integration.
+- **End-to-End Testing**: Using Playwright to automate browser testing across Chrome, Firefox, and Safari.
+- **API Testing**: Using MSW (Mock Service Worker) for mocking API responses during testing.
+
+Testing is integrated into the CI/CD pipeline to ensure quality assurance before deployment.
 
 ## Project Scope
 
@@ -128,3 +146,5 @@ The project is currently in the **Minimum Viable Product (MVP)** development pha
 ## License
 
 This project is licensed under the **ISC License**. See the [LICENSE](https://opensource.org/licenses/ISC) file for details (Note: A separate LICENSE file is not present in the provided context, but `package.json` specifies ISC).
+
+`
