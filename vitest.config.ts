@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
     },
-    include: ['tests/unit/**/*.test.ts'],
+    include: ['tests/unit/**/*.test.{ts,tsx}'], // modified to include TSX files
     exclude: ['node_modules', '**/tests/e2e/**']
   },
   resolve: {
