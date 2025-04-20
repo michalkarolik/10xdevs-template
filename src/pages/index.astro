@@ -1,128 +1,86 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { createSupabaseServer } from "@/lib/supabase-server";
+import { AUTH_TOKEN_COOKIE, getCookie } from '@/lib/cookies';
+import { authenticationService } from '@/lib/server/authenticationService';
 
-// This page should be rendered on each request to ensure auth state is accurate
-export const prerender = false;
+// Get user data using authenticationService instead of supabase-server
+const token = getCookie(AUTH_TOKEN_COOKIE, Astro.request.headers.get('cookie') || '');
+const user = token ? await authenticationService.getUserFromToken(token) : null;
 
-// Get user session information
-const supabase = createSupabaseServer(Astro);
-const { data: { session } } = await supabase.auth.getSession();
-const isAuthenticated = !!session?.user;
+const isAuthenticated = !!user;
 
-// Debug
-if (isAuthenticated) {
-  console.log("Index page: User is authenticated with email:", session?.user?.email);
-} else {
-  console.log("Index page: User is NOT authenticated");
-}
+// Example data
+const featuresList = [
+  {
+    title: "Szybkie generowanie",
+    description: "Automatycznie twórz fiszki w oparciu o podany tekst.",
+  },
+  {
+    title: "Własne kolekcje",
+    description: "Organizuj fiszki w tematyczne zestawy do nauki.",
+  },
+  {
+    title: "Tryb nauki",
+    description: "Efektywna nauka z wykorzystaniem algorytmów powtórek.",
+  },
+  {
+    title: "Eksport do PDF",
+    description: "Łatwo eksportuj swoje fiszki do formatu PDF.",
+  },
+];
 ---
 
-<Layout title="AI Flashcard Generator">
+<Layout title="AI Flashcard Generator" noAuthCheck={true}>
+  <main>
+    <!-- Hero section -->
+    <section class="py-10 md:py-16">
 
-  
-  <!-- Authenticated user actions - moved to top -->
-  <div id="auth-section" style="display: none;" class="mb-12">
-    <div class="text-center">
-      <h2 class="text-2xl font-bold mb-6">Zacznij naukę już teraz</h2>
-      <div class="flex justify-center space-x-4">
-        <a 
-          href="/topics" 
-          class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-        >
-          Zarządzaj tematami
-        </a>
-        <a 
-          href="/learning-session" 
-          class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-        >
-          Rozpocznij sesję nauki
-        </a>
-      </div>
-    </div>
-  </div>
-  
+    </section>
 
-  
-  <!-- Guest-only call to action section -->
-  <div id="guest-section" style="display: none;">
-    <!-- Simple landing hero section -->
-    <div class="py-16 text-center">
-      <h1 class="text-4xl font-bold mb-4">AI Flashcard Generator</h1>
-      <p class="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-        Twórz i ucz się z pomocą fiszek generowanych przez sztuczną inteligencję.
-      </p>
-    </div>
     <!-- Features section -->
-    <div class="py-12 bg-muted/40">
+    <section class="py-16 bg-muted/50">
       <div class="container">
-        <h2 class="text-3xl font-bold text-center mb-12">Kluczowe funkcje</h2>
-        <div class="grid md:grid-cols-3 gap-8">
-          <div class="bg-card rounded-lg p-6 shadow-sm">
-            <h3 class="text-xl font-bold mb-2">Generowanie Fiszek</h3>
-            <p>Automatyczne tworzenie fiszek na podstawie wybranego tematu.</p>
+        <h2 class="text-3xl font-bold text-center mb-12">Funkcje</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuresList.map(feature => (
+            <div class="bg-card p-6 rounded-lg shadow-sm">
+              <h3 class="text-xl font-semibold mb-2">{feature.title}</h3>
+              <p class="text-muted-foreground">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works section -->
+    <section class="py-16">
+      <div class="container">
+        <h2 class="text-3xl font-bold text-center mb-12">Jak to działa</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold mb-4">1</div>
+            <h3 class="text-xl font-semibold mb-2">Wklej tekst</h3>
+            <p class="text-muted-foreground">Wklej fragment tekstu, który chcesz zamienić na fiszki</p>
           </div>
-          <div class="bg-card rounded-lg p-6 shadow-sm">
-            <h3 class="text-xl font-bold mb-2">Nauka</h3>
-            <p>Efektywna nauka z wykorzystaniem technik powtórek.</p>
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold mb-4">2</div>
+            <h3 class="text-xl font-semibold mb-2">Generuj fiszki</h3>
+            <p class="text-muted-foreground">AI automatycznie tworzy pytania i odpowiedzi na ich podstawie</p>
           </div>
-          <div class="bg-card rounded-lg p-6 shadow-sm">
-            <h3 class="text-xl font-bold mb-2">Analiza Wyników</h3>
-            <p>Śledzenie postępów nauki i skuteczności sesji.</p>
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold mb-4">3</div>
+            <h3 class="text-xl font-semibold mb-2">Ucz się efektywniej</h3>
+            <p class="text-muted-foreground">Organizuj, edytuj i ucz się z wygenerowanych fiszek</p>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+
+  </main>
 </Layout>
 
-<script>
-  // Reliable client-side authentication check
-  import { supabase } from '../lib/supabase';
-  
-  async function checkAndUpdateAuthUI() {
-    try {
-      // Get the current session
-      const { data: { session } } = await supabase.auth.getSession();
-      const isAuthenticated = !!session?.user;
-      
-      console.log("Client-side auth check:", isAuthenticated ? "authenticated" : "not authenticated");
-      
-      // Get the section elements
-      const authSection = document.getElementById('auth-section');
-      const guestSection = document.getElementById('guest-section');
-      
-      if (!authSection || !guestSection) {
-        console.error("Could not find auth or guest sections");
-        return;
-      }
-
-      // Update UI based on authentication state
-      if (isAuthenticated) {
-        authSection.style.display = 'block';
-        guestSection.style.display = 'none';
-        console.log("Showing authenticated content");
-      } else {
-        authSection.style.display = 'none';
-        guestSection.style.display = 'block';
-        console.log("Showing guest content");
-      }
-      
-      // Force a re-check if there's a mismatch between local storage and UI state
-      const hasAuthToken = Object.keys(localStorage).some(key => key.startsWith('sb-'));
-      if (hasAuthToken && !isAuthenticated) {
-        console.log("Storage has auth token but user isn't authenticated - refreshing session");
-        await supabase.auth.refreshSession();
-        setTimeout(checkAndUpdateAuthUI, 500); // Re-check after refresh
-      }
-    } catch (error) {
-      console.error("Error checking auth:", error);
-    }
-  }
-  
-  // Run the check when the DOM is ready
-  document.addEventListener('DOMContentLoaded', checkAndUpdateAuthUI);
-  
-  // Also check again after a short delay in case of auth state changes
-  setTimeout(checkAndUpdateAuthUI, 100);
-</script>
+<!--<style>-->
+<!--  .container {-->
+<!--    @apply mx-auto p-4;-->
+<!--  }-->
+<!--</style>-->

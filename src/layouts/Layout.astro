@@ -2,7 +2,8 @@
 import "../styles/global.css";
 import Breadcrumbs from "@/components/ui/Breadcrumbs.astro"; 
 import { UserMenu } from "@/components/auth/UserMenu";
-import { createSupabaseServer } from "@/lib/supabase-server";
+import { AUTH_TOKEN_COOKIE, getCookie } from "@/lib/cookies";
+import { authenticationService } from "@/lib/server/authenticationService";
 
 // Define the structure for a breadcrumb item
 interface BreadcrumbItem {
@@ -20,13 +21,12 @@ interface Props {
 // Set default title and default breadcrumbs to an empty array
 const { title = "10x Astro Starter", breadcrumbs = [], requireAuth = false, noAuthCheck = false } = Astro.props;
 
-// Get user session information
-const supabase = createSupabaseServer(Astro);
-const { data: { session } } = await supabase.auth.getSession();
-const user = session?.user || null;
+// Get user session information using authenticationService
+const token = getCookie(AUTH_TOKEN_COOKIE, Astro.request.headers.get('cookie') || '');
+const user = token ? await authenticationService.getUserFromToken(token) : null;
 
 // Debug session information
-console.log("Layout - Session status:", !!session ? "authenticated" : "unauthenticated");
+console.log("Layout - Session status:", user ? "authenticated" : "unauthenticated");
 if (user) {
   console.log("Layout - User email:", user.email);
 }
@@ -57,7 +57,7 @@ if (requireAuth && !isAuthenticated) {
   <body class="min-h-screen bg-background font-sans antialiased">
     <!-- Header with navigation and user menu -->
     <div class="border-b">
-      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="container mx-auto p-4 flex justify-between items-center">
         <a href="/" class="font-bold text-xl">AI Flashcard Generator</a>
         <!-- Pass user info as props object -->
         <UserMenu props={{ user }} client:load />
@@ -65,7 +65,7 @@ if (requireAuth && !isAuthenticated) {
     </div>
     
     <!-- Add a container for consistent padding and layout -->
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto p-4 py-6">
       <!-- Render breadcrumbs if items are provided -->
       <Breadcrumbs items={breadcrumbs} />
 
@@ -77,13 +77,13 @@ if (requireAuth && !isAuthenticated) {
           <div class="flex space-x-4 mt-4">
             <a 
               href="/login" 
-              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 p-4"
             >
-              Zaloguj się Layout.astro
+              Zaloguj się
             </a>
             <a 
               href="/register" 
-              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 p-4"
             >
               Zarejestruj się
             </a>
@@ -102,12 +102,12 @@ if (requireAuth && !isAuthenticated) {
 <script define:vars={{ currentPath, noAuthCheck, isAuthenticated }}>
   // Disable automatic auth state listener on the home page to prevent reload loops
   if (!noAuthCheck && currentPath !== '/') {
-    // Import supabase client
-    import { supabase } from '../lib/supabase';
+    // Import auth client
+    import { authClient } from '../lib/client/authClient';
     
     // Set up auth state change listener with fewer reloads
-    supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, "on path:", currentPath);
+    authClient.onAuthStateChange((user) => {
+      console.log("[Layout.astro] Auth state changed:", user ? "SIGNED_IN" : "SIGNED_OUT", "on path:", currentPath);
       
       // Avoid handling auth events on auth pages
       if (currentPath === '/login' || currentPath === '/register' || 
@@ -115,18 +115,22 @@ if (requireAuth && !isAuthenticated) {
         return;
       }
       
-      if (event === 'SIGNED_IN') {
-        // Don't reload if we're already on the home page
-        if (window.location.pathname !== '/') {
-          console.log("Redirecting to home after sign in");
-          window.location.href = '/';
-        }
-      } 
-      else if (event === 'SIGNED_OUT') {
-        // Don't reload if we're already on the login page
-        if (window.location.pathname !== '/login') {
-          console.log("Redirecting to login after sign out");
-          window.location.href = '/login';
+      const isCurrentlyAuthenticated = !!user;
+      
+      // Check if auth state changed compared to server-rendered state
+      if (isCurrentlyAuthenticated !== isAuthenticated) {
+        if (isCurrentlyAuthenticated) {
+          // Don't reload if we're already on the home page
+          if (window.location.pathname !== '/') {
+            console.log("Redirecting to home after sign in");
+            window.location.href = '/';
+          }
+        } else {
+          // Don't reload if we're already on the login page
+          if (window.location.pathname !== '/login') {
+            console.log("Redirecting to login after sign out");
+            window.location.href = '/login';
+          }
         }
       }
     });
@@ -141,3 +145,4 @@ if (requireAuth && !isAuthenticated) {
     height: 100%;
   }
 </style>
+

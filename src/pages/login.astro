@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Login">
+<Layout title="Login" noAuthCheck={true}>
   <div class="login-container">
     <h1>Login</h1>
     <form id="login-form">
@@ -15,9 +15,12 @@ import Layout from '../layouts/Layout.astro';
         <input type="password" id="password" name="password" required />
       </div>
       <div class="error-message" id="error-message"></div>
-      <button type="submit">Login</button>
+      <button type="submit" id="login-button">Login</button>
     </form>
     <p>Don't have an account? <a href="/signup">Sign up</a></p>
+    <div id="login-success" style="display: none; color: green; margin-top: 1rem;">
+      Login successful! Redirecting...
+    </div>
   </div>
 </Layout>
 
@@ -27,21 +30,59 @@ import Layout from '../layouts/Layout.astro';
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('login-form') as HTMLFormElement;
     const errorMessage = document.getElementById('error-message');
+    const loginButton = document.getElementById('login-button');
+    const loginSuccess = document.getElementById('login-success');
     
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       if (errorMessage) errorMessage.textContent = '';
       
+      // Disable button and show loading state
+      if (loginButton) {
+        loginButton.textContent = 'Logging in...';
+        loginButton.setAttribute('disabled', 'true');
+      }
+      
       const email = (document.getElementById('email') as HTMLInputElement).value;
       const password = (document.getElementById('password') as HTMLInputElement).value;
       
-      const result = await authClient.login({ email, password });
-      
-      if (result.success) {
-        window.location.href = '/';
-      } else if (errorMessage) {
-        errorMessage.textContent = result.error || 'Login failed';
+      try {
+        const result = await authClient.login({ email, password });
+        
+        // Reset button state
+        if (loginButton) {
+          loginButton.textContent = 'Login';
+          loginButton.removeAttribute('disabled');
+        }
+        
+        if (result.success) {
+          // Show success message
+          if (form && loginSuccess) {
+            form.style.display = 'none';
+            loginSuccess.style.display = 'block';
+          }
+          
+          // Give cookies time to be properly set before redirecting
+          setTimeout(() => {
+            // Force a complete page reload to ensure the auth state is refreshed
+            window.location.href = '/';
+          }, 1000);
+        } else if (errorMessage) {
+          errorMessage.textContent = result.error || 'Login failed';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        
+        // Reset button state
+        if (loginButton) {
+          loginButton.textContent = 'Login';
+          loginButton.removeAttribute('disabled');
+        }
+        
+        if (errorMessage) {
+          errorMessage.textContent = error instanceof Error ? error.message : 'An unexpected error occurred';
+        }
       }
     });
   });

@@ -1,50 +1,81 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { LogOut, User } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { LogOut } from "lucide-react";
+import { authClient } from "@/lib/client/authClient";
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+}
 
 interface UserMenuProps {
-  user: SupabaseUser | null;
+  user: User | null;
 }
 
 export function UserMenu({ props }: { props: UserMenuProps }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [clientUser, setClientUser] = useState<SupabaseUser | null>(props.user);
+  const [user, setUser] = useState<User | null>(props.user);
+  
+  // Debug initial state
+  console.log("[UserMenu] Initial user from props:", props.user?.email || "null");
   
   // Check client-side auth status on component mount
   useEffect(() => {
-    async function checkClientAuth() {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.user) {
-        setClientUser(data.session.user);
+    let mounted = true;
+    
+    async function initializeAuthState() {
+      // Always use props.user first if available (server-side data)
+      if (props.user) {
+        console.log("[UserMenu] Using server-provided user:", props.user.email);
+        setUser(props.user);
+      }
+      
+      // Only check client-side if we don't have a user from props
+      else {
+        try {
+          const currentUser = await authClient.getCurrentUser();
+          console.log("[UserMenu] Client auth check result:", currentUser?.email || "null");
+          
+          if (currentUser && mounted) {
+            setUser(currentUser);
+          }
+        } catch (err) {
+          console.error("[UserMenu] Error getting current user:", err);
+        }
       }
     }
     
-    checkClientAuth();
+    initializeAuthState();
     
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setClientUser(session?.user || null);
+    // Set up auth state listener with protections against unwanted null updates
+    const unsubscribe = authClient.onAuthStateChange((updatedUser) => {
+      console.log("[UserMenu] Auth state changed:", updatedUser?.email || "null");
+      
+      if (mounted) {
+        // Don't update to null if we have a user from props and no explicit logout was performed
+        if (updatedUser || !props.user) {
+          setUser(updatedUser);
+        }
+      }
     });
     
     return () => {
-      subscription.unsubscribe();
+      mounted = false;
+      unsubscribe(); // Cleanup subscription on unmount
     };
-  }, []);
-  
-  // Use client-side auth state if available, otherwise fall back to server props
-  const user = clientUser || props.user;
+  }, [props.user]);
 
   const handleLogout = useCallback(async () => {
     try {
       setIsLoggingOut(true);
       console.log("Signing out...");
-      await supabase.auth.signOut();
-      console.log("Signed out successfully");
-      setClientUser(null);
-      // Reload the page to reset application state
-      window.location.href = '/';
+      const success = await authClient.logout();
+      if (success) {
+        console.log("Signed out successfully");
+        // Reload the page to reset application state
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Error signing out:', error);
     } finally {
@@ -53,17 +84,17 @@ export function UserMenu({ props }: { props: UserMenuProps }) {
   }, []);
 
   // Debugging: Log user state to console
-  console.log("UserMenu - User authenticated:", !!user, user?.email);
+  console.log("UserMenu - User authenticated:", !!user, user?.email || "null");
 
   // For non-authenticated users: show login/register buttons
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
         <Button variant="outline" size="sm" asChild>
-          <a href="/login">Zaloguj się User Menu</a>
+          <a href="/login">Zaloguj się</a>
         </Button>
         <Button size="sm" asChild>
-          <a href="/register">Zarejestruj się</a>
+          <a href="/signup">Zarejestruj się </a>
         </Button>
       </div>
     );
@@ -74,9 +105,11 @@ export function UserMenu({ props }: { props: UserMenuProps }) {
     <div className="flex items-center space-x-2">
       <div className="flex items-center space-x-2 mr-2">
         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-          {user.email ? user.email.charAt(0).toUpperCase() : "U"}
+          {user.email ? user.email.charAt(0).toUpperCase() : user.username.charAt(0).toUpperCase()}
         </div>
-        <span className="text-sm hidden md:inline">{user.email}</span>
+        <span className="text-sm hidden md:inline">
+          {user.username || user.email}
+        </span>
       </div>
       <Button 
         variant="destructive" 
@@ -90,3 +123,4 @@ export function UserMenu({ props }: { props: UserMenuProps }) {
     </div>
   );
 }
+
