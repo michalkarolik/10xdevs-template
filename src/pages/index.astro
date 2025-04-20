@@ -8,79 +8,40 @@ const token = getCookie(AUTH_TOKEN_COOKIE, Astro.request.headers.get('cookie') |
 const user = token ? await authenticationService.getUserFromToken(token) : null;
 
 const isAuthenticated = !!user;
-
-// Example data
-const featuresList = [
-  {
-    title: "Szybkie generowanie",
-    description: "Automatycznie twórz fiszki w oparciu o podany tekst.",
-  },
-  {
-    title: "Własne kolekcje",
-    description: "Organizuj fiszki w tematyczne zestawy do nauki.",
-  },
-  {
-    title: "Tryb nauki",
-    description: "Efektywna nauka z wykorzystaniem algorytmów powtórek.",
-  },
-  {
-    title: "Eksport do PDF",
-    description: "Łatwo eksportuj swoje fiszki do formatu PDF.",
-  },
-];
 ---
 
 <Layout title="AI Flashcard Generator" noAuthCheck={true}>
   <main>
     <!-- Hero section -->
     <section class="py-10 md:py-16">
-
-    </section>
-
-    <!-- Features section -->
-    <section class="py-16 bg-muted/50">
-      <div class="container">
-        <h2 class="text-3xl font-bold text-center mb-12">Funkcje</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuresList.map(feature => (
-            <div class="bg-card p-6 rounded-lg shadow-sm">
-              <h3 class="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p class="text-muted-foreground">{feature.description}</p>
-            </div>
-          ))}
+      <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-6">AI Flashcard Generator</h1>
+        <p class="text-xl text-center mb-10">Create personalized flashcards with the power of AI</p>
+        
+        <!-- Authenticated user content -->
+        <div id="auth-section" class="text-center" style={isAuthenticated ? 'display:block' : 'display:none'}>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/topics" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+              Zarządzaj tematami
+            </a>
+            <a href="/learning-session" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+              Rozpocznij sesję nauki
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
-
-    <!-- How it works section -->
-    <section class="py-16">
-      <div class="container">
-        <h2 class="text-3xl font-bold text-center mb-12">Jak to działa</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div class="text-center">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold mb-4">1</div>
-            <h3 class="text-xl font-semibold mb-2">Wklej tekst</h3>
-            <p class="text-muted-foreground">Wklej fragment tekstu, który chcesz zamienić na fiszki</p>
-          </div>
-          <div class="text-center">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold mb-4">2</div>
-            <h3 class="text-xl font-semibold mb-2">Generuj fiszki</h3>
-            <p class="text-muted-foreground">AI automatycznie tworzy pytania i odpowiedzi na ich podstawie</p>
-          </div>
-          <div class="text-center">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold mb-4">3</div>
-            <h3 class="text-xl font-semibold mb-2">Ucz się efektywniej</h3>
-            <p class="text-muted-foreground">Organizuj, edytuj i ucz się z wygenerowanych fiszek</p>
+        
+        <!-- Guest user content -->
+        <div id="guest-section" class="text-center" style={isAuthenticated ? 'display:none' : 'display:block'}>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/register" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+              Zarejestruj się
+            </a>
+            <a href="/login" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+              Zaloguj się
+            </a>
           </div>
         </div>
       </div>
     </section>
-
   </main>
 </Layout>
-
-<!--<style>-->
-<!--  .container {-->
-<!--    @apply mx-auto p-4;-->
-<!--  }-->
-<!--</style>-->
