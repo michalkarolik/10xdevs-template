@@ -1,7 +1,8 @@
 import React from "react";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react"; // Icon for loading state
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Bot } from "lucide-react";
 
 interface SourceTextInputProps {
   sourceText: string;
@@ -16,47 +17,36 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
   onGenerateClick,
   isLoading,
 }) => {
-  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onSourceTextChange(event.target.value);
-  };
-
-  // Unique ID for associating label and textarea
-  const textareaId = React.useId();
-
-  const isButtonDisabled = isLoading || sourceText.trim() === "";
-
   return (
-    <div className="space-y-3"> {/* Reduced space inside this component */}
-       {/* Added label for accessibility */}
-      <label htmlFor={textareaId} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Source Text
-      </label>
-      <Textarea
-        id={textareaId}
-        placeholder="Paste your text here to generate flashcards..."
-        value={sourceText}
-        onChange={handleTextChange}
-        className="min-h-[150px] resize-y shadow-sm" // Added shadow
-        aria-label="Source text for flashcard generation" // Keep aria-label as well
-        disabled={isLoading}
-      />
-      <div className="flex justify-end"> {/* Align button to the right */}
+    <Card className="bg-background border">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Generate Flashcards</CardTitle>
+        <CardDescription>
+          Describe the topic or paste text from which to generate flashcards
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Textarea
+          placeholder="Enter a description of what you want to study, paste text from an article, book, or lecture notes. For example: 'Generate flashcards about Spanish cuisine' or 'Create questions about basic astronomy concepts'."
+          className="min-h-[120px]"
+          value={sourceText}
+          onChange={(e) => onSourceTextChange(e.target.value)}
+          disabled={isLoading}
+          data-test-id="ai-generation-prompt"
+        />
+      </CardContent>
+      <CardFooter>
         <Button
           onClick={onGenerateClick}
-          disabled={isButtonDisabled}
-          className="w-full sm:w-auto" // Full width on small screens, auto on larger
+          disabled={isLoading || !sourceText.trim()}
+          className="w-full sm:w-auto"
+          data-test-id="generate-ai-flashcards-button"
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              <span>Generating...</span>
-            </>
-          ) : (
-            <span>Generate Flashcards</span>
-          )}
+          <Bot className="mr-2 h-4 w-4" />
+          {isLoading ? "Generating..." : "Generate Flashcards"}
         </Button>
-      </div> {/* This div should close here */}
-    </div> // This is the main component div closing tag
+      </CardFooter>
+    </Card>
   );
 };
 

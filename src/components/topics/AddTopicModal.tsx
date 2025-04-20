@@ -48,7 +48,7 @@ export function AddTopicModal({ open, onOpenChange, onAddTopic }: AddTopicModalP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-test-id="add-topic-form">
           <DialogHeader>
             <DialogTitle>Add New Topic</DialogTitle>
             <DialogDescription>
@@ -75,6 +75,7 @@ export function AddTopicModal({ open, onOpenChange, onAddTopic }: AddTopicModalP
                 placeholder="Enter topic name"
                 autoComplete="off"
                 disabled={isSubmitting}
+                data-test-id="topic-name-input"
               />
             </div>
           </div>
@@ -83,7 +84,7 @@ export function AddTopicModal({ open, onOpenChange, onAddTopic }: AddTopicModalP
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} data-test-id="create-topic-button">
               {isSubmitting ? "Creating..." : "Create Topic"}
             </Button>
           </DialogFooter>
