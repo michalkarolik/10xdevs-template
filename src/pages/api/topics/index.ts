@@ -14,7 +14,7 @@ const createTopicSchema = z.object({
 export const GET: APIRoute = async ({ request, locals }) => {
   // 1. Authentication (TEMPORARILY USING PLACEHOLDER)
   // TODO: Implement proper user fetching
-  const user = { id: '11111111-1111-1111-1111-111111111111' }; // Valid test user UUID
+  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // Valid test user UUID
   if (!user) {
     // This condition will likely not be met with the placeholder, but keep for structure
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
@@ -78,7 +78,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
   // 1. Authentication (TEMPORARILY USING PLACEHOLDER)
   // TODO: Implement proper user fetching
-  const user = { id: '11111111-1111-1111-1111-111111111111' }; // Valid test user UUID
+  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // Valid test user UUID
    if (!user) {
      // This condition will likely not be met with the placeholder, but keep for structure
      return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });

@@ -1,30 +1,22 @@
 /*
   Migration: Create Flashcard Generator Schema
   Description: Initial schema setup for AI Flashcard Generator application
-  Tables: users, topics, flashcards
+  Tables: topics, flashcards
   Author: Database Expert
   Date: 2024-09-13
+  Updated: Using auth.users instead of custom users table
 */
 
 -- Enable UUID extension if not already enabled
 create extension if not exists "uuid-ossp";
 
--- Users table to store application users
-create table if not exists users (
-  id uuid primary key default uuid_generate_v4(),
-  username text unique not null,
-  password_hash text not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
--- Enable Row Level Security on users table
-alter table users enable row level security;
+-- Note: We're now using auth.users provided by Supabase authentication module
+-- instead of creating our own users table
 
 -- Topics table to organize flashcards
 create table if not exists topics (
   id uuid primary key default uuid_generate_v4(),
-  user_id uuid not null references users(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
   name text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -59,18 +51,6 @@ returns boolean as $$
     where id = topic_uuid and user_id = auth.uid()
   );
 $$ language sql security definer;
-
--- RLS Policies for users table
--- Allow users to see only their own data
-create policy "Users can view own data" 
-  on users for select 
-  to authenticated 
-  using (id = auth.uid());
-
-create policy "Users can update own data" 
-  on users for update 
-  to authenticated 
-  using (id = auth.uid());
 
 -- RLS Policies for topics table
 -- Authenticated users can select their own topics
@@ -123,9 +103,6 @@ create policy "Authenticated users can delete flashcards in own topics"
   using (user_owns_topic(topic_id));
 
 -- Drop all policies (disable RLS enforcement)
-drop policy if exists "Users can view own data" on users;
-drop policy if exists "Users can update own data" on users;
-
 drop policy if exists "Authenticated users can view own topics" on topics;
 drop policy if exists "Authenticated users can create topics" on topics;
 drop policy if exists "Authenticated users can update own topics" on topics;
@@ -149,10 +126,6 @@ end;
 $$ language plpgsql;
 
 -- Create triggers for each table
-create trigger set_users_updated_at
-before update on users
-for each row execute function update_updated_at_column();
-
 create trigger set_topics_updated_at
 before update on topics
 for each row execute function update_updated_at_column();
@@ -160,4 +133,3 @@ for each row execute function update_updated_at_column();
 create trigger set_flashcards_updated_at
 before update on flashcards
 for each row execute function update_updated_at_column();
-

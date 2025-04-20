@@ -20,7 +20,7 @@ const saveResponseSchema = z.object({
 export const POST: APIRoute = async ({ request, locals }) => {
   // Authentication check (using placeholder for now)
   // TODO: Replace with actual user fetching/validation
-  const user = { id: '11111111-1111-1111-1111-111111111111' }; // TEMPORARY PLACEHOLDER USER (Valid UUID format)
+  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // TEMPORARY PLACEHOLDER USER (Valid UUID format)
   if (!user) {
     return new Response(
       JSON.stringify({

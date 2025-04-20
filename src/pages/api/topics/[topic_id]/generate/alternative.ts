@@ -16,7 +16,7 @@ const inputSchema = z.object({
 export const POST: APIRoute = async ({ params, request, locals }) => {
   // 1. Authentication & Authorization (Placeholder - adapt as needed)
   // TODO: Implement proper user fetching/validation if required by RLS or logic
-  const user = { id: '11111111-1111-1111-1111-111111111111' }; // Use consistent placeholder
+  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // Use consistent placeholder
   if (!user) {
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
   }
