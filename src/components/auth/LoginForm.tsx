@@ -128,7 +128,7 @@ export function LoginForm({ onSuccess, redirectUrl = '/' }: LoginFormProps) {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logowanie...
           </>
         ) : (
-          "Zaloguj się"
+          "Zaloguj się LoginForm.tsx"
         )}
       </Button>
 

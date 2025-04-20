@@ -1,34 +1,87 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { LoginForm } from '../components/auth/LoginForm';
-import { createSupabaseServer } from "@/lib/supabase-server";
-
-export const prerender = false;
-
-// Check if user is already logged in
-const supabase = createSupabaseServer(Astro);
-const { data: { session } } = await supabase.auth.getSession();
-
-// If already authenticated, redirect to homepage
-if (session) {
-  return Astro.redirect('/');
-}
-
-// Set a flag to indicate we're on the login page
-const isLoginPage = true;
 ---
 
-<Layout title="Logowanie | AI Flashcard Generator" noAuthCheck={true}>
-  <div class="max-w-md mx-auto py-12">
-    <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold">Zaloguj się</h1>
-      <p class="text-muted-foreground mt-2">
-        Zaloguj się do swojego konta, aby kontynuować naukę
-      </p>
-    </div>
-
-    <div class="bg-card rounded-lg border p-6 shadow-sm">
-      <LoginForm client:load />
-    </div>
+<Layout title="Login">
+  <div class="login-container">
+    <h1>Login</h1>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div class="error-message" id="error-message"></div>
+      <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="/signup">Sign up</a></p>
   </div>
 </Layout>
+
+<script>
+  import { authClient } from '../lib/client/authClient';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form') as HTMLFormElement;
+    const errorMessage = document.getElementById('error-message');
+    
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (errorMessage) errorMessage.textContent = '';
+      
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = (document.getElementById('password') as HTMLInputElement).value;
+      
+      const result = await authClient.login({ email, password });
+      
+      if (result.success) {
+        window.location.href = '/';
+      } else if (errorMessage) {
+        errorMessage.textContent = result.error || 'Login failed';
+      }
+    });
+  });
+</script>
+
+<style>
+  .login-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    padding: 0.5rem 1rem;
+    background-color: #4a7dff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 0.5rem;
+  }
+</style>

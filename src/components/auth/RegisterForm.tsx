@@ -158,7 +158,7 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
         <p>
           Masz już konto?{" "}
           <a href="/login" className="font-medium text-primary hover:underline">
-            Zaloguj się
+            Zaloguj się RegisterMenu.tsx
           </a>
         </p>
       </div>

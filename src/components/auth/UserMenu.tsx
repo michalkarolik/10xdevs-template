@@ -60,7 +60,7 @@ export function UserMenu({ props }: { props: UserMenuProps }) {
     return (
       <div className="flex items-center space-x-2">
         <Button variant="outline" size="sm" asChild>
-          <a href="/login">Zaloguj się</a>
+          <a href="/login">Zaloguj się User Menu</a>
         </Button>
         <Button size="sm" asChild>
           <a href="/register">Zarejestruj się</a>
