@@ -19,9 +19,9 @@ const isAuthenticated = !!user;
         <p class="text-xl text-center mb-10">Create personalized flashcards with the power of AI</p>
         
         <!-- Authenticated user content -->
-        <div id="auth-section" class="text-center" style={isAuthenticated ? 'display:block' : 'display:none'}>
+        <div id="auth-section" class="text-center" style={isAuthenticated ? 'display:block' : 'display:none'} data-test-id="authenticated-section">
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/topics" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+            <a href="/topics" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors" data-test-id="manage-topics-link">
               Zarządzaj tematami
             </a>
             <a href="/learning-session" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
@@ -31,12 +31,12 @@ const isAuthenticated = !!user;
         </div>
         
         <!-- Guest user content -->
-        <div id="guest-section" class="text-center" style={isAuthenticated ? 'display:none' : 'display:block'}>
+        <div id="guest-section" class="text-center" style={isAuthenticated ? 'display:none' : 'display:block'} data-test-id="guest-section">
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/register" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
               Zarejestruj się
             </a>
-            <a href="/login" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+            <a href="/login" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors" data-test-id="login-link">
               Zaloguj się
             </a>
           </div>

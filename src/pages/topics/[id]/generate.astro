@@ -42,11 +42,6 @@ const breadcrumbs = [
 ---
 
 <Layout title={`Generate Flashcards for Topic ${topicName === "Loading..." || fetchError ? topicId : topicName}`} breadcrumbs={breadcrumbs}>
-  {/* Removed redundant container/padding as Layout provides it */}
-  {/* <div class="container mx-auto max-w-4xl px-4 py-6 md:py-10"> */}
-    {/* Removed h1 as breadcrumbs provide context */}
-    {/* <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center md:text-left">Generate Flashcards with AI</h1> */}
-    {fetchError && <p class="text-destructive mb-4">{fetchError}</p>} {/* Display fetch error if any */}
-    <AIGenerationView client:load topicId={topicId} />
-  {/* </div> */}
+  {fetchError && <p class="text-destructive mb-4">{fetchError}</p>} {/* Display fetch error if any */}
+  <AIGenerationView client:load topicId={topicId} data-test-id="ai-generation-view" />
 </Layout>

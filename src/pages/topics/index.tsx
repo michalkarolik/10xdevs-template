@@ -76,10 +76,10 @@ export default function TopicsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6" data-test-id="topics-page">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Topics</h1>
-        <Button onClick={() => setIsAddTopicModalOpen(true)}>
+        <Button onClick={() => setIsAddTopicModalOpen(true)} data-test-id="add-topic-button">
           Add New Topic
         </Button>
       </div>
@@ -97,16 +97,16 @@ export default function TopicsPage() {
           <p className="text-gray-600">You don't have any topics yet. Create your first topic to get started!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-test-id="topics-grid">
           {topics.map((topic) => (
-            <div key={topic.id} className="border rounded-md p-4 hover:shadow-md transition-shadow">
+            <div key={topic.id} className="border rounded-md p-4 hover:shadow-md transition-shadow" data-test-id={`topic-item-${topic.id}`}>
               <h2 className="text-xl font-semibold mb-2">{topic.name}</h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600" data-test-id={`topic-flashcard-count-${topic.id}`}>
                 {topic.flashcard_count || 0} flashcards
               </p>
               <div className="mt-4">
                 <Button variant="outline" size="sm" asChild>
-                  <a href={`/topics/${topic.id}`}>View Details</a>
+                  <a href={`/topics/${topic.id}`} data-test-id={`view-topic-${topic.id}`}>View Details</a>
                 </Button>
               </div>
             </div>
