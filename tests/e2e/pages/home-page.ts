@@ -1,17 +1,10 @@
-import { Page, Locator } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 export class HomePage {
-  readonly page: Page;
-  readonly title: Locator;
-  readonly navLinks: Record<string, Locator>;
+  private page: Page;
 
   constructor(page: Page) {
     this.page = page;
-    this.title = page.locator('h1');
-    this.navLinks = {
-      'About': page.getByRole('link', { name: 'About' }),
-      // Add more navigation links as needed
-    };
   }
 
   async navigate() {
@@ -19,10 +12,10 @@ export class HomePage {
   }
 
   getTitle() {
-    return this.title;
+    return this.page.locator('h1');
   }
 
-  async clickOnNavLink(name: string) {
-    await this.navLinks[name].click();
+  async clickOnNavLink(text: string) {
+    await this.page.getByRole('link', { name: text }).click();
   }
 }

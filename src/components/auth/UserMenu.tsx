@@ -89,9 +89,9 @@ export function UserMenu({ props }: { props: UserMenuProps }) {
   // For non-authenticated users: show login/register buttons
   if (!user) {
     return (
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2" data-test-id="authenticated-section">
         <Button variant="outline" size="sm" asChild>
-          <a href="/login">Zaloguj się</a>
+          <a href="/login" data-test-id="login-link">Zaloguj się</a>
         </Button>
         <Button size="sm" asChild>
           <a href="/signup">Zarejestruj się </a>
