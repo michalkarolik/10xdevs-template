@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { CookieSerializeOptions } from 'cookie';
 
 // Load environment variables
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseKey = import.meta.env.SUPABASE_KEY;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 // Create Supabase client (server-side only)
 const supabase = createClient(supabaseUrl, supabaseKey);

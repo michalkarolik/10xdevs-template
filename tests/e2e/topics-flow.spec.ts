@@ -14,8 +14,8 @@ test.describe('Topics Flow', () => {
     if (!TEST_USER.email || !TEST_USER.password) {
       throw new Error('E2E_USERNAME and E2E_PASSWORD must be set in .env.test file');
     }
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-      throw new Error('SUPABASE_URL and SUPABASE_KEY must be set in .env.test file');
+    if (!process.env.PUBLIC_SUPABASE_URL || !process.env.PUBLIC_SUPABASE_ANON_KEY) {
+      throw new Error('PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY must be set in .env.test file');
     }
     console.log('Environment variables loaded successfully');
   });
