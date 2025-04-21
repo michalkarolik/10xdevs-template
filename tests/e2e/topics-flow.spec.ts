@@ -48,6 +48,18 @@ test.describe('Topics Flow', () => {
     await expect(page.getByTestId('topic-name-input')).toBeVisible();
     await expect(page.getByTestId('create-topic-button')).toBeVisible();
 
+    // console.log('Step 6: Creating a new topic');
+    // const topicName = `Test Topic ${Date.now()}`;
+    // await page.getByTestId('topic-name-input').fill(topicName);
+    // await page.getByTestId('create-topic-button').click();
+    //
+    // console.log('Step 7: Verifying topic creation');
+    // // Wait for the modal to close
+    // await expect(page.getByTestId('add-topic-form')).not.toBeVisible({ timeout: 5000 });
+    //
+    // // Verify the topic appears in the list
+    // await expect(page.getByText(topicName)).toBeVisible({ timeout: 10000 });
+
     console.log('Test completed successfully');
   });
 });

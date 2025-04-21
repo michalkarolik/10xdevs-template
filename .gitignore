@@ -25,5 +25,6 @@ pnpm-debug.log*
 .idea/
 .aider*
 
-.playwright/
-.playwright-report/
+playwright
+playwright-report
+test-results
