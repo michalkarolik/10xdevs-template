@@ -26,12 +26,14 @@ export default function TopicsPage() {
   const fetchTopics = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/topics');
+      const response = await fetch('/api/topics', {
+        credentials: 'include', // Include cookies with the request
+      });
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       const data = await response.json();
-      setTopics(data);
+      setTopics(data.topics || []);
       setError(null);
     } catch (err) {
       console.error("Failed to fetch topics:", err);
@@ -47,8 +49,10 @@ export default function TopicsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ name: topicName }),
+        credentials: 'include', // Include cookies with the request
       });
 
       if (!response.ok) {
@@ -57,7 +61,7 @@ export default function TopicsPage() {
       }
 
       const newTopic = await response.json();
-      setTopics([...topics, newTopic]);
+      setTopics(prevTopics => [...prevTopics, newTopic]);
       
       toast({
         title: "Topic created",
@@ -69,7 +73,7 @@ export default function TopicsPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: typeof err === 'string' ? err : "Failed to create topic. Please try again.",
+        description: err instanceof Error ? err.message : "Failed to create topic. Please try again.",
       });
       throw err;
     }

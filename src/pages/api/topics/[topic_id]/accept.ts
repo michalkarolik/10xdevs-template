@@ -2,9 +2,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { FlashcardAcceptDto, FlashcardAcceptResponseDto, ErrorResponse } from "@/types";
 import { FLASHCARD_LIMITS } from "@/types";
-// Placeholder for actual database/service interaction
-// import { supabase } from '@/db/supabase.client'; // Assuming supabase client setup
-// import { getUser } from '@/lib/auth'; // Assuming auth helper
+import { getUserFromToken } from "@src/lib/server/authenticationService";
 
 const inputSchema = z.object({
   front: z.string().min(1, "Front text is required").max(FLASHCARD_LIMITS.FRONT_MAX_LENGTH, `Front text cannot exceed ${FLASHCARD_LIMITS.FRONT_MAX_LENGTH} characters`),
@@ -12,12 +10,15 @@ const inputSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization (TEMPORARILY USING PLACEHOLDER)
-  // TODO: Implement proper user fetching
-  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // !! TEMPORARY PLACEHOLDER USER (Valid UUID format) !!
+  // 1. Authentication & Authorization
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse), { status: 401 });
+  }
+  
+  const user = await getUserFromToken(token);
   if (!user) {
-     // This condition will likely not be met with the placeholder, but keep for structure
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Invalid authentication token' } as ErrorResponse), { status: 401 });
   }
 
   // 2. Validate Topic ID
@@ -30,7 +31,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   if (!uuidRegex.test(topic_id)) {
      return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid topic ID format (must be a UUID)' } as ErrorResponse), { status: 400 });
   }
-
 
   // 3. Parse and Validate Request Body
   let requestBody: FlashcardAcceptDto;
@@ -65,7 +65,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
        return new Response(JSON.stringify({ error: true, code: 'NOT_FOUND', message: 'Topic not found or access denied' } as ErrorResponse), { status: 404 });
     }
 
-
     // Insert the new flashcard
     const { data: newFlashcard, error: insertError } = await locals.supabase
       .from('flashcards')
@@ -86,7 +85,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
        throw new Error("Database did not return the newly created flashcard.");
     }
 
-
     // 5. Return Success Response
     return new Response(JSON.stringify(newFlashcard), {
       status: 201, // 201 Created
@@ -98,3 +96,4 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: true, code: 'INTERNAL_SERVER_ERROR', message: error instanceof Error ? error.message : 'An unexpected error occurred' } as ErrorResponse), { status: 500 });
   }
 };
+

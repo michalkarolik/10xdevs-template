@@ -1,10 +1,8 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { FlashcardGenerateAlternativeDto, FlashcardGenerateAlternativeResponseDto, ErrorResponse } from "@/types";
-import { FLASHCARD_LIMITS } from "@/types"; // Import limits if needed for validation or generation logic
-
-// Placeholder for actual AI service interaction
-// import { generateAlternativeFlashcard } from '@/lib/ai';
+import { FLASHCARD_LIMITS } from "@/types";
+import { getUserFromToken } from "@src/lib/server/authenticationService";
 
 // Schema for the request body, matching FlashcardGenerateAlternativeDto
 const inputSchema = z.object({
@@ -14,11 +12,15 @@ const inputSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization (Placeholder - adapt as needed)
-  // TODO: Implement proper user fetching/validation if required by RLS or logic
-  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // Use consistent placeholder
+  // 1. Authentication & Authorization
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse), { status: 401 });
+  }
+  
+  const user = await getUserFromToken(token);
   if (!user) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Invalid authentication token' } as ErrorResponse), { status: 401 });
   }
 
   // 2. Validate Topic ID
@@ -31,7 +33,6 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
    if (!uuidRegex.test(topic_id)) {
       return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid topic ID format (must be a UUID)' } as ErrorResponse), { status: 400 });
    }
-
 
   // 3. Parse and Validate Request Body
   let requestBody: FlashcardGenerateAlternativeDto;
@@ -86,3 +87,4 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: true, code: errorCode, message: message } as ErrorResponse), { status: 500 });
   }
 };
+

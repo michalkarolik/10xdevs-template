@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { ErrorResponse } from "@/types";
+import { getUserFromToken } from "@src/lib/server/authenticationService";
 
 // Schema for creating a new learning session
 const createSessionSchema = z.object({
@@ -18,15 +19,26 @@ const saveResponseSchema = z.object({
 
 // POST endpoint to create a new learning session
 export const POST: APIRoute = async ({ request, locals }) => {
-  // Authentication check (using placeholder for now)
-  // TODO: Replace with actual user fetching/validation
-  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // TEMPORARY PLACEHOLDER USER (Valid UUID format)
+  // Authentication check
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return new Response(
+      JSON.stringify({
+        error: true, 
+        code: 'UNAUTHORIZED', 
+        message: 'Missing authentication token' 
+      } as ErrorResponse), 
+      { status: 401 }
+    );
+  }
+  
+  const user = await getUserFromToken(token);
   if (!user) {
     return new Response(
       JSON.stringify({
         error: true, 
         code: 'UNAUTHORIZED', 
-        message: 'Not authenticated' 
+        message: 'Invalid authentication token' 
       } as ErrorResponse), 
       { status: 401 }
     );

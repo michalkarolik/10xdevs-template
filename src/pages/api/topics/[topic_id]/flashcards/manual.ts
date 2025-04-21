@@ -1,7 +1,8 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { FlashcardResponseDto, ErrorResponse } from "@/types"; // Assuming FlashcardResponseDto is suitable
+import type { FlashcardResponseDto, ErrorResponse } from "@/types";
 import { FLASHCARD_LIMITS } from "@/types";
+import { getUserFromToken } from "@src/lib/server/authenticationService";
 
 // Schema for validating the request body for manual flashcard creation
 const manualFlashcardSchema = z.object({
@@ -14,10 +15,15 @@ const manualFlashcardSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization (Placeholder)
-  const user = { id: '572e73ca-2850-4937-aa30-ca28f95eba79' }; // Use consistent placeholder
+  // 1. Authentication & Authorization
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse), { status: 401 });
+  }
+  
+  const user = await getUserFromToken(token);
   if (!user) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Not authenticated' } as ErrorResponse), { status: 401 });
+    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Invalid authentication token' } as ErrorResponse), { status: 401 });
   }
 
   // 2. Validate Topic ID
@@ -94,3 +100,4 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: true, code: 'INTERNAL_SERVER_ERROR', message: error instanceof Error ? error.message : 'An unexpected error occurred' } as ErrorResponse), { status: 500 });
   }
 };
+

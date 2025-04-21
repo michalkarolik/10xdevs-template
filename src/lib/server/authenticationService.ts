@@ -8,7 +8,7 @@ const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 // Create Supabase client (server-side only)
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-interface UserData {
+export interface UserData {
   id: string;
   username: string;
   email: string;
@@ -132,3 +132,7 @@ export const authenticationService = {
     }
   }
 };
+
+// Export individual functions for direct import
+export const { signIn, signUp, signOut, getUserFromToken, verifyToken } = authenticationService;
+
