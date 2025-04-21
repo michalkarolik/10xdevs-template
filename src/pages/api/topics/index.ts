@@ -37,12 +37,27 @@ export const GET: APIRoute = async ({ request }) => {
     // Log successful authentication
     console.log('User authenticated:', user.id);
 
-    // Fetch topics from the database
-    const topics = await db.query.topics.findMany({
-      orderBy: { desc: 'created_at' }
-    });
+    // Fetch topics with flashcards count from the database using Supabase relational query.
+    const { data: topics, error } = await db.supabase
+      .from('topics')
+      .select('id, name, created_at, updated_at, flashcards(count)')
+      .order('created_at', { ascending: false });
 
-    return new Response(JSON.stringify({ topics }), {
+    if (error) {
+      console.error('Error fetching topics:', error);
+      return new Response(JSON.stringify({ error: 'Error fetching topics' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Transform topics to expose flashcard_count directly
+    const mappedTopics = topics.map((topic: any) => ({
+      ...topic,
+      flashcard_count: topic.flashcards?.[0]?.count || 0
+    }));
+
+    return new Response(JSON.stringify({ topics: mappedTopics }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
