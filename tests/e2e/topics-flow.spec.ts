@@ -42,8 +42,11 @@ test.describe('Topics Flow', () => {
     await page.getByTestId('manage-topics-link').click();
     await expect(page.url()).toContain('/topics');
 
+    //without if it tries to click to fast in next button, timeout on click does not fix it
+    await page.waitForTimeout(1000);
+
     console.log('Step 5: Opening Add Topic modal');
-    await page.getByTestId('add-topic-button').click();
+    await page.getByTestId('add-topic-button').click({timeout: 5000});
     await expect(page.getByTestId('add-topic-form')).toBeVisible({ timeout: 5000 });
     await expect(page.getByTestId('topic-name-input')).toBeVisible();
     await expect(page.getByTestId('create-topic-button')).toBeVisible();
