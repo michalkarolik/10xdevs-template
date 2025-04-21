@@ -9,6 +9,7 @@ export async function saveFlashcardResponse(
   try {
     const apiResponse = await fetch(`/api/learning/session/${sessionId}/rate`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

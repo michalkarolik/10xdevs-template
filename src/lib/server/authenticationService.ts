@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { CookieSerializeOptions } from 'cookie';
+import { AUTH_TOKEN_COOKIE, getCookie } from "@/lib/cookies";
 
 // Load environment variables
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -105,6 +106,12 @@ export const authenticationService = {
     }
   },
 
+  async getUserFromRequest(request: Request): Promise<UserData | null> {
+    const cookieHeader = request.headers.get("cookie") || "";
+    const token = getCookie(AUTH_TOKEN_COOKIE, cookieHeader);
+    return getUserFromToken(token);
+  },
+
   async getUserFromToken(token: string): Promise<UserData | null> {
     try {
       const { data, error } = await supabase.auth.getUser(token);
@@ -134,5 +141,5 @@ export const authenticationService = {
 };
 
 // Export individual functions for direct import
-export const { signIn, signUp, signOut, getUserFromToken, verifyToken } = authenticationService;
+export const { signIn, signUp, signOut, getUserFromToken, verifyToken, getUserFromRequest } = authenticationService;
 

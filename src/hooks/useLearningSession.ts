@@ -51,6 +51,7 @@ export function useLearningSession(topics: TopicSummaryDto[] = []) {
       // To debug API issues, fetch with more options
       const response = await fetch(apiUrl, {
         method: 'GET',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -94,6 +95,7 @@ export function useLearningSession(topics: TopicSummaryDto[] = []) {
         // ponieważ API go nie oczekuje (został usunięty z insertu)
         const sessionResponse = await fetch('/api/learning-sessions', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           // Body może być puste lub zawierać inne dane, jeśli API by ich wymagało
           // body: JSON.stringify({}), // Puste ciało, jeśli API nie wymaga niczego
@@ -157,6 +159,7 @@ export function useLearningSession(topics: TopicSummaryDto[] = []) {
         // Użyj endpointu zdefiniowanego w src/pages/api/learning-sessions/responses.ts
         const response = await fetch('/api/learning-sessions/responses', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             session_id: sessionId,

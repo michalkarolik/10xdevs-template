@@ -12,6 +12,8 @@ import type {
   FlashcardAcceptEditedResponseDto,
   ErrorResponse,
 } from "@/types";
+import { processFlashcardAccept } from "@/pages/api/topics/[topic_id]/accept";
+import { supabaseClient } from "@/db/supabase.client";
 
 // Helper to handle API errors consistently
 const handleApiError = async (response: Response, defaultMessage: string): Promise<string> => {
@@ -80,6 +82,7 @@ export const useAIGeneration = (topicId: string) => {
       };
       const response = await fetch(`/api/ai/generate-flashcards`, { // Use the new endpoint
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       });
@@ -135,37 +138,32 @@ export const useAIGeneration = (topicId: string) => {
         front: suggestionToAccept.front,
         back: suggestionToAccept.back,
       };
+      // const user = await supabaseClient.auth.getUser()
+      const result: FlashcardAcceptResponseDto = await processFlashcardAccept(topicId,  suggestionToAccept.front, suggestionToAccept.back, supabaseClient)
       const response = await fetch(`/api/topics/${topicId}/accept`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
+      if (!result) {
         const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
         // Removed duplicate declaration of errorMessage
-        console.error(`[handleAccept] API call failed for ID: ${suggestionId}. Status: ${response.status}`); // Log API failure
+        console.error(`[handleAccept] API call failed for ID: ${suggestionId}.`); // Log API failure
         throw new Error(errorMessage);
       }
 
-      // const savedFlashcard: FlashcardAcceptResponseDto = await response.json();
-      await response.json(); // Consume body even if not used directly
       console.log(`[handleAccept] API call successful for ID: ${suggestionId}`); // Log success
 
-      // Clear previous timeout if exists
       if (acceptTimeoutRef.current) {
         clearTimeout(acceptTimeoutRef.current);
       }
 
-      // Update accepted count and last accepted ID to show the visual feedback
       setAcceptedCount(prev => prev + 1);
       setLastAcceptedId(suggestionId);
-
-      // Set timeout to clear the visual feedback AND remove the card after 500ms
       acceptTimeoutRef.current = setTimeout(() => {
         setLastAcceptedId(null); // Clear the visual feedback trigger
-
-        // Remove the accepted suggestion from the list *inside* the timeout
         setSuggestions(prev => {
           console.log(`[handleAccept] Removing suggestion ID: ${suggestionId} after timeout`); // Log removal
           const newState = prev.filter(s => s.id !== suggestionId);
@@ -205,6 +203,7 @@ export const useAIGeneration = (topicId: string) => {
         };
         const response = await fetch(`/api/topics/${topicId}/generate/alternative`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
         });
@@ -248,6 +247,7 @@ export const useAIGeneration = (topicId: string) => {
         };
         const response = await fetch(`/api/topics/${topicId}/accept-edited`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
         });

@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { ErrorResponse } from "@/types";
 import { getUserFromToken } from "@src/lib/server/authenticationService";
+import { getToken } from "@src/lib/client/authClient";
 
 // Schema for saving a flashcard response
 const saveResponseSchema = z.object({
@@ -15,7 +16,7 @@ const saveResponseSchema = z.object({
 // POST endpoint to save a flashcard response
 export const POST: APIRoute = async ({ request, locals }) => {
   // Authentication check
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = getToken();
   if (!token) {
     return new Response(
       JSON.stringify({
@@ -137,4 +138,3 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 };
-

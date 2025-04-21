@@ -7,8 +7,7 @@ export async function verifyAuth(request: Request): Promise<{
 }> {
   // Extract token from cookie or Authorization header
   const cookieHeader = request.headers.get('cookie') || '';
-  const token = getCookie(AUTH_TOKEN_COOKIE, cookieHeader) 
-    || request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = getCookie(AUTH_TOKEN_COOKIE, cookieHeader)
 
   if (!token) {
     return { authorized: false };

@@ -1,4 +1,5 @@
 import { getClientCookie, setClientCookie, removeClientCookie, AUTH_TOKEN_COOKIE } from '../cookies';
+import { authenticationService } from "@/lib/server/authenticationService";
 
 interface User {
   id: string;
@@ -254,4 +255,6 @@ if (typeof window !== 'undefined') {
     authClient.initAuth().catch(err => console.error('Error initializing auth:', err));
   }, 0);
 }
+
+export const { getToken } = authClient;
 

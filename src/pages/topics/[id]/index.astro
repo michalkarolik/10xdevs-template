@@ -4,45 +4,33 @@ import type { TopicDetailDto, FlashcardResponseDto } from "@/types";
 import { Button } from "@/components/ui/button"; // Import Button if needed for actions
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; // Import Card components
 import { PlusCircle, Bot, Edit, Trash2 } from "lucide-react"; // Icons
+import { getCookie, AUTH_TOKEN_COOKIE } from "@src/lib/cookies";
+import { getUserFromRequest } from "../../../lib/server/authenticationService";
+import { fetchTopicDetails } from "@src/pages/api/topics/[topic_id]/index";
 
 const { id: topicId } = Astro.params;
 let topicData: TopicDetailDto | null = null;
 let error: string | null = null;
 
-// Removed the isNaN(parseInt(topicId, 10)) check as topicId is now a UUID string
 if (!topicId) {
   error = "Missing Topic ID in URL.";
-  // Optionally redirect or handle error differently
-  // return Astro.redirect('/topics');
 } else {
   try {
-    // Fetch data from the API endpoint
-    const response = await fetch(`${Astro.url.origin}/api/topics/${topicId}`);
-
-    if (!response.ok) {
-      if (response.status === 404) {
+    const user = await getUserFromRequest(Astro.request);
+    const responsePayload = await fetchTopicDetails(topicId, user, Astro.locals.supabase);
+    //end
+    if (!responsePayload) {
         error = "Topic not found or you don't have access."; // More specific message
-      } else {
-        try {
-            // Try to parse error message from API response body
-            const errorData = await response.json();
-            error = errorData.message || `Failed to load topic data (Status: ${response.status})`;
-        } catch (parseError) {
-            // Fallback if response body is not JSON or empty
-            error = `Failed to load topic data (Status: ${response.status})`;
-        }
-      }
     } else {
       // Parse successful response
-      topicData = await response.json() as TopicDetailDto;
+      topicData = responsePayload
       // Basic validation of received data structure
-      if (!topicData || typeof topicData !== 'object' || !topicData.id || !Array.isArray(topicData.flashcards)) {
-          console.error("Received invalid topic data format from API:", topicData);
+      if (!responsePayload || typeof responsePayload !== 'object' || !responsePayload.id || !Array.isArray(responsePayload.flashcards)) {
+          console.error("Received invalid topic data format from API:", responsePayload);
           error = "Received invalid data format from the server.";
           topicData = null; // Reset topicData on invalid format
       }
     }
-
   } catch (e) {
     console.error("Error fetching topic data:", e);
     error = "An unexpected error occurred while loading topic data.";

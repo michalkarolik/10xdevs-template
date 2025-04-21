@@ -49,6 +49,7 @@ export const ManualFlashcardForm: React.FC<ManualFlashcardFormProps> = ({ topicI
     try {
       const response = await fetch(`/api/topics/${topicId}/flashcards/manual`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });

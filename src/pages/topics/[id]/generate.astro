@@ -1,7 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import AIGenerationView from "@/components/views/AIGenerationView"; // Assuming React component
-import type { TopicResponseDto } from "@/types"; // Import type for topic data
+import type { TopicResponseDto } from "@/types";
+import { getUserFromRequest } from "../../../lib/server/authenticationService";
+import { fetchTopicDetails } from "../../api/topics/[topic_id]/index"; // Import type for topic data
 
 const { id: topicId } = Astro.params; // Renamed to topicId for clarity
 
@@ -14,13 +16,14 @@ if (!topicId) {
 let topicName = "Loading...";
 let fetchError = null;
 try {
+  const user = await getUserFromRequest(Astro.request);
+  const topicDetails = await fetchTopicDetails(topicId, user, Astro.locals.supabase);
   // Use the same API endpoint as the topic detail page
-  const response = await fetch(`${Astro.url.origin}/api/topics/${topicId}`);
-  if (response.ok) {
-    const topicData: TopicResponseDto = await response.json(); // Use TopicResponseDto or similar
+  if (topicDetails) {
+    const topicData: TopicResponseDto = topicDetails
     topicName = topicData?.name ?? "Unknown Topic";
   } else {
-     fetchError = `Failed to fetch topic name (Status: ${response.status})`;
+     fetchError = `Failed to fetch topic name`;
      topicName = "Error";
      console.error(fetchError); // Log the error
   }

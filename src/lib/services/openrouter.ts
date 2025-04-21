@@ -153,6 +153,7 @@ export class OpenRouterService {
     try {
       const response = await fetch(url, {
         method: 'POST',
+        credentials: 'include',
         headers: headers,
         body: JSON.stringify(requestBody),
       });

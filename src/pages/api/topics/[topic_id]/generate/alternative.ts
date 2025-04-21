@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { FlashcardGenerateAlternativeDto, FlashcardGenerateAlternativeResponseDto, ErrorResponse } from "@/types";
 import { FLASHCARD_LIMITS } from "@/types";
 import { getUserFromToken } from "@src/lib/server/authenticationService";
+import { getToken } from "@src/lib/client/authClient";
 
 // Schema for the request body, matching FlashcardGenerateAlternativeDto
 const inputSchema = z.object({
@@ -13,7 +14,7 @@ const inputSchema = z.object({
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
   // 1. Authentication & Authorization
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = getToken();
   if (!token) {
     return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse), { status: 401 });
   }
@@ -87,4 +88,3 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: true, code: errorCode, message: message } as ErrorResponse), { status: 500 });
   }
 };
-

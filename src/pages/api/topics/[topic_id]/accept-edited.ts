@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { FlashcardAcceptEditedDto, FlashcardAcceptEditedResponseDto, ErrorResponse } from "@/types";
 import { FLASHCARD_LIMITS } from "@/types";
 import { getUserFromToken } from "@src/lib/server/authenticationService";
+import { getToken } from "@src/lib/client/authClient";
 
 // Use the same input schema as the 'accept' endpoint
 const inputSchema = z.object({
@@ -11,15 +12,21 @@ const inputSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
-  // 1. Authentication & Authorization
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  // 1. Authentication & Authorization using getToken()
+  const token = getToken();
   if (!token) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse), { status: 401 });
+    return new Response(
+      JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse),
+      { status: 401 }
+    );
   }
   
   const user = await getUserFromToken(token);
   if (!user) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Invalid authentication token' } as ErrorResponse), { status: 401 });
+    return new Response(
+      JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Invalid authentication token' } as ErrorResponse),
+      { status: 401 }
+    );
   }
 
   // 2. Validate Topic ID

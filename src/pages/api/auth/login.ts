@@ -29,6 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
     headers.append('Content-Type', 'application/json');
     
     // Set cookie with appropriate options
+    console.log("USTAWIAN COOKIE, ", token);
     const cookieStr = setCookie(AUTH_TOKEN_COOKIE, token, {
       ...cookieOptions,
       sameSite: 'lax', // Use lax instead of strict for better compatibility
