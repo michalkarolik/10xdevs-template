@@ -1,15 +1,11 @@
 import { useState, useCallback, useRef } from "react"; // Import useRef
 import type {
   FlashcardSuggestionViewModel,
-  FlashcardGeneratedDto,
-  FlashcardGenerateDto,
-  FlashcardGeneratedResponseDto,
   FlashcardAcceptDto,
   FlashcardAcceptResponseDto,
   FlashcardGenerateAlternativeDto,
   FlashcardGenerateAlternativeResponseDto,
   FlashcardAcceptEditedDto,
-  FlashcardAcceptEditedResponseDto,
   ErrorResponse,
 } from "@/types";
 import { processFlashcardAccept } from "@/pages/api/topics/[topic_id]/accept";
@@ -140,15 +136,8 @@ export const useAIGeneration = (topicId: string) => {
       };
       // const user = await supabaseClient.auth.getUser()
       const result: FlashcardAcceptResponseDto = await processFlashcardAccept(topicId,  suggestionToAccept.front, suggestionToAccept.back, supabaseClient)
-      const response = await fetch(`/api/topics/${topicId}/accept`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      });
-
       if (!result) {
-        const errorMessage = await handleApiError(response, 'Failed to accept suggestion');
+        const errorMessage = await handleApiError(result, 'Failed to accept suggestion');
         // Removed duplicate declaration of errorMessage
         console.error(`[handleAccept] API call failed for ID: ${suggestionId}.`); // Log API failure
         throw new Error(errorMessage);
