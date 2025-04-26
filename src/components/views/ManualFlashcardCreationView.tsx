@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { CreateFlashcardButton } from '@/components/ui/createFlashcardButton';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -107,13 +108,13 @@ export default function ManualFlashcardCreationView({ topicId }: ManualFlashcard
             >
               Cancel
             </Button>
-            <Button 
+            <CreateFlashcardButton
               type="submit" 
               disabled={isSubmitting}
-              data-test-id="create-flashcard-button"
+
             >
               {isSubmitting ? 'Creating...' : 'Create Flashcard'}
-            </Button>
+            </CreateFlashcardButton>
           </CardFooter>
         </form>
       </Card>
