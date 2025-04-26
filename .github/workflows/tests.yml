@@ -1,5 +1,4 @@
 name: Tests
-
 on:
   push:
     branches: [master]
@@ -10,6 +9,12 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    env:
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -22,6 +27,12 @@ jobs:
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
+    env:
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
