@@ -68,10 +68,11 @@ test.describe('Topics Flow', () => {
     await page.waitForTimeout(10);
     await expect(page.getByTestId('add-flashcard-form')).toBeVisible({ timeout: 5000 });
 
-    await page.waitForTimeout(100);
+
     console.log('Step 10: Filling flashcard details');
     await page.getByTestId('flashcard-back-input').fill('10x means ten times or 10 developers.');
     await page.getByTestId('flashcard-front-input').fill('What is 10x?');
+    await page.waitForTimeout(100);
     await page.getByTestId('create-flashcard-button').click();
     
     console.log('Step 11: Verifying flashcard addition');

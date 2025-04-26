@@ -37,7 +37,7 @@ export const AddTopicDialog: React.FC<AddTopicDialogProps> = ({ onTopicAdded, ch
       const requestBody: TopicCreateDto = { name: topicName.trim() };
       const response = await fetch(`/api/topics`, {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       });
