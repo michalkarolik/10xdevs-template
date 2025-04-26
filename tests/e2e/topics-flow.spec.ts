@@ -38,6 +38,7 @@ test.describe("Topics Flow", () => {
     await page.getByTestId("authenticated-section").waitFor({ state: "visible", timeout: 10000 });
     console.log("Authentication successful");
 
+    await page.waitForTimeout(100);
     console.log("Step 4: Navigating to topics page");
     await page.getByTestId("manage-topics-link").click();
     await expect(page.url()).toContain("/topics");
@@ -51,11 +52,13 @@ test.describe("Topics Flow", () => {
     await expect(page.getByTestId("topic-name-input")).toBeVisible();
     await expect(page.getByTestId("create-topic-button")).toBeVisible();
 
+    await page.waitForTimeout(100);
     console.log("Step 6: Creating a new topic");
     const topicName = `Test Topic ${Date.now()}`;
     await page.getByTestId("topic-name-input").fill(topicName);
     await page.getByTestId("create-topic-button").click();
     //
+    await page.waitForTimeout(100);
     console.log("Step 7: Verifying topic creation");
     // Wait for the modal to close
 
@@ -64,6 +67,7 @@ test.describe("Topics Flow", () => {
     await page.getByTestId("view-topic-" + topicName).click({ timeout: 60000 });
     await expect(page.url()).toContain("/topics/"); // expecting navigation to topic details page
     console.log("Step 9: Opening Add Manual Flashcard modal");
+    await page.waitForTimeout(100);
     await page.getByTestId("add-manual-flashcard").click({ timeout: 5000 });
     await page.waitForTimeout(10);
     await expect(page.getByTestId("add-flashcard-form")).toBeVisible({ timeout: 5000 });
@@ -76,6 +80,7 @@ test.describe("Topics Flow", () => {
     await page.getByTestId("create-flashcard-button").click();
 
     console.log("Step 11: Verifying flashcard addition");
+    await page.waitForTimeout(100);
     await expect(page.getByTestId("flashcards-amount")).toContainText("Flashcards (1)");
 
     console.log("Test completed successfully");
