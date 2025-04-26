@@ -1,7 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, configure } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import fs from 'fs';
 import path from 'path';
+import { UserMenu } from '@/components/auth/UserMenu';
+
+// Configure Testing Library to use data-test-id attribute
+configure({ testIdAttribute: 'data-test-id' });
 
 // Load the content of the real index.astro file
 const indexAstroPath = path.resolve(__dirname, '../../src/pages/index.astro');
@@ -19,72 +23,45 @@ vi.mock('@/lib/supabase', () => ({
   }
 }));
 
+// Mock auth client
+vi.mock('@/lib/client/authClient', () => ({
+  authClient: {
+    getCurrentUser: vi.fn(),
+    onAuthStateChange: vi.fn().mockReturnValue(() => {}),
+    logout: vi.fn().mockResolvedValue(true)
+  }
+}));
+
 describe("Index Page Auth UI", () => {
-  beforeEach(() => {
-    // Extract and set up the HTML structure from index.astro
-    const htmlMatch = indexAstroContent.match(/<Layout.*?>([\s\S]*?)<\/Layout>/);
-    if (htmlMatch) {
-      document.body.innerHTML = htmlMatch[1];
-    }
-
-    // Mock localStorage for auth token check
-    Object.defineProperty(window, 'localStorage', {
-      value: {
-        getItem: vi.fn(),
-        setItem: vi.fn(),
-        clear: vi.fn(),
-        removeItem: vi.fn(),
-        key: vi.fn(),
-        length: 0
-      }
-    });
+  it("should render authenticated content when user is provided", () => {
+    // Render component directly with authenticated user
+    const mockUser = { id: '1', username: 'testuser', email: 'test@example.com' };
+    
+    render(<UserMenu props={{ user: mockUser }} />);
+    
+    // Check that the user's info is displayed
+    expect(screen.getByText('T')).toBeInTheDocument(); // First letter of email
+    expect(screen.getByText('testuser')).toBeInTheDocument();
+    expect(screen.getByText('Wyloguj')).toBeInTheDocument();
+    
+    // Ensure login/signup elements are not present
+    expect(screen.queryByText('Zaloguj się')).not.toBeInTheDocument();
+    expect(screen.queryByText('Zarejestruj się')).not.toBeInTheDocument();
   });
 
-  it("shows authenticated content and hides guest content when authenticated", async () => {
-    // Manually trigger the logic from the script in index.astro
-    const authSection = document.getElementById('auth-section');
-    const guestSection = document.getElementById('guest-section');
+  it("should render guest content when user is not provided", () => {
+    // Render component with null user
+    render(<UserMenu props={{ user: null }} />);
     
-    // Simulate the authenticated state
-    if (authSection && guestSection) {
-      authSection.style.display = 'block';
-      guestSection.style.display = 'none';
-    }
-
-    // Now verify the UI state
-    expect(document.querySelector('#auth-section')?.style.display).toBe('block');
-    expect(document.querySelector('#guest-section')?.style.display).toBe('none');
+    // Check that login/signup links are displayed
+    expect(screen.getByText('Zaloguj się')).toBeInTheDocument();
+    expect(screen.getByText('Zarejestruj się')).toBeInTheDocument();
     
-    // Check for authenticated content
-    expect(document.querySelector('#auth-section')?.textContent).toMatch(/Zarządzaj tematami/i);
-    expect(document.querySelector('#auth-section')?.textContent).toMatch(/Rozpocznij sesję nauki/i);
+    // Check for proper data-test-id (now using the configured attribute)
+    expect(screen.getByTestId('authenticated-section')).toBeInTheDocument();
     
-    // Check guest content is not visible rather than not present
-    const guestLink = document.querySelector('a[href="/register"]');
-    expect(guestLink).not.toBeVisible();
-  });
-
-  it("shows guest content and hides authenticated content when not authenticated", async () => {
-    // Manually trigger the logic from the script in index.astro for unauthenticated user
-    const authSection = document.getElementById('auth-section');
-    const guestSection = document.getElementById('guest-section');
-    
-    // Simulate the unauthenticated state
-    if (authSection && guestSection) {
-      authSection.style.display = 'none';
-      guestSection.style.display = 'block';
-    }
-
-    // Verify the UI state
-    expect(document.querySelector('#auth-section')?.style.display).toBe('none');
-    expect(document.querySelector('#guest-section')?.style.display).toBe('block');
-    
-    // Check for guest content
-    expect(document.querySelector('#guest-section')?.textContent).toMatch(/Zarejestruj się/i);
-    expect(document.querySelector('#guest-section')?.textContent).toMatch(/Zaloguj się/i);
-    
-    // Check authenticated content is not visible
-    const authLink = document.querySelector('a[href="/topics"]');
-    expect(authLink).not.toBeVisible();
+    // Ensure user elements are not present
+    expect(screen.queryByText('Wyloguj')).not.toBeInTheDocument();
   });
 });
+
