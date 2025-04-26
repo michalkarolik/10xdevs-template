@@ -21,9 +21,7 @@ const SourceTextInput: React.FC<SourceTextInputProps> = ({
     <Card className="bg-background border">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Generate Flashcards</CardTitle>
-        <CardDescription>
-          Describe the topic or paste text from which to generate flashcards
-        </CardDescription>
+        <CardDescription>Describe the topic or paste text from which to generate flashcards</CardDescription>
       </CardHeader>
       <CardContent>
         <Textarea

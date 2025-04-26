@@ -1,20 +1,20 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose, // Import DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner"; // Import toast for notifications
-import type { TopicCreateDto, TopicResponseDto, ErrorResponse } from "@/types";
+import type { ErrorResponse, TopicCreateDto, TopicResponseDto } from "@/types";
 
 interface AddTopicDialogProps {
   onTopicAdded?: (newTopic: TopicResponseDto) => void; // Optional callback after success
@@ -36,9 +36,9 @@ export const AddTopicDialog: React.FC<AddTopicDialogProps> = ({ onTopicAdded, ch
     try {
       const requestBody: TopicCreateDto = { name: topicName.trim() };
       const response = await fetch(`/api/topics`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
 
@@ -47,7 +47,9 @@ export const AddTopicDialog: React.FC<AddTopicDialogProps> = ({ onTopicAdded, ch
         try {
           const errorData: ErrorResponse | { message?: string } = await response.json();
           errorMessage = errorData.message || errorMessage;
-        } catch (e) { /* Ignore parsing error */ }
+        } catch {
+          /* Ignore parsing error */
+        }
         throw new Error(errorMessage);
       }
 
@@ -56,7 +58,6 @@ export const AddTopicDialog: React.FC<AddTopicDialogProps> = ({ onTopicAdded, ch
       setTopicName(""); // Clear input
       setIsOpen(false); // Close dialog
       onTopicAdded?.(newTopic); // Call optional callback
-
     } catch (err) {
       console.error("Error creating topic:", err);
       const message = err instanceof Error ? err.message : "An unknown error occurred.";
@@ -81,15 +82,11 @@ export const AddTopicDialog: React.FC<AddTopicDialogProps> = ({ onTopicAdded, ch
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Topic</DialogTitle>
-          <DialogDescription>
-            Enter a name for your new topic. Click save when you're done.
-          </DialogDescription>
+          <DialogDescription>Enter a name for your new topic. Click save when you&apos;re done.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
@@ -106,21 +103,21 @@ export const AddTopicDialog: React.FC<AddTopicDialogProps> = ({ onTopicAdded, ch
               aria-describedby="name-error"
             />
           </div>
-           {/* Display length counter */}
-           <p className="col-start-2 col-span-3 text-xs text-muted-foreground text-right pr-1">
-             {topicName.length}/100
-           </p>
-           {/* Display error message */}
-           {error && (
-             <p id="name-error" className="col-start-2 col-span-3 text-sm text-destructive">
-               {error}
-             </p>
-           )}
+          {/* Display length counter */}
+          <p className="col-start-2 col-span-3 text-xs text-muted-foreground text-right pr-1">{topicName.length}/100</p>
+          {/* Display error message */}
+          {error && (
+            <p id="name-error" className="col-start-2 col-span-3 text-sm text-destructive">
+              {error}
+            </p>
+          )}
         </div>
         <DialogFooter>
-           {/* Add explicit Close button */}
+          {/* Add explicit Close button */}
           <DialogClose asChild>
-             <Button type="button" variant="outline" disabled={isLoading}>Cancel</Button>
+            <Button type="button" variant="outline" disabled={isLoading}>
+              Cancel
+            </Button>
           </DialogClose>
           <Button type="submit" onClick={handleAddTopic} disabled={isSubmitDisabled}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

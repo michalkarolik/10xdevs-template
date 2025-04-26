@@ -20,19 +20,18 @@ try {
   const topicDetails = await fetchTopicDetails(topicId, user, Astro.locals.supabase);
   // Use the same API endpoint as the topic detail page
   if (topicDetails) {
-    const topicData: TopicResponseDto = topicDetails
+    const topicData: TopicResponseDto = topicDetails;
     topicName = topicData?.name ?? "Unknown Topic";
   } else {
-     fetchError = `Failed to fetch topic name`;
-     topicName = "Error";
-     console.error(fetchError); // Log the error
+    fetchError = `Failed to fetch topic name`;
+    topicName = "Error";
+    console.error(fetchError); // Log the error
   }
 } catch (e) {
-   console.error("Error fetching topic name for breadcrumbs:", e);
-   fetchError = "Error fetching topic name.";
-   topicName = "Error";
+  console.error("Error fetching topic name for breadcrumbs:", e);
+  fetchError = "Error fetching topic name.";
+  topicName = "Error";
 }
-
 
 // Define breadcrumbs
 const breadcrumbs = [
@@ -44,7 +43,11 @@ const breadcrumbs = [
 ];
 ---
 
-<Layout title={`Generate Flashcards for Topic ${topicName === "Loading..." || fetchError ? topicId : topicName}`} breadcrumbs={breadcrumbs}>
-  {fetchError && <p class="text-destructive mb-4">{fetchError}</p>} {/* Display fetch error if any */}
+<Layout
+  title={`Generate Flashcards for Topic ${topicName === "Loading..." || fetchError ? topicId : topicName}`}
+  breadcrumbs={breadcrumbs}
+>
+  {fetchError && <p class="text-destructive mb-4">{fetchError}</p>}
+  {/* Display fetch error if any */}
   <AIGenerationView client:load topicId={topicId} data-test-id="ai-generation-view" />
 </Layout>

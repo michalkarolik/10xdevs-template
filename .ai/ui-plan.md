@@ -1,11 +1,13 @@
 # Architektura UI dla AI Flashcard Generator
 
 ## 1. Przegląd struktury UI
+
 - Interfejs opiera się na wyraźnie wydzielonych widokach zapewniających intuicyjną nawigację.
 - Globalny pasek nawigacyjny umożliwia szybki dostęp do najważniejszych sekcji (dashboard, tematy, sesje nauki, panel użytkownika).
 - Użycie responsywnego designu i komponentów zgodnych z WCAG AA gwarantuje dostępność i bezpieczeństwo.
 
 ## 2. Lista widoków
+
 - **Widok logowania** `[Do zaimplementowania]`
   Ścieżka: `/login`  
   Cel: Umożliwienie autoryzacji użytkownika.  
@@ -56,6 +58,7 @@
   UX/dostępność: Minimalistyczny interfejs, łatwość nawigacji, wyraźny podział między pytaniami a odpowiedziami.
 
 ## 3. Mapa podróży użytkownika
+
 - Użytkownik wchodzi na stronę i trafia do widoku logowania.
 - Po pomyślnym logowaniu użytkownik zostaje przekierowany na dashboard, gdzie widzi listę tematów.
 - Użytkownik wybiera istniejący temat lub tworzy nowy.
@@ -68,12 +71,14 @@
 - W razie błędów system wyświetla czytelne komunikaty, umożliwiając powrót do poprzedniego widoku lub próbę ponownego działania.
 
 ## 4. Układ i struktura nawigacji
+
 - Globalny pasek nawigacyjny widoczny na wszystkich stronach z dostępem do: Dashboard, Tematy, Sesje nauki i Panel Użytkownika.
 - Menu kontekstowe wewnątrz widoków (np. przy edycji/usuwaniu fiszek) umożliwia szybkie wykonanie akcji.
 - Nawigacja opiera się na responsywnym designie, z rozwijanymi menu na urządzeniach mobilnych.
 - Jasne ścieżki nawigacyjne i przyciski umożliwiają intuicyjne poruszanie się pomiędzy widokami.
 
 ## 5. Kluczowe komponenty
+
 - Formularze: logowania, rejestracji, dodawania/edycji tematów i fiszek.
 - Modale: potwierdzenia usunięcia, edycji fiszek.
 - Komponent listy: wyświetlanie tematów i fiszek z akcjami.

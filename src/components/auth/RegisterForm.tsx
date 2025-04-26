@@ -1,17 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Loader2, CheckCircle } from "lucide-react";
-import { supabase } from '@/lib/supabase';
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-interface RegisterFormProps {
-  onSuccess?: () => void;
-  redirectUrl?: string;
-}
-
-export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps) {
+const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,24 +19,24 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
     const hasMinLength = password.length >= 8;
     const hasUpperCase = /[A-Z]/.test(password);
     const hasDigit = /\d/.test(password);
-    
+
     return hasMinLength && hasUpperCase && hasDigit;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Form validation
     if (!email.trim()) {
       setError("Email jest wymagany");
       return;
     }
-    
+
     if (!validatePassword(password)) {
       setError("Hasło musi mieć co najmniej 8 znaków, zawierać przynajmniej jedną wielką literę i jedną cyfrę");
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError("Hasła nie są identyczne");
       return;
@@ -53,14 +48,14 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
 
     try {
       // Register with Supabase
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
+        },
       });
-      
+
       if (signUpError) {
         setError(signUpError.message || "Rejestracja nie powiodła się. Spróbuj ponownie.");
         return;
@@ -68,8 +63,7 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
 
       // Show success message instead of redirecting
       setSuccess(true);
-      
-    } catch (err) {
+    } catch {
       setError("Rejestracja nie powiodła się. Spróbuj ponownie.");
     } finally {
       setIsSubmitting(false);
@@ -120,9 +114,7 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
               disabled={isSubmitting}
               required
             />
-            <p className="text-xs text-muted-foreground">
-              Minimum 8 znaków, jedna wielka litera i jedna cyfra
-            </p>
+            <p className="text-xs text-muted-foreground">Minimum 8 znaków, jedna wielka litera i jedna cyfra</p>
           </div>
 
           <div className="space-y-2">
@@ -138,17 +130,13 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isSubmitting || success}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting || success}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Rejestracja...
               </>
             ) : (
-              "Zarejestruj się"
+              "Register"
             )}
           </Button>
         </div>
@@ -158,10 +146,12 @@ export function RegisterForm({ onSuccess, redirectUrl = '/' }: RegisterFormProps
         <p>
           Masz już konto?{" "}
           <a href="/login" className="font-medium text-primary hover:underline">
-            Zaloguj się RegisterMenu.tsx
+            Log in RegisterMenu.tsx
           </a>
         </p>
       </div>
     </form>
   );
-}
+};
+
+export default RegisterForm;

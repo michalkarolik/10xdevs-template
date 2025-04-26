@@ -1,5 +1,5 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Login" noAuthCheck={true}>
@@ -25,66 +25,62 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
-  import { authClient } from '../lib/client/authClient';
-  
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('login-form') as HTMLFormElement;
-    const errorMessage = document.getElementById('error-message');
-    const loginButton = document.getElementById('login-button');
-    const loginSuccess = document.getElementById('login-success');
-    
-    form?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (errorMessage) errorMessage.textContent = '';
-      
-      // Disable button and show loading state
-      if (loginButton) {
-        loginButton.textContent = 'Logging in...';
-        loginButton.setAttribute('disabled', 'true');
-      }
-      
-      const email = (document.getElementById('email') as HTMLInputElement).value;
-      const password = (document.getElementById('password') as HTMLInputElement).value;
-      
-      try {
-        const result = await authClient.login({ email, password });
-        
-        // Reset button state
+  import { authClient } from "../lib/client/authClient";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("login-form");
+    const errorMessage = document.getElementById("error-message");
+    const loginButton = document.getElementById("login-button");
+    const loginSuccess = document.getElementById("login-success");
+
+    form &&
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (errorMessage) errorMessage.textContent = "";
+
         if (loginButton) {
-          loginButton.textContent = 'Login';
-          loginButton.removeAttribute('disabled');
+          loginButton.textContent = "Logging in...";
+          loginButton.setAttribute("disabled", "true");
         }
-        
-        if (result.success) {
-          // Show success message
-          if (form && loginSuccess) {
-            form.style.display = 'none';
-            loginSuccess.style.display = 'block';
+
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const email = emailInput ? emailInput.value : "";
+        const password = passwordInput ? passwordInput.value : "";
+
+        try {
+          const result = await authClient.login({ email, password });
+
+          if (loginButton) {
+            loginButton.textContent = "Login";
+            loginButton.removeAttribute("disabled");
           }
-          
-          // Give cookies time to be properly set before redirecting
-          setTimeout(() => {
-            // Force a complete page reload to ensure the auth state is refreshed
-            window.location.href = '/';
-          }, 1000);
-        } else if (errorMessage) {
-          errorMessage.textContent = result.error || 'Login failed';
+
+          if (result.success) {
+            if (form && loginSuccess) {
+              form.style.display = "none";
+              loginSuccess.style.display = "block";
+            }
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 1000);
+          } else if (errorMessage) {
+            errorMessage.textContent = result.error || "Login failed";
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+
+          if (loginButton) {
+            loginButton.textContent = "Login";
+            loginButton.removeAttribute("disabled");
+          }
+
+          if (errorMessage) {
+            errorMessage.textContent = error instanceof Error ? error.message : "An unexpected error occurred";
+          }
         }
-      } catch (error) {
-        console.error('Login error:', error);
-        
-        // Reset button state
-        if (loginButton) {
-          loginButton.textContent = 'Login';
-          loginButton.removeAttribute('disabled');
-        }
-        
-        if (errorMessage) {
-          errorMessage.textContent = error instanceof Error ? error.message : 'An unexpected error occurred';
-        }
-      }
-    });
+      });
   });
 </script>
 
@@ -94,23 +90,23 @@ import Layout from '../layouts/Layout.astro';
     margin: 0 auto;
     padding: 2rem;
   }
-  
+
   .form-group {
     margin-bottom: 1rem;
   }
-  
+
   label {
     display: block;
     margin-bottom: 0.5rem;
   }
-  
+
   input {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-  
+
   button {
     padding: 0.5rem 1rem;
     background-color: #4a7dff;
@@ -120,7 +116,7 @@ import Layout from '../layouts/Layout.astro';
     cursor: pointer;
     margin-top: 1rem;
   }
-  
+
   .error-message {
     color: red;
     margin-top: 0.5rem;

@@ -7,7 +7,7 @@ Kontekst Projektu:
 Opis i Cel Projektu: {{OpisCelProjektu}} Aplikacja do zarządzania nauką poprzez fiszki/flashcards podobne do aplikacji Anki. Powinna umożliwiać dodawanie nowych fiszek - zarówno manualnie jak i generowanie ich przy pomocy AI. Następnie można rozpocząć sesje nauki z danego tematu.
 Stack Technologiczny: {{TechStack}} Typescript, astro, supabase, tailwind, react, vite, openai.
 Kluczowe Moduły/Funkcjonalności: {{KluczoweFunkcjonalnosci}} Użytkownik musi być zalogowany by móc tworzyć nowe fiszki i rozpocząc sesje nauki. Użytkownik może przeglądać jedynie swoje fiszki. Sesja nauki powinna proponować fiszki w pierwszej kolejności te które w poprzednich sesjach były oznaczone jako "Again", następnie "Hard".
-Priorytety Testowania: {{PriorytetyTestowania}}  Niezalogowany użytkownik nie powinien mieć możliwości podglądu jakichkolwiek fiszek.
+Priorytety Testowania: {{PriorytetyTestowania}} Niezalogowany użytkownik nie powinien mieć możliwości podglądu jakichkolwiek fiszek.
 Dostępne Zasoby i Dokumentacja: {{DostepneZasobyDokumentacja}} @auth-detailed.md, @db-plan.md, @prd.md, @tech-stack.md, @ui.plan.md
 Analiza Repozytorium: Zwróć szczególną uwagę na strukturę projektu w repozytorium, istniejące testy (jeśli są) oraz kluczowe pliki konfiguracyjne lub dokumenty (np. README, pliki Dockerfile, schematy bazy danych), aby lepiej dostosować strategię testowania.
 Wymagania dotyczące Planu Testów:

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FLASHCARD_LIMITS } from "@/types";
@@ -11,12 +11,7 @@ interface FlashcardEditFormProps {
   onCancel: () => void;
 }
 
-const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({
-  initialFront,
-  initialBack,
-  onSave,
-  onCancel,
-}) => {
+const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({ initialFront, initialBack, onSave, onCancel }) => {
   const [editedFront, setEditedFront] = useState(initialFront);
   const [editedBack, setEditedBack] = useState(initialBack);
 
@@ -40,7 +35,9 @@ const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({
   return (
     // Adjusted padding and spacing
     <div className="space-y-3 p-4 border rounded-md bg-muted/30 dark:bg-muted/10">
-      <div className="space-y-1"> {/* Group label, textarea, counter */}
+      <div className="space-y-1">
+        {" "}
+        {/* Group label, textarea, counter */}
         <label htmlFor={frontId} className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
           Front
         </label>
@@ -63,7 +60,9 @@ const FlashcardEditForm: React.FC<FlashcardEditFormProps> = ({
         </p>
       </div>
 
-      <div className="space-y-1"> {/* Group label, textarea, counter */}
+      <div className="space-y-1">
+        {" "}
+        {/* Group label, textarea, counter */}
         <label htmlFor={backId} className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
           Back
         </label>

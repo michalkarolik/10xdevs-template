@@ -1,6 +1,6 @@
 import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, AlertCircle, Info } from "lucide-react"; // Icons
+import { AlertCircle, Info, Loader2 } from "lucide-react"; // Icons
 import FlashcardSuggestionCard from "./FlashcardSuggestionCard"; // Assuming this component exists
 import type { FlashcardSuggestionViewModel } from "@/types";
 

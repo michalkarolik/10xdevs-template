@@ -1,61 +1,61 @@
 ---
-import { AUTH_TOKEN_COOKIE, getCookie } from '../lib/cookies';
-import { authenticationService } from '../lib/server/authenticationService';
+import { AUTH_TOKEN_COOKIE, getCookie } from "../lib/cookies";
+import { authenticationService } from "../lib/server/authenticationService";
 
 // Get token from cookie
-const token = getCookie(AUTH_TOKEN_COOKIE, Astro.request.headers.get('cookie') || '');
+const token = getCookie(AUTH_TOKEN_COOKIE, Astro.request.headers.get("cookie") || "");
 const user = token ? await authenticationService.getUserFromToken(token) : null;
 ---
 
 <div id="auth-status" data-logged-in={!!user}>
-  <div class="logged-in" style={!user ? 'display: none;' : ''}>
-    <span>Welcome, <span id="username-display">{user?.username || ''}</span></span>
+  <div class="logged-in" style={!user ? "display: none;" : ""}>
+    <span>Welcome, <span id="username-display">{user?.username || ""}</span></span>
     <button id="logout-button">Log out</button>
   </div>
-  <div class="logged-out" style={user ? 'display: none;' : ''}>
+  <div class="logged-out" style={user ? "display: none;" : ""}>
     <a href="/login">Log in</a>
     <a href="/signup">Sign up</a>
   </div>
 </div>
 
 <script>
-  import { authClient } from '../lib/client/authClient';
-  
-  document.addEventListener('DOMContentLoaded', async () => {
-    const logoutButton = document.getElementById('logout-button');
-    const authStatus = document.getElementById('auth-status');
-    const loggedInSection = authStatus?.querySelector('.logged-in');
-    const loggedOutSection = authStatus?.querySelector('.logged-out');
-    const usernameDisplay = document.getElementById('username-display');
-    
+  import { authClient } from "../lib/client/authClient";
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const logoutButton = document.getElementById("logout-button");
+    const authStatus = document.getElementById("auth-status");
+    const loggedInSection = authStatus?.querySelector(".logged-in");
+    const loggedOutSection = authStatus?.querySelector(".logged-out");
+    const usernameDisplay = document.getElementById("username-display");
+
     // Function to update UI based on auth state
     const updateAuthUI = (user) => {
       console.log("AuthStatus updating UI with user:", user);
       if (user) {
-        authStatus?.setAttribute('data-logged-in', 'true');
-        if (loggedInSection) loggedInSection.style.display = '';
-        if (loggedOutSection) loggedOutSection.style.display = 'none';
+        authStatus?.setAttribute("data-logged-in", "true");
+        if (loggedInSection) loggedInSection.style.display = "";
+        if (loggedOutSection) loggedOutSection.style.display = "none";
         if (usernameDisplay) usernameDisplay.textContent = user.username || user.email;
       } else {
-        authStatus?.setAttribute('data-logged-in', 'false');
-        if (loggedInSection) loggedInSection.style.display = 'none';
-        if (loggedOutSection) loggedOutSection.style.display = '';
-        if (usernameDisplay) usernameDisplay.textContent = '';
+        authStatus?.setAttribute("data-logged-in", "false");
+        if (loggedInSection) loggedInSection.style.display = "none";
+        if (loggedOutSection) loggedOutSection.style.display = "";
+        if (usernameDisplay) usernameDisplay.textContent = "";
       }
     };
-    
+
     // Listen for auth state changes
     authClient.onAuthStateChange(updateAuthUI);
-    
+
     // Check initial auth state if not already done
     if (!authClient.isInitialized) {
       const user = await authClient.getCurrentUser();
       console.log("AuthStatus initial user:", user);
       updateAuthUI(user);
     }
-    
+
     if (logoutButton) {
-      logoutButton.addEventListener('click', async () => {
+      logoutButton.addEventListener("click", async () => {
         const success = await authClient.logout();
         if (success) {
           // Force a complete page reload to refresh auth state
@@ -72,14 +72,16 @@ const user = token ? await authenticationService.getUserFromToken(token) : null;
     align-items: center;
     gap: 1rem;
   }
-  
-  .logged-in, .logged-out {
+
+  .logged-in,
+  .logged-out {
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
-  
-  button, a {
+
+  button,
+  a {
     padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;

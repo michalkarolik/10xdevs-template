@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { FlashcardGenerateAlternativeDto, FlashcardGenerateAlternativeResponseDto, ErrorResponse } from "@/types";
+import type { ErrorResponse, FlashcardGenerateAlternativeDto, FlashcardGenerateAlternativeResponseDto } from "@/types";
 import { FLASHCARD_LIMITS } from "@/types";
 import { getUserFromToken } from "@src/lib/server/authenticationService";
 import { getToken } from "@src/lib/client/authClient";
@@ -12,43 +12,70 @@ const inputSchema = z.object({
   original_back: z.string().min(1, "Original back text is required").max(FLASHCARD_LIMITS.BACK_MAX_LENGTH), // Validate against limits
 });
 
-export const POST: APIRoute = async ({ params, request, locals }) => {
+export const POST: APIRoute = async ({ params, request }) => {
   // 1. Authentication & Authorization
   const token = getToken();
   if (!token) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Missing authentication token' } as ErrorResponse), { status: 401 });
+    return new Response(
+      JSON.stringify({ error: true, code: "UNAUTHORIZED", message: "Missing authentication token" } as ErrorResponse),
+      { status: 401 }
+    );
   }
-  
+
   const user = await getUserFromToken(token);
   if (!user) {
-    return new Response(JSON.stringify({ error: true, code: 'UNAUTHORIZED', message: 'Invalid authentication token' } as ErrorResponse), { status: 401 });
+    return new Response(
+      JSON.stringify({ error: true, code: "UNAUTHORIZED", message: "Invalid authentication token" } as ErrorResponse),
+      { status: 401 }
+    );
   }
 
   // 2. Validate Topic ID
   const { topic_id } = params;
   if (!topic_id) {
-    return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Missing topic ID' } as ErrorResponse), { status: 400 });
+    return new Response(
+      JSON.stringify({ error: true, code: "BAD_REQUEST", message: "Missing topic ID" } as ErrorResponse),
+      { status: 400 }
+    );
   }
   // Basic UUID format check
   const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-   if (!uuidRegex.test(topic_id)) {
-      return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid topic ID format (must be a UUID)' } as ErrorResponse), { status: 400 });
-   }
+  if (!uuidRegex.test(topic_id)) {
+    return new Response(
+      JSON.stringify({
+        error: true,
+        code: "BAD_REQUEST",
+        message: "Invalid topic ID format (must be a UUID)",
+      } as ErrorResponse),
+      { status: 400 }
+    );
+  }
 
   // 3. Parse and Validate Request Body
   let requestBody: FlashcardGenerateAlternativeDto;
   try {
     requestBody = await request.json();
-  } catch (e) {
-    return new Response(JSON.stringify({ error: true, code: 'BAD_REQUEST', message: 'Invalid JSON body' } as ErrorResponse), { status: 400 });
+  } catch {
+    return new Response(
+      JSON.stringify({ error: true, code: "BAD_REQUEST", message: "Invalid JSON body" } as ErrorResponse),
+      { status: 400 }
+    );
   }
 
   const validationResult = inputSchema.safeParse(requestBody);
   if (!validationResult.success) {
-    return new Response(JSON.stringify({ error: true, code: 'VALIDATION_ERROR', message: 'Invalid input data', details: validationResult.error.flatten() } as ErrorResponse), { status: 400 });
+    return new Response(
+      JSON.stringify({
+        error: true,
+        code: "VALIDATION_ERROR",
+        message: "Invalid input data",
+        details: validationResult.error.flatten(),
+      } as ErrorResponse),
+      { status: 400 }
+    );
   }
 
-  const { source_text, original_front, original_back } = validationResult.data;
+  const { original_front, original_back } = validationResult.data;
 
   // 4. AI Interaction (Placeholder)
   try {
@@ -64,7 +91,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     // Simulate generating a slightly different version
     const alternativeFront = `Alt: ${original_front.substring(0, 50)}... (${Date.now() % 100})`;
     const alternativeBack = `Alternative back based on: ${original_back.substring(0, 100)}...`;
-    const exceedsLimit = alternativeFront.length > FLASHCARD_LIMITS.FRONT_MAX_LENGTH || alternativeBack.length > FLASHCARD_LIMITS.BACK_MAX_LENGTH;
+    const exceedsLimit =
+      alternativeFront.length > FLASHCARD_LIMITS.FRONT_MAX_LENGTH ||
+      alternativeBack.length > FLASHCARD_LIMITS.BACK_MAX_LENGTH;
 
     const generatedAlternative: FlashcardGenerateAlternativeResponseDto = {
       front: alternativeFront.substring(0, FLASHCARD_LIMITS.FRONT_MAX_LENGTH), // Ensure limits respected even in simulation
@@ -78,13 +107,15 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
     console.error("Error generating alternative flashcard:", error);
     // Check if it's an error from the AI service or internal
     // const errorCode = error?.isAiError ? 'AI_SERVICE_ERROR' : 'INTERNAL_SERVER_ERROR';
-    const errorCode = 'INTERNAL_SERVER_ERROR'; // Default for now
-    const message = error instanceof Error ? error.message : 'An unexpected error occurred during alternative generation.';
-    return new Response(JSON.stringify({ error: true, code: errorCode, message: message } as ErrorResponse), { status: 500 });
+    const errorCode = "INTERNAL_SERVER_ERROR"; // Default for now
+    const message =
+      error instanceof Error ? error.message : "An unexpected error occurred during alternative generation.";
+    return new Response(JSON.stringify({ error: true, code: errorCode, message: message } as ErrorResponse), {
+      status: 500,
+    });
   }
 };

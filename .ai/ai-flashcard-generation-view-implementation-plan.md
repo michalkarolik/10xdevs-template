@@ -1,12 +1,15 @@
 # Plan implementacji widoku: Generowanie Fiszek AI
 
 ## 1. Przegląd
+
 Widok "Generowanie Fiszek AI" umożliwia użytkownikom wklejenie tekstu źródłowego i wygenerowanie propozycji fiszek (awers/rewers) przy użyciu AI. Użytkownik może następnie przejrzeć wygenerowane propozycje, zaakceptować je, poprosić o alternatywne wersje lub edytować przed zapisaniem w ramach wybranego tematu. Widok egzekwuje limity znaków dla fiszek i obsługuje stany ładowania oraz błędy.
 
 ## 2. Routing widoku
+
 Widok będzie dostępny pod ścieżką: `/topics/:id/generate`, gdzie `:id` jest identyfikatorem tematu, do którego będą dodawane zaakceptowane fiszki.
 
 ## 3. Struktura komponentów
+
 ```
 AIGenerationView (Komponent strony React w Astro)
   ├── SourceTextInput (React)
@@ -35,6 +38,7 @@ AIGenerationView (Komponent strony React w Astro)
 ## 4. Szczegóły komponentów
 
 ### `AIGenerationView` (Komponent strony)
+
 - **Opis:** Główny kontener widoku, renderowany przez Astro z dyrektywą `client:load`. Odpowiedzialny za pobranie `topicId` z parametrów ścieżki URL i zarządzanie ogólnym stanem (ładowanie, błędy, dane wejściowe, sugestie) za pomocą customowego hooka `useAIGeneration`.
 - **Główne elementy:** `SourceTextInput`, `GeneratedFlashcardsDisplay`.
 - **Obsługiwane interakcje:** Inicjuje pobieranie `topicId`, przekazuje stan i handlery do komponentów podrzędnych.
@@ -43,127 +47,131 @@ AIGenerationView (Komponent strony React w Astro)
 - **Propsy:** Otrzymuje `topicId` z Astro (`Astro.params.id`).
 
 ### `SourceTextInput`
+
 - **Opis:** Komponent zawierający pole tekstowe (`Textarea`) do wklejania tekstu źródłowego oraz przycisk "Generuj".
 - **Główne elementy:** `Textarea` (Shadcn/ui), `Button` (Shadcn/ui).
 - **Obsługiwane interakcje:** Aktualizacja tekstu źródłowego, kliknięcie przycisku "Generuj".
 - **Obsługiwana walidacja:** Przycisk "Generuj" powinien być nieaktywny, jeśli pole tekstowe jest puste.
 - **Typy:** `sourceText: string`, `isLoading: boolean`.
 - **Propsy:**
-    - `sourceText: string`
-    - `onSourceTextChange: (text: string) => void`
-    - `onGenerateClick: () => void`
-    *   `isLoading: boolean` (do dezaktywacji przycisku podczas generowania)
+  - `sourceText: string`
+  - `onSourceTextChange: (text: string) => void`
+  - `onGenerateClick: () => void`
+  * `isLoading: boolean` (do dezaktywacji przycisku podczas generowania)
 
 ### `GeneratedFlashcardsDisplay`
+
 - **Opis:** Wyświetla listę wygenerowanych sugestii fiszek (`FlashcardSuggestionCard`). Obsługuje również wyświetlanie wskaźnika ładowania, komunikatów o błędach lub informacji o braku sugestii.
 - **Główne elementy:** `LoadingIndicator`, `ErrorMessage`, `EmptyStateMessage`, lista `FlashcardSuggestionCard`.
 - **Obsługiwane interakcje:** Brak bezpośrednich interakcji, renderuje listę kart.
 - **Obsługiwana walidacja:** Brak.
 - **Typy:** `suggestions: FlashcardSuggestionViewModel[]`, `isLoading: boolean`, `error: string | null`.
 - **Propsy:**
-    - `suggestions: FlashcardSuggestionViewModel[]`
-    - `isLoading: boolean` (do wyświetlania wskaźnika ładowania)
-    - `error: string | null` (do wyświetlania komunikatu błędu)
-    - `onAccept: (suggestionId: string) => void`
-    - `onRegenerate: (suggestionId: string) => void`
-    - `onEditToggle: (suggestionId: string) => void`
-    - `onSaveEdit: (suggestionId: string, editedFront: string, editedBack: string) => void`
-    - `onCancelEdit: (suggestionId: string) => void`
+  - `suggestions: FlashcardSuggestionViewModel[]`
+  - `isLoading: boolean` (do wyświetlania wskaźnika ładowania)
+  - `error: string | null` (do wyświetlania komunikatu błędu)
+  - `onAccept: (suggestionId: string) => void`
+  - `onRegenerate: (suggestionId: string) => void`
+  - `onEditToggle: (suggestionId: string) => void`
+  - `onSaveEdit: (suggestionId: string, editedFront: string, editedBack: string) => void`
+  - `onCancelEdit: (suggestionId: string) => void`
 
 ### `FlashcardSuggestionCard`
+
 - **Opis:** Wyświetla pojedynczą sugestię fiszki AI (awers i rewers). Zawiera przyciski akcji ("OK", "Wygeneruj nową", "Edytuj"). Wskazuje, jeśli sugestia przekracza limity znaków. Może przełączyć się w tryb edycji (`FlashcardEditForm`).
 - **Główne elementy:** `Card`, `CardHeader`, `CardContent`, `CardFooter` (Shadcn/ui), warunkowo `AlertDestructive` (Shadcn/ui) dla ostrzeżenia o limicie, warunkowo `FlashcardEditForm`. Przyciski `Button` (Shadcn/ui).
 - **Obsługiwane interakcje:** Kliknięcie "OK", "Wygeneruj nową", "Edytuj", "Anuluj" (w trybie edycji).
 - **Obsługiwana walidacja:**
-    - Przycisk "OK" jest nieaktywny, jeśli `suggestion.exceeds_limit` jest `true` i komponent nie jest w trybie edycji.
-    - Przekazuje walidację limitów do `FlashcardEditForm`.
+  - Przycisk "OK" jest nieaktywny, jeśli `suggestion.exceeds_limit` jest `true` i komponent nie jest w trybie edycji.
+  - Przekazuje walidację limitów do `FlashcardEditForm`.
 - **Typy:** `suggestion: FlashcardSuggestionViewModel`. Używa `FLASHCARD_LIMITS`.
 - **Propsy:**
-    - `suggestion: FlashcardSuggestionViewModel`
-    - `onAccept: (suggestionId: string) => void`
-    - `onRegenerate: (suggestionId: string) => void`
-    - `onEditToggle: (suggestionId: string) => void`
-    - `onSaveEdit: (suggestionId: string, editedFront: string, editedBack: string) => void`
-    - `onCancelEdit: (suggestionId: string) => void`
+  - `suggestion: FlashcardSuggestionViewModel`
+  - `onAccept: (suggestionId: string) => void`
+  - `onRegenerate: (suggestionId: string) => void`
+  - `onEditToggle: (suggestionId: string) => void`
+  - `onSaveEdit: (suggestionId: string, editedFront: string, editedBack: string) => void`
+  - `onCancelEdit: (suggestionId: string) => void`
 
 ### `FlashcardEditForm`
+
 - **Opis:** Formularz wyświetlany wewnątrz `FlashcardSuggestionCard` po kliknięciu "Edytuj". Zawiera pola tekstowe dla awersu i rewersu, liczniki znaków oraz przyciski "Zapisz" i "Anuluj".
 - **Główne elementy:** Dwa komponenty `Textarea` (Shadcn/ui), elementy tekstowe dla liczników znaków, dwa przyciski `Button` (Shadcn/ui).
 - **Obsługiwane interakcje:** Edycja tekstu w polach, kliknięcie "Zapisz", kliknięcie "Anuluj".
 - **Obsługiwana walidacja:**
-    - Wyświetla aktualną liczbę znaków dla pól awersu i rewersu.
-    - Porównuje liczbę znaków z `FLASHCARD_LIMITS.FRONT_MAX_LENGTH` (100) i `FLASHCARD_LIMITS.BACK_MAX_LENGTH` (500).
-    - Przycisk "Zapisz" jest nieaktywny, jeśli którekolwiek z pól przekracza limit znaków lub jest puste.
+  - Wyświetla aktualną liczbę znaków dla pól awersu i rewersu.
+  - Porównuje liczbę znaków z `FLASHCARD_LIMITS.FRONT_MAX_LENGTH` (100) i `FLASHCARD_LIMITS.BACK_MAX_LENGTH` (500).
+  - Przycisk "Zapisz" jest nieaktywny, jeśli którekolwiek z pól przekracza limit znaków lub jest puste.
 - **Typy:** Używa `FLASHCARD_LIMITS`. Przechowuje lokalny stan edytowanego tekstu.
 - **Propsy:**
-    - `initialFront: string`
-    - `initialBack: string`
-    - `onSave: (editedFront: string, editedBack: string) => void`
-    - `onCancel: () => void`
+  - `initialFront: string`
+  - `initialBack: string`
+  - `onSave: (editedFront: string, editedBack: string) => void`
+  - `onCancel: () => void`
 
 ## 5. Typy
 
 Oprócz istniejących typów DTO z `src/types.ts` (takich jak `FlashcardGenerateDto`, `FlashcardGeneratedDto`, `FlashcardAcceptDto` itp.), wprowadzony zostanie następujący ViewModel:
 
 - **`FlashcardSuggestionViewModel`**:
-    - **Cel:** Reprezentuje stan pojedynczej sugestii fiszki w interfejsie użytkownika, włączając jej treść, status przekroczenia limitu, stan edycji oraz unikalny identyfikator po stronie klienta.
-    - **Pola:**
-        - `id: string`: Tymczasowy, unikalny identyfikator po stronie klienta (np. `crypto.randomUUID()`) do zarządzania stanem przed zapisem.
-        - `front: string`: Aktualny tekst awersu (może być edytowany).
-        - `back: string`: Aktualny tekst rewersu (może być edytowany).
-        - `exceeds_limit: boolean`: Wskazuje, czy *oryginalnie* wygenerowana treść przekraczała limity LUB czy *aktualnie edytowana* treść je przekracza.
-        - `isEditing: boolean`: Flaga kontrolująca tryb wyświetlania vs. edycji.
-        - `originalFront?: string`: Przechowuje oryginalny tekst awersu na potrzeby regeneracji lub anulowania edycji.
-        - `originalBack?: string`: Przechowuje oryginalny tekst rewersu na potrzeby regeneracji lub anulowania edycji.
+  - **Cel:** Reprezentuje stan pojedynczej sugestii fiszki w interfejsie użytkownika, włączając jej treść, status przekroczenia limitu, stan edycji oraz unikalny identyfikator po stronie klienta.
+  - **Pola:**
+    - `id: string`: Tymczasowy, unikalny identyfikator po stronie klienta (np. `crypto.randomUUID()`) do zarządzania stanem przed zapisem.
+    - `front: string`: Aktualny tekst awersu (może być edytowany).
+    - `back: string`: Aktualny tekst rewersu (może być edytowany).
+    - `exceeds_limit: boolean`: Wskazuje, czy _oryginalnie_ wygenerowana treść przekraczała limity LUB czy _aktualnie edytowana_ treść je przekracza.
+    - `isEditing: boolean`: Flaga kontrolująca tryb wyświetlania vs. edycji.
+    - `originalFront?: string`: Przechowuje oryginalny tekst awersu na potrzeby regeneracji lub anulowania edycji.
+    - `originalBack?: string`: Przechowuje oryginalny tekst rewersu na potrzeby regeneracji lub anulowania edycji.
 
 ## 6. Zarządzanie stanem
 
 Zalecane jest użycie customowego hooka React, np. `useAIGeneration(topicId: string)`, do enkapsulacji logiki i stanu widoku.
 
 - **Hook `useAIGeneration` zarządzałby:**
-    - `sourceText: string`: Tekst źródłowy z `SourceTextInput`.
-    - `suggestions: FlashcardSuggestionViewModel[]`: Lista sugestii fiszek.
-    - `isLoading: boolean`: Globalny stan ładowania dla operacji API (generowanie, akceptacja, regeneracja). Można rozważyć bardziej granularne stany ładowania per sugestia.
-    - `error: string | null`: Komunikat o błędzie.
+  - `sourceText: string`: Tekst źródłowy z `SourceTextInput`.
+  - `suggestions: FlashcardSuggestionViewModel[]`: Lista sugestii fiszek.
+  - `isLoading: boolean`: Globalny stan ładowania dla operacji API (generowanie, akceptacja, regeneracja). Można rozważyć bardziej granularne stany ładowania per sugestia.
+  - `error: string | null`: Komunikat o błędzie.
 - **Hook eksponowałby:**
-    - Wartości stanu (`sourceText`, `suggestions`, `isLoading`, `error`).
-    - Funkcje do aktualizacji stanu (`setSourceText`).
-    - Handlery do interakcji użytkownika:
-        - `handleGenerate()`: Wywołuje API generowania.
-        - `handleAccept(suggestionId: string)`: Wywołuje API akceptacji.
-        - `handleRegenerate(suggestionId: string)`: Wywołuje API regeneracji alternatywnej.
-        - `handleEditToggle(suggestionId: string)`: Przełącza flagę `isEditing` dla sugestii.
-        - `handleSaveEdit(suggestionId: string, editedFront: string, editedBack: string)`: Wywołuje API akceptacji edytowanej wersji.
-        - `handleCancelEdit(suggestionId: string)`: Anuluje tryb edycji, przywracając oryginalną treść.
+  - Wartości stanu (`sourceText`, `suggestions`, `isLoading`, `error`).
+  - Funkcje do aktualizacji stanu (`setSourceText`).
+  - Handlery do interakcji użytkownika:
+    - `handleGenerate()`: Wywołuje API generowania.
+    - `handleAccept(suggestionId: string)`: Wywołuje API akceptacji.
+    - `handleRegenerate(suggestionId: string)`: Wywołuje API regeneracji alternatywnej.
+    - `handleEditToggle(suggestionId: string)`: Przełącza flagę `isEditing` dla sugestii.
+    - `handleSaveEdit(suggestionId: string, editedFront: string, editedBack: string)`: Wywołuje API akceptacji edytowanej wersji.
+    - `handleCancelEdit(suggestionId: string)`: Anuluje tryb edycji, przywracając oryginalną treść.
 
 ## 7. Integracja API
 
 Komponenty będą komunikować się z API backendu poprzez funkcje wywołujące `fetch` (lub inną bibliotekę HTTP) wewnątrz hooka `useAIGeneration`.
 
 - **Generowanie:**
-    - **Trigger:** `handleGenerate()` po kliknięciu "Generuj".
-    - **Wywołanie:** `POST /api/topics/{topicId}/generate`
-    - **Request Body:** `FlashcardGenerateDto` (`{ source_text: sourceText }`)
-    - **Response:** `FlashcardGeneratedResponseDto` (`FlashcardGeneratedDto[]`)
-    - **Obsługa:** Aktualizacja stanu `suggestions` (mapowanie odpowiedzi na `FlashcardSuggestionViewModel`), `isLoading`, `error`.
+  - **Trigger:** `handleGenerate()` po kliknięciu "Generuj".
+  - **Wywołanie:** `POST /api/topics/{topicId}/generate`
+  - **Request Body:** `FlashcardGenerateDto` (`{ source_text: sourceText }`)
+  - **Response:** `FlashcardGeneratedResponseDto` (`FlashcardGeneratedDto[]`)
+  - **Obsługa:** Aktualizacja stanu `suggestions` (mapowanie odpowiedzi na `FlashcardSuggestionViewModel`), `isLoading`, `error`.
 - **Akceptacja ("OK"):**
-    - **Trigger:** `handleAccept(suggestionId)` po kliknięciu "OK".
-    - **Wywołanie:** `POST /api/topics/{topicId}/accept`
-    - **Request Body:** `FlashcardAcceptDto` (`{ front: suggestion.front, back: suggestion.back }`)
-    - **Response:** `FlashcardAcceptResponseDto`
-    - **Obsługa:** Usunięcie zaakceptowanej sugestii ze stanu `suggestions`, aktualizacja `isLoading`, `error`.
+  - **Trigger:** `handleAccept(suggestionId)` po kliknięciu "OK".
+  - **Wywołanie:** `POST /api/topics/{topicId}/accept`
+  - **Request Body:** `FlashcardAcceptDto` (`{ front: suggestion.front, back: suggestion.back }`)
+  - **Response:** `FlashcardAcceptResponseDto`
+  - **Obsługa:** Usunięcie zaakceptowanej sugestii ze stanu `suggestions`, aktualizacja `isLoading`, `error`.
 - **Regeneracja ("Wygeneruj nową"):**
-    - **Trigger:** `handleRegenerate(suggestionId)` po kliknięciu "Wygeneruj nową".
-    - **Wywołanie:** `POST /api/topics/{topicId}/generate/alternative`
-    - **Request Body:** `FlashcardGenerateAlternativeDto` (`{ source_text: sourceText, original_front: suggestion.originalFront, original_back: suggestion.originalBack }`)
-    - **Response:** `FlashcardGenerateAlternativeResponseDto` (`FlashcardGeneratedDto`)
-    - **Obsługa:** Aktualizacja danych konkretnej sugestii w stanie `suggestions`, aktualizacja `isLoading`, `error`.
+  - **Trigger:** `handleRegenerate(suggestionId)` po kliknięciu "Wygeneruj nową".
+  - **Wywołanie:** `POST /api/topics/{topicId}/generate/alternative`
+  - **Request Body:** `FlashcardGenerateAlternativeDto` (`{ source_text: sourceText, original_front: suggestion.originalFront, original_back: suggestion.originalBack }`)
+  - **Response:** `FlashcardGenerateAlternativeResponseDto` (`FlashcardGeneratedDto`)
+  - **Obsługa:** Aktualizacja danych konkretnej sugestii w stanie `suggestions`, aktualizacja `isLoading`, `error`.
 - **Zapis Edytowanej ("Zapisz"):**
-    - **Trigger:** `handleSaveEdit(suggestionId, front, back)` po kliknięciu "Zapisz" w trybie edycji.
-    - **Wywołanie:** `POST /api/topics/{topicId}/accept-edited`
-    - **Request Body:** `FlashcardAcceptEditedDto` (`{ front: editedFront, back: editedBack }`)
-    - **Response:** `FlashcardAcceptEditedResponseDto`
-    - **Obsługa:** Usunięcie zapisanej sugestii ze stanu `suggestions`, aktualizacja `isLoading`, `error`.
+  - **Trigger:** `handleSaveEdit(suggestionId, front, back)` po kliknięciu "Zapisz" w trybie edycji.
+  - **Wywołanie:** `POST /api/topics/{topicId}/accept-edited`
+  - **Request Body:** `FlashcardAcceptEditedDto` (`{ front: editedFront, back: editedBack }`)
+  - **Response:** `FlashcardAcceptEditedResponseDto`
+  - **Obsługa:** Usunięcie zapisanej sugestii ze stanu `suggestions`, aktualizacja `isLoading`, `error`.
 
 ## 8. Interakcje użytkownika
 
@@ -202,4 +210,7 @@ Komponenty będą komunikować się z API backendu poprzez funkcje wywołujące 
 9.  **Obsługa stanów:** Upewnić się, że stany `isLoading` i `error` są poprawnie zarządzane i odzwierciedlane w UI (wskaźniki ładowania, komunikaty błędów).
 10. **Styling i responsywność:** Dopracować wygląd używając Tailwind CSS i komponentów Shadcn/ui. Upewnić się, że widok jest responsywny.
 11. **Testowanie:** Przetestować wszystkie ścieżki interakcji użytkownika, walidację i obsługę błędów.
+
+```
+
 ```

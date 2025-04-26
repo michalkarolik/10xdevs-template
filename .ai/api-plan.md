@@ -6,47 +6,47 @@ This document outlines the RESTful API design for the AI Flashcard Generator app
 
 Manage user topics for organizing flashcards.
 
-| Endpoint | Method | Description | Request Body | Response |
-|----------|--------|-------------|--------------|----------|
-| `/topics` | GET | Get all topics for current user | - | `[{ id, name, created_at, updated_at, flashcard_count }]` |
-| `/topics` | POST | Create new topic | `{ name }` | `{ id, name, created_at, updated_at }` |
-| `/topics/:id` | GET | Get single topic details | - | `{ id, name, created_at, updated_at, flashcards: [...] }` |
-| `/topics/:id` | PUT | Update topic | `{ name }` | `{ id, name, updated_at }` |
-| `/topics/:id` | DELETE | Delete topic | - | `{ success: true }` |
+| Endpoint      | Method | Description                     | Request Body | Response                                                  |
+| ------------- | ------ | ------------------------------- | ------------ | --------------------------------------------------------- |
+| `/topics`     | GET    | Get all topics for current user | -            | `[{ id, name, created_at, updated_at, flashcard_count }]` |
+| `/topics`     | POST   | Create new topic                | `{ name }`   | `{ id, name, created_at, updated_at }`                    |
+| `/topics/:id` | GET    | Get single topic details        | -            | `{ id, name, created_at, updated_at, flashcards: [...] }` |
+| `/topics/:id` | PUT    | Update topic                    | `{ name }`   | `{ id, name, updated_at }`                                |
+| `/topics/:id` | DELETE | Delete topic                    | -            | `{ success: true }`                                       |
 
 ## 3. Flashcards API
 
 Manage flashcards within topics.
 
-| Endpoint | Method | Description | Request Body | Response |
-|----------|--------|-------------|--------------|----------|
-| `/topics/:topic_id/flashcards` | GET | Get all flashcards in a topic | - | `[{ id, front, back, source, created_at, updated_at }]` |
-| `/topics/:topic_id/flashcards` | POST | Create new flashcard manually | `{ front, back }` | `{ id, front, back, source: "manual", created_at, updated_at }` |
-| `/topics/:topic_id/flashcards/:id` | GET | Get single flashcard details | - | `{ id, front, back, source, created_at, updated_at }` |
-| `/topics/:topic_id/flashcards/:id` | PUT | Update flashcard | `{ front, back }` | `{ id, front, back, source, updated_at }` |
-| `/topics/:topic_id/flashcards/:id` | DELETE | Delete flashcard | - | `{ success: true }` |
+| Endpoint                           | Method | Description                   | Request Body      | Response                                                        |
+| ---------------------------------- | ------ | ----------------------------- | ----------------- | --------------------------------------------------------------- |
+| `/topics/:topic_id/flashcards`     | GET    | Get all flashcards in a topic | -                 | `[{ id, front, back, source, created_at, updated_at }]`         |
+| `/topics/:topic_id/flashcards`     | POST   | Create new flashcard manually | `{ front, back }` | `{ id, front, back, source: "manual", created_at, updated_at }` |
+| `/topics/:topic_id/flashcards/:id` | GET    | Get single flashcard details  | -                 | `{ id, front, back, source, created_at, updated_at }`           |
+| `/topics/:topic_id/flashcards/:id` | PUT    | Update flashcard              | `{ front, back }` | `{ id, front, back, source, updated_at }`                       |
+| `/topics/:topic_id/flashcards/:id` | DELETE | Delete flashcard              | -                 | `{ success: true }`                                             |
 
 ## 4. AI Generation API
 
 Generate flashcards using AI based on text input.
 
-| Endpoint | Method | Description | Request Body | Response |
-|----------|--------|-------------|--------------|----------|
-| `/topics/:topic_id/generate` | POST | Generate flashcards from text | `{ source_text }` | `[{ front, back, exceeds_limit }]` |
-| `/topics/:topic_id/generate/alternative` | POST | Generate alternative for a flashcard | `{ source_text, original_front, original_back }` | `{ front, back, exceeds_limit }` |
-| `/topics/:topic_id/accept` | POST | Accept AI-generated flashcard | `{ front, back }` | `{ id, front, back, source: "ai-generated", created_at, updated_at }` |
-| `/topics/:topic_id/accept-edited` | POST | Accept AI-generated flashcard with edits | `{ front, back }` | `{ id, front, back, source: "ai-edited", created_at, updated_at }` |
+| Endpoint                                 | Method | Description                              | Request Body                                     | Response                                                              |
+| ---------------------------------------- | ------ | ---------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
+| `/topics/:topic_id/generate`             | POST   | Generate flashcards from text            | `{ source_text }`                                | `[{ front, back, exceeds_limit }]`                                    |
+| `/topics/:topic_id/generate/alternative` | POST   | Generate alternative for a flashcard     | `{ source_text, original_front, original_back }` | `{ front, back, exceeds_limit }`                                      |
+| `/topics/:topic_id/accept`               | POST   | Accept AI-generated flashcard            | `{ front, back }`                                | `{ id, front, back, source: "ai-generated", created_at, updated_at }` |
+| `/topics/:topic_id/accept-edited`        | POST   | Accept AI-generated flashcard with edits | `{ front, back }`                                | `{ id, front, back, source: "ai-edited", created_at, updated_at }`    |
 
 ## 5. Learning API
 
 Manage spaced repetition learning sessions.
 
-| Endpoint | Method | Description | Request Body | Response |
-|----------|--------|-------------|--------------|----------|
-| `/learning/session` | POST | Start new learning session | `{ topic_id }` or `{ all: true }` | `{ session_id, cards_count, first_card: {...} }` |
-| `/learning/session/:session_id/next` | GET | Get next card in session | - | `{ card_id, front, back, position, total }` |
-| `/learning/session/:session_id/rate` | POST | Rate flashcard knowledge | `{ card_id, rating }` | `{ next_review_date, next_card: {...} }` |
-| `/learning/stats` | GET | Get learning statistics | - | `{ cards_learned, mastery_level, streaks }` |
+| Endpoint                             | Method | Description                | Request Body                      | Response                                         |
+| ------------------------------------ | ------ | -------------------------- | --------------------------------- | ------------------------------------------------ |
+| `/learning/session`                  | POST   | Start new learning session | `{ topic_id }` or `{ all: true }` | `{ session_id, cards_count, first_card: {...} }` |
+| `/learning/session/:session_id/next` | GET    | Get next card in session   | -                                 | `{ card_id, front, back, position, total }`      |
+| `/learning/session/:session_id/rate` | POST   | Rate flashcard knowledge   | `{ card_id, rating }`             | `{ next_review_date, next_card: {...} }`         |
+| `/learning/stats`                    | GET    | Get learning statistics    | -                                 | `{ cards_learned, mastery_level, streaks }`      |
 
 ## 6. Error Handling
 

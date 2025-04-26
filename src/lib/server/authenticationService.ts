@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import type { CookieSerializeOptions } from 'cookie';
+import { createClient } from "@supabase/supabase-js";
+import type { CookieSerializeOptions } from "cookie";
 import { AUTH_TOKEN_COOKIE, getCookie } from "@/lib/cookies";
 
 // Load environment variables
@@ -22,9 +22,9 @@ interface AuthResponse {
 }
 
 export const cookieOptions: CookieSerializeOptions = {
-  path: '/',
+  path: "/",
   httpOnly: true,
-  sameSite: 'lax', // Changed from 'strict' to 'lax' for better compatibility
+  sameSite: "lax", // Changed from 'strict' to 'lax' for better compatibility
   secure: import.meta.env.PROD,
   maxAge: 60 * 60 * 24 * 7, // 1 week
 };
@@ -39,22 +39,24 @@ export const authenticationService = {
 
       if (error) throw error;
 
-      const userData = data.user ? {
-        id: data.user.id,
-        username: data.user.user_metadata.username || data.user.email?.split('@')[0] || 'User',
-        email: data.user.email || '',
-      } : null;
+      const userData = data.user
+        ? {
+            id: data.user.id,
+            username: data.user.user_metadata.username || data.user.email?.split("@")[0] || "User",
+            email: data.user.email || "",
+          }
+        : null;
 
       return {
         user: userData,
         token: data.session?.access_token || null,
       };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       return {
         user: null,
         token: null,
-        error: error instanceof Error ? error.message : 'Unknown error during sign in',
+        error: error instanceof Error ? error.message : "Unknown error during sign in",
       };
     }
   },
@@ -73,22 +75,24 @@ export const authenticationService = {
 
       if (error) throw error;
 
-      const userData = data.user ? {
-        id: data.user.id,
-        username: username || data.user.email?.split('@')[0] || 'User',
-        email: data.user.email || '',
-      } : null;
+      const userData = data.user
+        ? {
+            id: data.user.id,
+            username: username || data.user.email?.split("@")[0] || "User",
+            email: data.user.email || "",
+          }
+        : null;
 
       return {
         user: userData,
         token: data.session?.access_token || null,
       };
     } catch (error) {
-      console.error('Sign up error:', error);
+      console.error("Sign up error:", error);
       return {
         user: null,
         token: null,
-        error: error instanceof Error ? error.message : 'Unknown error during sign up',
+        error: error instanceof Error ? error.message : "Unknown error during sign up",
       };
     }
   },
@@ -99,9 +103,9 @@ export const authenticationService = {
       if (error) throw error;
       return {};
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error("Sign out error:", error);
       return {
-        error: error instanceof Error ? error.message : 'Unknown error during sign out',
+        error: error instanceof Error ? error.message : "Unknown error during sign out",
       };
     }
   },
@@ -115,31 +119,30 @@ export const authenticationService = {
   async getUserFromToken(token: string): Promise<UserData | null> {
     try {
       const { data, error } = await supabase.auth.getUser(token);
-      
+
       if (error || !data.user) return null;
-      
+
       return {
         id: data.user.id,
-        username: data.user.user_metadata.username || data.user.email?.split('@')[0] || 'User',
-        email: data.user.email || '',
+        username: data.user.user_metadata.username || data.user.email?.split("@")[0] || "User",
+        email: data.user.email || "",
       };
     } catch (error) {
-      console.error('Get user error:', error);
+      console.error("Get user error:", error);
       return null;
     }
   },
-  
+
   async verifyToken(token: string): Promise<boolean> {
     try {
       const { data } = await supabase.auth.getUser(token);
       return !!data.user;
     } catch (error) {
-      console.error('Token verification error:', error);
+      console.error("Token verification error:", error);
       return false;
     }
-  }
+  },
 };
 
 // Export individual functions for direct import
 export const { signIn, signUp, signOut, getUserFromToken, verifyToken, getUserFromRequest } = authenticationService;
-

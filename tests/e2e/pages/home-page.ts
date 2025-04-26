@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 export class HomePage {
   private page: Page;
@@ -8,14 +8,14 @@ export class HomePage {
   }
 
   async navigate() {
-    await this.page.goto('/');
+    await this.page.goto("/");
   }
 
   getTitle() {
-    return this.page.locator('h1');
+    return this.page.locator("h1");
   }
 
   async clickOnNavLink(text: string) {
-    await this.page.getByRole('link', { name: text }).click();
+    await this.page.getByRole("link", { name: text }).click();
   }
 }

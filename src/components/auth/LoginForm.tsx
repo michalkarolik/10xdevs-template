@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert"; 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 
 interface LoginFormProps {
-  onSuccess?: () => void;
   redirectUrl?: string;
 }
 
-export function LoginForm({ onSuccess, redirectUrl = '/' }: LoginFormProps) {
+export function LoginForm({ redirectUrl = "/" }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,13 +18,13 @@ export function LoginForm({ onSuccess, redirectUrl = '/' }: LoginFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Form validation
     if (!email.trim()) {
       setError("Email jest wymagany");
       return;
     }
-    
+
     if (!password) {
       setError("Hasło jest wymagane");
       return;
@@ -42,26 +41,31 @@ export function LoginForm({ onSuccess, redirectUrl = '/' }: LoginFormProps) {
         password,
         options: {
           // Ensure session is persisted
-          persistSession: true
-        }
+          persistSession: true,
+        },
       });
-      
+
       if (signInError) {
         // Generic error message for security (not revealing if email or password is incorrect)
         setError("Nieprawidłowy email lub hasło. Spróbuj ponownie.");
         return;
       }
-      
+
       // Success handling - wait for session to be stored
       if (data.session) {
         console.log("Login successful, session established");
-        
+
         // Store a flag in sessionStorage to indicate login is completed
-        sessionStorage.setItem('auth_completed', 'true');
-        
-        // For debugging - store session info
-        console.log(`Session expires at: ${new Date(data.session.expires_at! * 1000).toLocaleString()}`);
-        
+        sessionStorage.setItem("auth_completed", "true");
+
+        const expiresAt = data.session.expires_at;
+        if (expiresAt) {
+          // For debugging - store session info
+          console.log(`Session expires at: ${new Date(expiresAt * 1000).toLocaleString()}`);
+        } else {
+          console.log("Session expiry time not provided");
+        }
+
         // Hard page reload to ensure server recognizes the session
         window.location.href = redirectUrl;
       } else {
@@ -118,11 +122,7 @@ export function LoginForm({ onSuccess, redirectUrl = '/' }: LoginFormProps) {
         </div>
       </div>
 
-      <Button 
-        type="submit" 
-        className="w-full" 
-        disabled={isSubmitting}
-      >
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logowanie...

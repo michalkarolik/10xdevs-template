@@ -1,11 +1,11 @@
-import { useTheme } from "next-themes"
-import { Toaster as SonnerToaster } from "sonner" // Renamed import for clarity
+import { useTheme } from "next-themes";
+import { Toaster as SonnerToaster } from "sonner"; // Renamed import for clarity
 
 // Use React.ComponentProps to get the props type from the imported component
-type ToasterProps = React.ComponentProps<typeof SonnerToaster>
+type ToasterProps = React.ComponentProps<typeof SonnerToaster>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme = "system" } = useTheme();
 
   return (
     <SonnerToaster // Use the aliased import here
@@ -20,7 +20,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

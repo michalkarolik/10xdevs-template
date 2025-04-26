@@ -11,11 +11,11 @@ Konstruktor `OpenRouterService` inicjalizuje usługę, pobierając klucz API Ope
 ```typescript
 // Potencjalna lokalizacja: src/lib/services/openrouter.ts
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // Definicje typów dla wiadomości i opcji
 type Message = {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 };
 
@@ -40,38 +40,50 @@ interface OpenRouterErrorResponse {
 export class OpenRouterConfigurationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'OpenRouterConfigurationError';
+    this.name = "OpenRouterConfigurationError";
   }
 }
 
 export class OpenRouterAPIError extends Error {
-  constructor(message: string, public statusCode: number, public details?: OpenRouterErrorResponse) {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public details?: OpenRouterErrorResponse
+  ) {
     super(message);
-    this.name = 'OpenRouterAPIError';
+    this.name = "OpenRouterAPIError";
   }
 }
 
 export class NetworkError extends Error {
-  constructor(message: string, public cause?: unknown) {
+  constructor(
+    message: string,
+    public cause?: unknown
+  ) {
     super(message);
-    this.name = 'NetworkError';
+    this.name = "NetworkError";
   }
 }
 
 export class ResponseParsingError extends Error {
-  constructor(message: string, public cause?: unknown) {
+  constructor(
+    message: string,
+    public cause?: unknown
+  ) {
     super(message);
-    this.name = 'ResponseParsingError';
+    this.name = "ResponseParsingError";
   }
 }
 
 export class SchemaValidationError extends Error {
-  constructor(message: string, public validationErrors: z.ZodIssue[]) {
+  constructor(
+    message: string,
+    public validationErrors: z.ZodIssue[]
+  ) {
     super(message);
-    this.name = 'SchemaValidationError';
+    this.name = "SchemaValidationError";
   }
 }
-
 
 export class OpenRouterService {
   private apiKey: string;
@@ -84,11 +96,11 @@ export class OpenRouterService {
     // lub są dostępne bezpośrednio, jeśli używane tylko na serwerze (np. w endpointach API).
     // Dla klucza API używanego tylko na serwerze, nie jest potrzebny prefix PUBLIC_.
     const apiKey = import.meta.env.OPENROUTER_API_KEY;
-    const apiUrl = import.meta.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1';
-    const defaultModel = import.meta.env.OPENROUTER_DEFAULT_MODEL || 'openai/gpt-3.5-turbo'; // Przykładowy domyślny model
+    const apiUrl = import.meta.env.OPENROUTER_API_URL || "https://openrouter.ai/api/v1";
+    const defaultModel = import.meta.env.OPENROUTER_DEFAULT_MODEL || "openai/gpt-3.5-turbo"; // Przykładowy domyślny model
 
     if (!apiKey) {
-      throw new OpenRouterConfigurationError('Missing OPENROUTER_API_KEY environment variable.');
+      throw new OpenRouterConfigurationError("Missing OPENROUTER_API_KEY environment variable.");
     }
 
     this.apiKey = apiKey;
@@ -106,19 +118,19 @@ export class OpenRouterService {
 
 Główna metoda do wysyłania zapytania do modelu LLM.
 
-*   **Parametry:**
-    *   `messages`: `Message[]` - Tablica obiektów wiadomości (`{ role: 'system' | 'user' | 'assistant', content: string }`). Musi zawierać co najmniej jedną wiadomość użytkownika.
-    *   `options`: `RequestOptions` (opcjonalny) - Obiekt konfiguracyjny:
-        *   `model`: `string` - Nazwa modelu do użycia (np. `'openai/gpt-4o'`). Domyślnie używa `this.defaultModel`.
-        *   `temperature`: `number` - Parametr kontrolujący losowość odpowiedzi.
-        *   `max_tokens`: `number` - Maksymalna liczba tokenów w odpowiedzi.
-        *   `responseSchema`: `z.ZodSchema` - Schemat Zod definiujący oczekiwaną strukturę odpowiedzi JSON. Jeśli podany, usługa zażąda formatu JSON i zwaliduje odpowiedź.
-        *   `schemaName`: `string` - Nazwa dla schematu JSON (wymagana, jeśli `responseSchema` jest podany).
-        *   Inne parametry API OpenRouter.
-*   **Zwraca:**
-    *   `Promise<z.infer<T>>`: Jeśli `responseSchema` zostało podane, zwraca Promise z obiektem zwalidowanym według schematu.
-    *   `Promise<string>`: Jeśli `responseSchema` nie zostało podane, zwraca Promise z odpowiedzią tekstową modelu.
-*   **Rzuca:** `OpenRouterConfigurationError`, `OpenRouterAPIError`, `NetworkError`, `ResponseParsingError`, `SchemaValidationError`.
+- **Parametry:**
+  - `messages`: `Message[]` - Tablica obiektów wiadomości (`{ role: 'system' | 'user' | 'assistant', content: string }`). Musi zawierać co najmniej jedną wiadomość użytkownika.
+  - `options`: `RequestOptions` (opcjonalny) - Obiekt konfiguracyjny:
+    - `model`: `string` - Nazwa modelu do użycia (np. `'openai/gpt-4o'`). Domyślnie używa `this.defaultModel`.
+    - `temperature`: `number` - Parametr kontrolujący losowość odpowiedzi.
+    - `max_tokens`: `number` - Maksymalna liczba tokenów w odpowiedzi.
+    - `responseSchema`: `z.ZodSchema` - Schemat Zod definiujący oczekiwaną strukturę odpowiedzi JSON. Jeśli podany, usługa zażąda formatu JSON i zwaliduje odpowiedź.
+    - `schemaName`: `string` - Nazwa dla schematu JSON (wymagana, jeśli `responseSchema` jest podany).
+    - Inne parametry API OpenRouter.
+- **Zwraca:**
+  - `Promise<z.infer<T>>`: Jeśli `responseSchema` zostało podane, zwraca Promise z obiektem zwalidowanym według schematu.
+  - `Promise<string>`: Jeśli `responseSchema` nie zostało podane, zwraca Promise z odpowiedzią tekstową modelu.
+- **Rzuca:** `OpenRouterConfigurationError`, `OpenRouterAPIError`, `NetworkError`, `ResponseParsingError`, `SchemaValidationError`.
 
 ## 4. Prywatne Metody i Pola
 
@@ -168,12 +180,15 @@ Logika wywołująca usługę powinna implementować bloki `try...catch` do obsł
 ## 7. Plan Wdrożenia Krok po Kroku
 
 1.  **Konfiguracja Środowiska**:
-    *   Dodaj `OPENROUTER_API_KEY` do zmiennych środowiskowych projektu (np. w pliku `.env` dla lokalnego rozwoju i w ustawieniach sekretów platformy hostingowej dla produkcji).
-    *   Opcjonalnie dodaj `OPENROUTER_API_URL` i `OPENROUTER_DEFAULT_MODEL`, jeśli chcesz nadpisać wartości domyślne.
-    *   Upewnij się, że zmienne środowiskowe są dostępne w kontekście serwerowym Astro (np. w `src/pages/api/...`).
+
+    - Dodaj `OPENROUTER_API_KEY` do zmiennych środowiskowych projektu (np. w pliku `.env` dla lokalnego rozwoju i w ustawieniach sekretów platformy hostingowej dla produkcji).
+    - Opcjonalnie dodaj `OPENROUTER_API_URL` i `OPENROUTER_DEFAULT_MODEL`, jeśli chcesz nadpisać wartości domyślne.
+    - Upewnij się, że zmienne środowiskowe są dostępne w kontekście serwerowym Astro (np. w `src/pages/api/...`).
 
 2.  **Instalacja Zależności**:
-    *   Zainstaluj `zod` i `zod-to-json-schema`, jeśli jeszcze ich nie ma w projekcie.
+
+    - Zainstaluj `zod` i `zod-to-json-schema`, jeśli jeszcze ich nie ma w projekcie.
+
     ```bash
     npm install zod zod-to-json-schema
     # lub yarn add zod zod-to-json-schema
@@ -181,81 +196,96 @@ Logika wywołująca usługę powinna implementować bloki `try...catch` do obsł
     ```
 
 3.  **Utworzenie Pliku Usługi**:
-    *   Utwórz plik `src/lib/services/openrouter.ts`.
-    *   Zaimplementuj klasy błędów (`OpenRouterConfigurationError`, `OpenRouterAPIError`, `NetworkError`, `ResponseParsingError`, `SchemaValidationError`) zgodnie z sekcją 2.
+
+    - Utwórz plik `src/lib/services/openrouter.ts`.
+    - Zaimplementuj klasy błędów (`OpenRouterConfigurationError`, `OpenRouterAPIError`, `NetworkError`, `ResponseParsingError`, `SchemaValidationError`) zgodnie z sekcją 2.
 
 4.  **Implementacja Konstruktora**:
-    *   Zaimplementuj konstruktor klasy `OpenRouterService`, który odczytuje zmienne środowiskowe (`import.meta.env`) i inicjalizuje pola `apiKey`, `apiUrl`, `defaultModel`. Rzuć `OpenRouterConfigurationError`, jeśli brakuje klucza API.
+
+    - Zaimplementuj konstruktor klasy `OpenRouterService`, który odczytuje zmienne środowiskowe (`import.meta.env`) i inicjalizuje pola `apiKey`, `apiUrl`, `defaultModel`. Rzuć `OpenRouterConfigurationError`, jeśli brakuje klucza API.
 
 5.  **Implementacja Metod Prywatnych**:
-    *   **`buildRequestBody`**:
-        *   Przyjmuje `messages` i `options`.
-        *   Ustawia `model` (używając `options.model` lub `this.defaultModel`).
-        *   Kopiuje inne parametry z `options` (np. `temperature`, `max_tokens`).
-        *   Jeśli `options.responseSchema` i `options.schemaName` są podane:
-            *   Użyj `zodToJsonSchema` do konwersji `options.responseSchema` na JSON Schema.
-            *   Skonstruuj obiekt `response_format` zgodnie ze specyfikacją OpenRouter (patrz przykład w Implementation Breakdown).
-            *   Dodaj `response_format` do ciała żądania.
-        *   Zwraca gotowy obiekt ciała żądania.
-    *   **`makeRequest`**:
-        *   Przyjmuje `requestBody`.
-        *   Używa globalnego `fetch` do wysłania żądania POST na `this.apiUrl + '/chat/completions'`.
-        *   Ustawia nagłówki:
-            *   `Authorization: Bearer ${this.apiKey}`
-            *   `Content-Type: application/json`
-            *   `HTTP-Referer: YOUR_SITE_URL` (zalecane przez OpenRouter)
-            *   `X-Title: YOUR_APP_NAME` (zalecane przez OpenRouter)
-        *   Obsługuje błędy `fetch` w bloku `try...catch`, rzucając `NetworkError`.
-        *   Zwraca obiekt `Response`.
-    *   **`parseAndValidateResponse`**:
-        *   Przyjmuje `response: Response` i opcjonalnie `schema: z.ZodSchema`.
-        *   Sprawdza `response.ok`. Jeśli `false`:
-            *   Próbuje sparsować ciało błędu jako JSON (`OpenRouterErrorResponse`).
-            *   Rzuca `OpenRouterAPIError` ze statusem, wiadomością i opcjonalnie szczegółami błędu.
-        *   Próbuje sparsować ciało sukcesu jako JSON (`response.json()`). W razie błędu rzuca `ResponseParsingError`.
-        *   Jeśli `schema` zostało podane:
-            *   Wyodrębnia treść z odpowiedzi (zwykle `data.choices[0].message.content`).
-            *   Próbuje sparsować tę treść jako JSON (ponieważ model zwraca JSON jako string wewnątrz `content`). W razie błędu rzuca `ResponseParsingError`.
-            *   Używa `schema.safeParse()` do walidacji sparsowanego obiektu JSON.
-            *   Jeśli walidacja nie powiedzie się (`!result.success`), rzuca `SchemaValidationError` z `result.error.issues`.
-            *   Jeśli walidacja się powiedzie, zwraca `result.data`.
-        *   Jeśli `schema` nie zostało podane:
-            *   Wyodrębnia i zwraca treść tekstową z odpowiedzi (zwykle `data.choices[0].message.content`).
+
+    - **`buildRequestBody`**:
+      - Przyjmuje `messages` i `options`.
+      - Ustawia `model` (używając `options.model` lub `this.defaultModel`).
+      - Kopiuje inne parametry z `options` (np. `temperature`, `max_tokens`).
+      - Jeśli `options.responseSchema` i `options.schemaName` są podane:
+        - Użyj `zodToJsonSchema` do konwersji `options.responseSchema` na JSON Schema.
+        - Skonstruuj obiekt `response_format` zgodnie ze specyfikacją OpenRouter (patrz przykład w Implementation Breakdown).
+        - Dodaj `response_format` do ciała żądania.
+      - Zwraca gotowy obiekt ciała żądania.
+    - **`makeRequest`**:
+      - Przyjmuje `requestBody`.
+      - Używa globalnego `fetch` do wysłania żądania POST na `this.apiUrl + '/chat/completions'`.
+      - Ustawia nagłówki:
+        - `Authorization: Bearer ${this.apiKey}`
+        - `Content-Type: application/json`
+        - `HTTP-Referer: YOUR_SITE_URL` (zalecane przez OpenRouter)
+        - `X-Title: YOUR_APP_NAME` (zalecane przez OpenRouter)
+      - Obsługuje błędy `fetch` w bloku `try...catch`, rzucając `NetworkError`.
+      - Zwraca obiekt `Response`.
+    - **`parseAndValidateResponse`**:
+      - Przyjmuje `response: Response` i opcjonalnie `schema: z.ZodSchema`.
+      - Sprawdza `response.ok`. Jeśli `false`:
+        - Próbuje sparsować ciało błędu jako JSON (`OpenRouterErrorResponse`).
+        - Rzuca `OpenRouterAPIError` ze statusem, wiadomością i opcjonalnie szczegółami błędu.
+      - Próbuje sparsować ciało sukcesu jako JSON (`response.json()`). W razie błędu rzuca `ResponseParsingError`.
+      - Jeśli `schema` zostało podane:
+        - Wyodrębnia treść z odpowiedzi (zwykle `data.choices[0].message.content`).
+        - Próbuje sparsować tę treść jako JSON (ponieważ model zwraca JSON jako string wewnątrz `content`). W razie błędu rzuca `ResponseParsingError`.
+        - Używa `schema.safeParse()` do walidacji sparsowanego obiektu JSON.
+        - Jeśli walidacja nie powiedzie się (`!result.success`), rzuca `SchemaValidationError` z `result.error.issues`.
+        - Jeśli walidacja się powiedzie, zwraca `result.data`.
+      - Jeśli `schema` nie zostało podane:
+        - Wyodrębnia i zwraca treść tekstową z odpowiedzi (zwykle `data.choices[0].message.content`).
 
 6.  **Implementacja Metody Publicznej `completeChat`**:
-    *   Wywołuje `buildRequestBody` z podanymi `messages` i `options`.
-    *   Wywołuje `makeRequest` z wynikiem `buildRequestBody`.
-    *   Wywołuje `parseAndValidateResponse` z odpowiedzią z `makeRequest` i `options.responseSchema`.
-    *   Zwraca wynik `parseAndValidateResponse`.
+
+    - Wywołuje `buildRequestBody` z podanymi `messages` i `options`.
+    - Wywołuje `makeRequest` z wynikiem `buildRequestBody`.
+    - Wywołuje `parseAndValidateResponse` z odpowiedzią z `makeRequest` i `options.responseSchema`.
+    - Zwraca wynik `parseAndValidateResponse`.
 
 7.  **Użycie Usługi w Endpoincie API Astro**:
-    *   Utwórz endpoint API, np. `src/pages/api/ai/generate.ts`.
-    *   Zaimportuj `OpenRouterService` i ewentualnie schematy Zod.
-    *   W funkcji obsługi żądania (np. `POST`):
-        *   Utwórz instancję `const openRouter = new OpenRouterService();`.
-        *   Pobierz dane wejściowe z żądania (np. prompt użytkownika, opcje). Pamiętaj o walidacji i sanityzacji danych wejściowych!
-        *   Przygotuj tablicę `messages` (np. dodając prompt systemowy).
-        *   Zdefiniuj `RequestOptions`, w tym `responseSchema` i `schemaName`, jeśli potrzebujesz ustrukturyzowanej odpowiedzi.
-        *   Wywołaj `openRouter.completeChat(messages, options)` w bloku `try...catch`.
-        *   Obsłuż potencjalne błędy (logowanie, zwracanie odpowiedniego statusu HTTP i komunikatu błędu do klienta).
-        *   Zwróć pomyślną odpowiedź (wygenerowany tekst lub obiekt JSON) do klienta.
+    - Utwórz endpoint API, np. `src/pages/api/ai/generate.ts`.
+    - Zaimportuj `OpenRouterService` i ewentualnie schematy Zod.
+    - W funkcji obsługi żądania (np. `POST`):
+      - Utwórz instancję `const openRouter = new OpenRouterService();`.
+      - Pobierz dane wejściowe z żądania (np. prompt użytkownika, opcje). Pamiętaj o walidacji i sanityzacji danych wejściowych!
+      - Przygotuj tablicę `messages` (np. dodając prompt systemowy).
+      - Zdefiniuj `RequestOptions`, w tym `responseSchema` i `schemaName`, jeśli potrzebujesz ustrukturyzowanej odpowiedzi.
+      - Wywołaj `openRouter.completeChat(messages, options)` w bloku `try...catch`.
+      - Obsłuż potencjalne błędy (logowanie, zwracanie odpowiedniego statusu HTTP i komunikatu błędu do klienta).
+      - Zwróć pomyślną odpowiedź (wygenerowany tekst lub obiekt JSON) do klienta.
 
 ```typescript
 // Przykład użycia w src/pages/api/ai/generate-flashcards.ts
-import type { APIRoute } from 'astro';
-import { z } from 'zod';
-import { OpenRouterService, OpenRouterAPIError, NetworkError, SchemaValidationError, ResponseParsingError, OpenRouterConfigurationError } from '@/lib/services/openrouter'; // Dostosuj ścieżkę
+import type { APIRoute } from "astro";
+import { z } from "zod";
+import {
+  OpenRouterService,
+  OpenRouterAPIError,
+  NetworkError,
+  SchemaValidationError,
+  ResponseParsingError,
+  OpenRouterConfigurationError,
+} from "@/lib/services/openrouter"; // Dostosuj ścieżkę
 
 // Schemat dla pojedynczej fiszki
-const FlashcardSchema = z.object({
-  front: z.string().min(1).describe("The front content of the flashcard"),
-  back: z.string().min(1).describe("The back content of the flashcard"),
-}).describe("A single flashcard with front and back text.");
+const FlashcardSchema = z
+  .object({
+    front: z.string().min(1).describe("The front content of the flashcard"),
+    back: z.string().min(1).describe("The back content of the flashcard"),
+  })
+  .describe("A single flashcard with front and back text.");
 
 // Schemat dla odpowiedzi zawierającej listę fiszek
-const FlashcardsResponseSchema = z.object({
-  flashcards: z.array(FlashcardSchema).min(1).describe("An array of generated flashcards")
-}).describe("A list of generated flashcards based on the source text.");
+const FlashcardsResponseSchema = z
+  .object({
+    flashcards: z.array(FlashcardSchema).min(1).describe("An array of generated flashcards"),
+  })
+  .describe("A list of generated flashcards based on the source text.");
 
 // Schemat dla ciała żądania POST
 const RequestBodySchema = z.object({
@@ -269,7 +299,10 @@ export const POST: APIRoute = async ({ request }) => {
     const rawBody = await request.json();
     requestBody = RequestBodySchema.parse(rawBody);
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Invalid request body', details: error instanceof z.ZodError ? error.errors : null }), { status: 400 });
+    return new Response(
+      JSON.stringify({ error: "Invalid request body", details: error instanceof z.ZodError ? error.errors : null }),
+      { status: 400 }
+    );
   }
 
   const { sourceText, count } = requestBody;
@@ -281,15 +314,15 @@ export const POST: APIRoute = async ({ request }) => {
     const userPrompt = `Source Text:\n"""\n${sourceText}\n"""`;
 
     const messages = [
-      { role: 'system' as const, content: systemPrompt },
-      { role: 'user' as const, content: userPrompt },
+      { role: "system" as const, content: systemPrompt },
+      { role: "user" as const, content: userPrompt },
     ];
 
     const options = {
       // Można wybrać model dynamicznie lub użyć domyślnego
       // model: 'anthropic/claude-3-haiku-20240307',
       responseSchema: FlashcardsResponseSchema,
-      schemaName: 'FlashcardsResponse', // Musi pasować do nazwy w schemacie Zod -> JSON
+      schemaName: "FlashcardsResponse", // Musi pasować do nazwy w schemacie Zod -> JSON
       temperature: 0.5,
       max_tokens: 1500, // Dostosuj w razie potrzeby
     };
@@ -299,32 +332,31 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error: any) {
-    console.error('Error calling OpenRouter API:', error); // Logowanie błędu na serwerze
+    console.error("Error calling OpenRouter API:", error); // Logowanie błędu na serwerze
 
     let status = 500;
-    let message = 'Internal Server Error';
+    let message = "Internal Server Error";
 
     if (error instanceof SchemaValidationError) {
       status = 502; // Bad Gateway - problem z odpowiedzią od upstream (LLM nie zwrócił poprawnego JSON)
-      message = 'Failed to process AI response (schema validation failed).';
+      message = "Failed to process AI response (schema validation failed).";
       // Można dodać szczegóły walidacji do logów, ale niekoniecznie do odpowiedzi klienta
-      console.error('Schema validation errors:', error.validationErrors);
+      console.error("Schema validation errors:", error.validationErrors);
     } else if (error instanceof ResponseParsingError) {
       status = 502;
-      message = 'Failed to parse AI response.';
+      message = "Failed to parse AI response.";
     } else if (error instanceof OpenRouterAPIError) {
       status = error.statusCode >= 500 ? 502 : error.statusCode; // Mapuj błędy 5xx OpenRouter na 502
       message = `AI service error: ${error.message}`;
     } else if (error instanceof NetworkError) {
       status = 504; // Gateway Timeout
-      message = 'Network error connecting to AI service.';
+      message = "Network error connecting to AI service.";
     } else if (error instanceof OpenRouterConfigurationError) {
-        status = 500; // Błąd konfiguracji serwera
-        message = 'AI service configuration error.';
+      status = 500; // Błąd konfiguracji serwera
+      message = "AI service configuration error.";
     }
 
     return new Response(JSON.stringify({ error: message }), { status });
@@ -333,10 +365,11 @@ export const POST: APIRoute = async ({ request }) => {
 ```
 
 8.  **Testowanie**:
-    *   Napisz testy jednostkowe dla `OpenRouterService`, mockując `fetch` i zmienne środowiskowe.
-    *   Przetestuj endpoint API ręcznie (np. używając `curl` lub narzędzi typu Postman/Insomnia) oraz automatycznie (jeśli masz testy integracyjne/E2E). Przetestuj przypadki sukcesu i różne scenariusze błędów.
+
+    - Napisz testy jednostkowe dla `OpenRouterService`, mockując `fetch` i zmienne środowiskowe.
+    - Przetestuj endpoint API ręcznie (np. używając `curl` lub narzędzi typu Postman/Insomnia) oraz automatycznie (jeśli masz testy integracyjne/E2E). Przetestuj przypadki sukcesu i różne scenariusze błędów.
 
 9.  **Refaktoryzacja i Poprawki**:
-    *   Przejrzyj kod pod kątem zgodności z zasadami czystego kodu (`.cursor/rules/shared.mdc`).
-    *   Zastosuj feedback z linterów.
-    *   Upewnij się, że obsługa błędów jest spójna i dostarcza wystarczających informacji do debugowania.
+    - Przejrzyj kod pod kątem zgodności z zasadami czystego kodu (`.cursor/rules/shared.mdc`).
+    - Zastosuj feedback z linterów.
+    - Upewnij się, że obsługa błędów jest spójna i dostarcza wystarczających informacji do debugowania.

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,7 +39,7 @@ export function AddTopicModal({ open, onOpenChange, onAddTopic }: AddTopicModalP
       setTopicName("");
       onOpenChange(false);
     } catch (err) {
-      setError(typeof err === 'string' ? err : "Failed to create topic. Please try again.");
+      setError(typeof err === "string" ? err : "Failed to create topic. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -51,9 +51,7 @@ export function AddTopicModal({ open, onOpenChange, onAddTopic }: AddTopicModalP
         <form onSubmit={handleSubmit} data-test-id="add-topic-form">
           <DialogHeader>
             <DialogTitle>Add New Topic</DialogTitle>
-            <DialogDescription>
-              Create a new topic to organize your flashcards.
-            </DialogDescription>
+            <DialogDescription>Create a new topic to organize your flashcards.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">

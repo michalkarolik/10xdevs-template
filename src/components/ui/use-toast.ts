@@ -47,7 +47,7 @@ interface State {
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
-const listeners: Array<(state: State) => void> = [];
+const listeners: ((state: State) => void)[] = [];
 let memoryState: State = { toasts: [] };
 
 const reducer = (state: State, action: Action): State => {
@@ -60,9 +60,7 @@ const reducer = (state: State, action: Action): State => {
     case actionTypes.UPDATE_TOAST:
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
+        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
       };
     case actionTypes.DISMISS_TOAST: {
       const { toastId } = action;
@@ -73,11 +71,7 @@ const reducer = (state: State, action: Action): State => {
       }
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? { ...t, open: false }
-            : t
-        ),
+        toasts: state.toasts.map((t) => (t.id === toastId || toastId === undefined ? { ...t, open: false } : t)),
       };
     }
     case actionTypes.REMOVE_TOAST:
@@ -121,8 +115,7 @@ function toast({ ...props }: Omit<ToasterToast, "id">) {
   return {
     id,
     dismiss,
-    update: (props: ToasterToast) =>
-      dispatch({ type: actionTypes.UPDATE_TOAST, toast: { ...props, id } }),
+    update: (props: ToasterToast) => dispatch({ type: actionTypes.UPDATE_TOAST, toast: { ...props, id } }),
   };
 }
 

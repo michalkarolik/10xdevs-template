@@ -4,14 +4,14 @@
 export async function saveFlashcardResponse(
   sessionId: string,
   flashcardId: string,
-  response: 'Again' | 'Hard' | 'Easy'
+  response: "Again" | "Hard" | "Easy"
 ) {
   try {
     const apiResponse = await fetch(`/api/learning/session/${sessionId}/rate`, {
-      method: 'POST',
-      credentials: 'include',
+      method: "POST",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         card_id: flashcardId,
@@ -21,12 +21,12 @@ export async function saveFlashcardResponse(
 
     if (!apiResponse.ok) {
       const error = await apiResponse.json().catch(() => ({}));
-      throw new Error(error.message || 'Failed to save response');
+      throw new Error(error.message || "Failed to save response");
     }
 
     return apiResponse.json();
   } catch (error) {
-    console.error('Error saving flashcard response:', error);
+    console.error("Error saving flashcard response:", error);
     throw error;
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AddTopicModal } from "@/components/topics/AddTopicModal";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,8 +26,8 @@ export default function TopicsPage() {
   const fetchTopics = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/topics', {
-        credentials: 'include', // Include cookies with the request
+      const response = await fetch("/api/topics", {
+        credentials: "include", // Include cookies with the request
       });
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -45,14 +45,14 @@ export default function TopicsPage() {
 
   const handleAddTopic = async (topicName: string) => {
     try {
-      const response = await fetch('/api/topics', {
-        method: 'POST',
+      const response = await fetch("/api/topics", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ name: topicName }),
-        credentials: 'include', // Include cookies with the request
+        credentials: "include", // Include cookies with the request
       });
 
       if (!response.ok) {
@@ -61,13 +61,12 @@ export default function TopicsPage() {
       }
 
       const newTopic = await response.json();
-      setTopics(prevTopics => [...prevTopics, newTopic]);
-      
+      setTopics((prevTopics) => [...prevTopics, newTopic]);
+
       toast({
         title: "Topic created",
         description: `"${topicName}" has been successfully created.`,
       });
-      
     } catch (err) {
       console.error("Failed to create topic:", err);
       toast({
@@ -98,19 +97,25 @@ export default function TopicsPage() {
         </div>
       ) : topics.length === 0 ? (
         <div className="text-center p-10 border rounded-md">
-          <p className="text-gray-600">You don't have any topics yet. Create your first topic to get started!</p>
+          <p className="text-gray-600">You don&apos;t have any topics yet. Create your first topic to get started!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-test-id="topics-grid">
           {topics.map((topic) => (
-            <div key={topic.id} className="border rounded-md p-4 hover:shadow-md transition-shadow" data-test-id={`topic-item-${topic.id}`}>
+            <div
+              key={topic.id}
+              className="border rounded-md p-4 hover:shadow-md transition-shadow"
+              data-test-id={`topic-item-${topic.id}`}
+            >
               <h2 className="text-xl font-semibold mb-2">{topic.name}</h2>
               <p className="text-gray-600" data-test-id={`topic-flashcard-count-${topic.id}`}>
                 {topic.flashcard_count || 0} flashcards
               </p>
               <div className="mt-4">
                 <Button variant="outline" size="sm" asChild>
-                  <a href={`/topics/${topic.id}`} data-test-id={`view-topic-${topic.name}`}>View Details</a>
+                  <a href={`/topics/${topic.id}`} data-test-id={`view-topic-${topic.name}`}>
+                    View Details
+                  </a>
                 </Button>
               </div>
             </div>
@@ -118,11 +123,7 @@ export default function TopicsPage() {
         </div>
       )}
 
-      <AddTopicModal 
-        open={isAddTopicModalOpen}
-        onOpenChange={setIsAddTopicModalOpen}
-        onAddTopic={handleAddTopic}
-      />
+      <AddTopicModal open={isAddTopicModalOpen} onOpenChange={setIsAddTopicModalOpen} onAddTopic={handleAddTopic} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { useAIGeneration } from "@/hooks/useAIGeneration";
-import SourceTextInput from '@/components/ai/SourceTextInput';
-import GeneratedFlashcardsDisplay from '@/components/ai/GeneratedFlashcardsDisplay';
+import SourceTextInput from "@/components/ai/SourceTextInput";
+import GeneratedFlashcardsDisplay from "@/components/ai/GeneratedFlashcardsDisplay";
 
 interface AIGenerationViewProps {
   topicId: string;
@@ -27,7 +27,10 @@ const AIGenerationView: React.FC<AIGenerationViewProps> = ({ topicId }) => {
   return (
     <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto" data-test-id="ai-generation-container">
       {acceptedCount > 0 && (
-        <div className="text-center text-green-600 dark:text-green-400 font-medium" data-test-id="accepted-flashcards-count">
+        <div
+          className="text-center text-green-600 dark:text-green-400 font-medium"
+          data-test-id="accepted-flashcards-count"
+        >
           Accepted Flashcards: {acceptedCount}
         </div>
       )}

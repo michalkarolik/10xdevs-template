@@ -1,4 +1,4 @@
-import type { Tables, FlashcardSource } from "./db/database.types";
+import type { FlashcardSource, Tables } from "./db/database.types";
 
 /**
  * Base entities from database tables
@@ -89,13 +89,15 @@ export interface FlashcardAcceptDto {
   back: string;
 }
 
-export interface FlashcardAcceptResponseDto extends Pick<Flashcard, "id" | "front" | "back" | "created_at" | "updated_at"> {
+export interface FlashcardAcceptResponseDto
+  extends Pick<Flashcard, "id" | "front" | "back" | "created_at" | "updated_at"> {
   source: FlashcardSource; // Source is determined by the API endpoint logic
 }
 
 export type FlashcardAcceptEditedDto = FlashcardAcceptDto;
 
-export interface FlashcardAcceptEditedResponseDto extends Pick<Flashcard, "id" | "front" | "back" | "created_at" | "updated_at"> {
+export interface FlashcardAcceptEditedResponseDto
+  extends Pick<Flashcard, "id" | "front" | "back" | "created_at" | "updated_at"> {
   source: FlashcardSource; // Source is determined by the API endpoint logic
 }
 
@@ -177,7 +179,7 @@ export interface Flashcard {
   front: string;
   back: string;
   topic_id: string;
-  source: 'ai-generated' | 'ai-edited' | 'manual';
+  source: "ai-generated" | "ai-edited" | "manual";
   created_at: string;
   updated_at: string;
 }

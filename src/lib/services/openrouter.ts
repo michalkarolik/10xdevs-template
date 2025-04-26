@@ -1,11 +1,11 @@
-import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 
 // Definicje typów dla wiadomości i opcji
-export type Message = {
-  role: 'system' | 'user' | 'assistant';
+export interface Message {
+  role: "system" | "user" | "assistant";
   content: string;
-};
+}
 
 export interface RequestOptions {
   model?: string;
@@ -29,7 +29,7 @@ interface OpenRouterErrorResponse {
 export class OpenRouterConfigurationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'OpenRouterConfigurationError';
+    this.name = "OpenRouterConfigurationError";
     // Utrzymanie poprawnego śladu stosu
     Object.setPrototypeOf(this, OpenRouterConfigurationError.prototype);
   }
@@ -39,57 +39,65 @@ export class OpenRouterAPIError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public details?: OpenRouterErrorResponse['error'] // Używamy zagnieżdżonego typu błędu
+    public details?: OpenRouterErrorResponse["error"] // Używamy zagnieżdżonego typu błędu
   ) {
     super(message);
-    this.name = 'OpenRouterAPIError';
+    this.name = "OpenRouterAPIError";
     Object.setPrototypeOf(this, OpenRouterAPIError.prototype);
   }
 }
 
 export class NetworkError extends Error {
-  constructor(message: string, public cause?: unknown) {
+  constructor(
+    message: string,
+    public cause?: unknown
+  ) {
     super(message);
-    this.name = 'NetworkError';
+    this.name = "NetworkError";
     Object.setPrototypeOf(this, NetworkError.prototype);
   }
 }
 
 export class ResponseParsingError extends Error {
-  constructor(message: string, public cause?: unknown) {
+  constructor(
+    message: string,
+    public cause?: unknown
+  ) {
     super(message);
-    this.name = 'ResponseParsingError';
+    this.name = "ResponseParsingError";
     Object.setPrototypeOf(this, ResponseParsingError.prototype);
   }
 }
 
 export class SchemaValidationError extends Error {
-  constructor(message: string, public validationErrors: z.ZodIssue[]) {
+  constructor(
+    message: string,
+    public validationErrors: z.ZodIssue[]
+  ) {
     super(message);
-    this.name = 'SchemaValidationError';
+    this.name = "SchemaValidationError";
     Object.setPrototypeOf(this, SchemaValidationError.prototype);
   }
 }
-
 
 export class OpenRouterService {
   private apiKey: string;
   private apiUrl: string;
   private defaultModel: string;
   // TODO: Rozważyć dodanie SITE_URL i APP_NAME do zmiennych środowiskowych
-  private siteUrl: string = 'http://localhost:4321'; // Placeholder - pobrać z env
-  private appName: string = 'FlashcardApp'; // Placeholder - pobrać z env
+  private siteUrl = "http://localhost:4321"; // Placeholder - pobrać z env
+  private appName = "FlashcardApp"; // Placeholder - pobrać z env
 
   constructor() {
     // W Astro, użyj import.meta.env dla zmiennych środowiskowych na serwerze
     const apiKey = import.meta.env.APP_OPENROUTER_API_KEY;
     // Używamy || '' aby uniknąć błędu typu, jeśli zmienna nie jest ustawiona, ale sprawdzamy to poniżej
-    const apiUrl = import.meta.env.APP_OPENROUTER_API_URL || 'https://openrouter.ai/api/v1';
-    const defaultModel = import.meta.env.APP_OPENROUTER_DEFAULT_MODEL || 'openai/gpt-3.5-turbo';
+    const apiUrl = import.meta.env.APP_OPENROUTER_API_URL || "https://openrouter.ai/api/v1";
+    const defaultModel = import.meta.env.APP_OPENROUTER_DEFAULT_MODEL || "openai/gpt-3.5-turbo";
 
     if (!apiKey) {
       console.error("Missing APP_OPENROUTER_API_KEY environment variable.");
-      throw new OpenRouterConfigurationError('Missing APP_OPENROUTER_API_KEY environment variable.');
+      throw new OpenRouterConfigurationError("Missing APP_OPENROUTER_API_KEY environment variable.");
     }
 
     this.apiKey = apiKey;
@@ -101,8 +109,8 @@ export class OpenRouterService {
     // this.appName = import.meta.env.APP_NAME || this.appName;
   }
 
-  private buildRequestBody(messages: Message[], options?: RequestOptions): Record<string, any> {
-    const body: Record<string, any> = {
+  private buildRequestBody(messages: Message[], options?: RequestOptions): Record<string, unknown> {
+    const body: Record<string, unknown> = {
       model: options?.model || this.defaultModel,
       messages: messages,
     };
@@ -119,13 +127,13 @@ export class OpenRouterService {
       try {
         const jsonSchema = zodToJsonSchema(options.responseSchema, options.schemaName);
         body.response_format = {
-          type: 'json_object',
+          type: "json_object",
           // OpenRouter oczekuje schematu JSON wewnątrz pola 'json_schema'
           // Zgodnie z dokumentacją: https://openrouter.ai/docs#json-mode
           // Uwaga: zodToJsonSchema generuje pełny schemat, w tym "$schema", "type": "object" itp.
           // Upewnijmy się, że przekazujemy właściwą strukturę.
           // zodToJsonSchema zwraca obiekt, który powinien być kompatybilny.
-          json_schema: jsonSchema
+          json_schema: jsonSchema,
         };
       } catch (error) {
         // Rzucenie błędu konfiguracji, jeśli schemat jest nieprawidłowy
@@ -134,34 +142,33 @@ export class OpenRouterService {
         throw new OpenRouterConfigurationError(`Invalid response schema provided for '${options.schemaName}'.`);
       }
     } else if (options?.responseSchema && !options?.schemaName) {
-        throw new OpenRouterConfigurationError("schemaName is required when responseSchema is provided.");
+      throw new OpenRouterConfigurationError("schemaName is required when responseSchema is provided.");
     }
-
 
     return body;
   }
 
-  private async makeRequest(requestBody: Record<string, any>): Promise<Response> {
+  private async makeRequest(requestBody: Record<string, unknown>): Promise<Response> {
     const url = `${this.apiUrl}/chat/completions`;
     const headers = {
-      'Authorization': `Bearer ${this.apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': this.siteUrl, // Zalecane przez OpenRouter
-      'X-Title': this.appName,      // Zalecane przez OpenRouter
+      Authorization: `Bearer ${this.apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": this.siteUrl, // Zalecane przez OpenRouter
+      "X-Title": this.appName, // Zalecane przez OpenRouter
     };
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: headers,
         body: JSON.stringify(requestBody),
       });
       return response;
     } catch (error) {
-      console.error('Network error during fetch to OpenRouter:', error);
+      console.error("Network error during fetch to OpenRouter:", error);
       // Rzucamy niestandardowy błąd, przekazując oryginalny błąd jako przyczynę
-      throw new NetworkError('Failed to connect to OpenRouter API.', error);
+      throw new NetworkError("Failed to connect to OpenRouter API.", error);
     }
   }
 
@@ -169,64 +176,67 @@ export class OpenRouterService {
     response: Response,
     schema?: T
   ): Promise<T extends z.ZodSchema ? z.infer<T> : string> {
-    let responseData: any;
+    let responseData: unknown;
 
     // Sprawdzenie statusu odpowiedzi
     if (!response.ok) {
-      let errorDetails: OpenRouterErrorResponse['error'] | undefined;
+      let errorDetails: OpenRouterErrorResponse["error"] | undefined;
       let errorMessage = `OpenRouter API Error: ${response.status} ${response.statusText}`;
       try {
         // Spróbuj sparsować ciało błędu, może zawierać więcej informacji
         const errorBody = await response.json();
-        if (errorBody && typeof errorBody === 'object' && 'error' in errorBody) {
+        if (errorBody && typeof errorBody === "object" && "error" in errorBody) {
           errorDetails = (errorBody as OpenRouterErrorResponse).error;
           errorMessage = `OpenRouter API Error: ${errorDetails?.message || errorMessage}`;
         }
       } catch (parseError) {
         // Ignoruj błąd parsowania ciała błędu, użyj domyślnej wiadomości
-        console.warn('Could not parse error response body:', parseError);
+        console.warn("Could not parse error response body:", parseError);
       }
       throw new OpenRouterAPIError(errorMessage, response.status, errorDetails);
     }
 
     // Parsowanie ciała odpowiedzi sukcesu
     try {
-      responseData = await response.json();
+      const result: unknown = await response.json();
+      responseData = result;
     } catch (error) {
-      console.error('Error parsing JSON response from OpenRouter:', error);
-      throw new ResponseParsingError('Failed to parse JSON response from OpenRouter API.', error);
+      console.error("Error parsing JSON response from OpenRouter:", error);
+      throw new ResponseParsingError("Failed to parse JSON response from OpenRouter API.", error);
     }
 
     // Wyodrębnienie treści wiadomości
     // Standardowa odpowiedź OpenRouter/OpenAI ma strukturę: { choices: [{ message: { content: "..." } }] }
-    const messageContent = responseData?.choices?.[0]?.message?.content;
+    const messageContent = (responseData as any)?.choices?.[0]?.message?.content;
 
-    if (typeof messageContent !== 'string') {
-        console.error('Invalid response structure from OpenRouter:', responseData);
-        throw new ResponseParsingError('Invalid response structure: message content not found or not a string.');
+    if (typeof messageContent !== "string") {
+      console.error("Invalid response structure from OpenRouter:", responseData);
+      throw new ResponseParsingError("Invalid response structure: message content not found or not a string.");
     }
 
     // Walidacja schematem, jeśli został podany
     if (schema) {
-      let parsedJsonContent: any;
+      let parsedJsonContent: unknown;
       try {
         // Extract JSON from potential markdown code blocks
         let jsonContent = messageContent;
-        
+
         // Check if content is wrapped in markdown code blocks
         const jsonBlockRegex = /```(?:json)?\s*\n([\s\S]*?)\n```/;
         const match = jsonBlockRegex.exec(messageContent);
         if (match && match[1]) {
           jsonContent = match[1];
         }
-        
+
         parsedJsonContent = JSON.parse(jsonContent);
       } catch (error) {
         if (error instanceof z.ZodError) {
           throw new Error(`Validation error: ${error.message}`);
         } else if (error instanceof SyntaxError) {
           console.error("Raw message content:", messageContent);
-          throw new ResponseParsingError("Failed to parse message content as JSON. The AI might not have returned valid JSON.");
+          throw new ResponseParsingError(
+            "Failed to parse message content as JSON. The AI might not have returned valid JSON."
+          );
         }
         throw error;
       }
@@ -234,10 +244,10 @@ export class OpenRouterService {
       const validationResult = schema.safeParse(parsedJsonContent);
 
       if (!validationResult.success) {
-        console.error('Schema validation failed:', validationResult.error.issues);
-        console.error('Parsed JSON content that failed validation:', parsedJsonContent); // Logujemy obiekt, który nie przeszedł walidacji
+        console.error("Schema validation failed:", validationResult.error.issues);
+        console.error("Parsed JSON content that failed validation:", parsedJsonContent); // Logujemy obiekt, który nie przeszedł walidacji
         throw new SchemaValidationError(
-          'Response validation failed against the provided schema.',
+          "Response validation failed against the provided schema.",
           validationResult.error.issues
         );
       }
@@ -245,7 +255,7 @@ export class OpenRouterService {
       return validationResult.data as z.infer<T>;
     } else {
       // Zwracamy surową treść tekstową, jeśli schemat nie był wymagany
-      return messageContent as (T extends z.ZodSchema ? never : string);
+      return messageContent as T extends z.ZodSchema ? never : string;
     }
   }
 
@@ -266,7 +276,7 @@ export class OpenRouterService {
   ): Promise<T extends z.ZodSchema ? z.infer<T> : string> {
     // Sprawdzenie podstawowe - czy są jakieś wiadomości
     if (!messages || messages.length === 0) {
-        throw new OpenRouterConfigurationError("Messages array cannot be empty.");
+      throw new OpenRouterConfigurationError("Messages array cannot be empty.");
     }
     // Można dodać bardziej szczegółową walidację wiadomości, np. czy jest rola 'user'
 
@@ -276,4 +286,3 @@ export class OpenRouterService {
     return this.parseAndValidateResponse(response, options?.responseSchema);
   }
 }
-

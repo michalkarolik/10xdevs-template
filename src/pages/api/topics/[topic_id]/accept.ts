@@ -1,39 +1,35 @@
-import type { APIRoute } from "astro";
-import { z } from "zod";
-import type { FlashcardAcceptDto, FlashcardAcceptResponseDto, ErrorResponse } from "@/types";
-import { FLASHCARD_LIMITS } from "@/types";
-import { getUserFromToken } from "@src/lib/server/authenticationService";
-import { getToken } from "@src/lib/client/authClient";
+import type { FlashcardAcceptResponseDto } from "@/types";
 
-const inputSchema = z.object({
-  front: z.string().min(1, "Front text is required").max(FLASHCARD_LIMITS.FRONT_MAX_LENGTH, `Front text cannot exceed ${FLASHCARD_LIMITS.FRONT_MAX_LENGTH} characters`),
-  back: z.string().min(1, "Back text is required").max(FLASHCARD_LIMITS.BACK_MAX_LENGTH, `Back text cannot exceed ${FLASHCARD_LIMITS.BACK_MAX_LENGTH} characters`),
-});
-
-export async function processFlashcardAccept(topic_id: string, front: string, back: string, source: string, supabase: any): Promise<FlashcardAcceptResponseDto> {
+export async function processFlashcardAccept(
+  topic_id: string,
+  front: string,
+  back: string,
+  source: string,
+  supabase: unknown
+): Promise<FlashcardAcceptResponseDto> {
   const { data: topicData, error: topicError } = await supabase
-      .from('topics')
-      .select('id')
-      .eq('id', topic_id)
-      .maybeSingle();
+    .from("topics")
+    .select("id")
+    .eq("id", topic_id)
+    .maybeSingle();
 
   if (topicError) {
     console.error("Supabase topic check error:", topicError);
     throw new Error("Database error checking topic existence.");
   }
   if (!topicData) {
-    throw new Error('NOT_FOUND');
+    throw new Error("NOT_FOUND");
   }
 
   const { data: newFlashcard, error: insertError } = await supabase
-    .from('flashcards')
+    .from("flashcards")
     .insert({
       topic_id: topic_id,
       front: front,
       back: back,
-      source: source
+      source: source,
     })
-    .select('id, front, back, source, created_at, updated_at')
+    .select("id, front, back, source, created_at, updated_at")
     .single();
 
   if (insertError) {

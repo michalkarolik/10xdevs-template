@@ -20,6 +20,7 @@
 AI Flashcard Generator is a web application designed to assist students in creating educational flashcards efficiently. It utilizes AI (specifically Google Gemini) to automatically generate flashcards from text pasted by the user, significantly reducing the manual effort involved. The application also helps users identify key information within their source material.
 
 Key features include:
+
 - User account management (registration, login, deletion).
 - Topic creation and management for organizing flashcards.
 - AI-powered flashcard generation from user-provided text.
@@ -55,7 +56,7 @@ The primary goal is to streamline the flashcard creation process and encourage t
     git clone <your-repository-url>
     cd ai-flashcard-generator
     ```
-    *(Replace `<your-repository-url>` with the actual URL)*
+    _(Replace `<your-repository-url>` with the actual URL)_
 2.  **Set up Node.js:**
     Ensure you have Node.js version `22.14.0` installed. If you use [nvm](https://github.com/nvm-sh/nvm), you can run:
     ```bash
@@ -94,7 +95,8 @@ In the project directory, you can run the following scripts:
 - `npm run test:ui`: Opens Playwright UI for debugging E2E tests.
 
 ### curl example
-```bash
+
+````bash
 curl -v -X POST localhost:3000/api/topics/123/generate \
 -H "Content-Type: application/json" \
 -d '{
@@ -148,3 +150,4 @@ The project is currently in the **Minimum Viable Product (MVP)** development pha
 This project is licensed under the **ISC License**. See the [LICENSE](https://opensource.org/licenses/ISC) file for details (Note: A separate LICENSE file is not present in the provided context, but `package.json` specifies ISC).
 
 `
+````

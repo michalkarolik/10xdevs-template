@@ -6,7 +6,6 @@ import LearningSessionClientWrapper from "@/components/learning/LearningSessionC
 import type { TopicsResponseDto } from "@/types";
 import { Button } from "@/components/ui/button";
 
-
 // Fetch topics on the server
 let topics: TopicsResponseDto = [];
 let fetchError: string | null = null;
@@ -35,17 +34,19 @@ try {
     <h1 class="text-3xl font-bold mb-6 text-center">Learning Session</h1>
     <p class="text-center mb-4">Select a topic to start your learning session.</p>
 
-    {fetchError && (
-      <div class="text-center text-red-500 mb-6">
-        <p>Could not load topics: {fetchError}</p>
-        <a href="/learning-session">
-          <Button variant="outline" class="mt-2">Retry</Button>
-        </a>
-      </div>
-    )}
+    {
+      fetchError && (
+        <div class="text-center text-red-500 mb-6">
+          <p>Could not load topics: {fetchError}</p>
+          <a href="/learning-session">
+            <Button variant="outline" class="mt-2">
+              Retry
+            </Button>
+          </a>
+        </div>
+      )
+    }
 
-    {!fetchError && (
-      <LearningSessionClientWrapper client:only="react" initialTopics={topics} />
-    )}
+    {!fetchError && <LearningSessionClientWrapper client:only="react" initialTopics={topics} />}
   </main>
 </Layout>

@@ -18,17 +18,17 @@ try {
   const user = await getUserFromRequest(Astro.request);
   const topicDetails = await fetchTopicDetails(topicId, user, Astro.locals.supabase);
   if (topicDetails) {
-    const topicData: TopicResponseDto = topicDetails
+    const topicData: TopicResponseDto = topicDetails;
     topicName = topicData?.name ?? "Unknown Topic";
   } else {
-     fetchError = `Failed to fetch topic name`;
-     topicName = "Error";
-     console.error(fetchError);
+    fetchError = `Failed to fetch topic name`;
+    topicName = "Error";
+    console.error(fetchError);
   }
 } catch (e) {
-   console.error("Error fetching topic name for breadcrumbs:", e);
-   fetchError = "Error fetching topic name.";
-   topicName = "Error";
+  console.error("Error fetching topic name for breadcrumbs:", e);
+  fetchError = "Error fetching topic name.";
+  topicName = "Error";
 }
 
 // Define breadcrumbs
@@ -40,7 +40,10 @@ const breadcrumbs = [
 ];
 ---
 
-<Layout title={`Manually Create Flashcards for ${topicName === "Loading..." || fetchError ? topicId : topicName}`} breadcrumbs={breadcrumbs}>
+<Layout
+  title={`Manually Create Flashcards for ${topicName === "Loading..." || fetchError ? topicId : topicName}`}
+  breadcrumbs={breadcrumbs}
+>
   {fetchError && <p class="text-destructive mb-4">{fetchError}</p>}
   <ManualFlashcardCreationView client:load topicId={topicId} data-test-id="manual-flashcard-creation-view" />
 </Layout>
