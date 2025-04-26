@@ -110,7 +110,7 @@ export default function TopicsPage() {
               </p>
               <div className="mt-4">
                 <Button variant="outline" size="sm" asChild>
-                  <a href={`/topics/${topic.id}`} data-test-id={`view-topic-${topic.id}`}>View Details</a>
+                  <a href={`/topics/${topic.id}`} data-test-id={`view-topic-${topic.name}`}>View Details</a>
                 </Button>
               </div>
             </div>

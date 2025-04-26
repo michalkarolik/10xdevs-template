@@ -32,7 +32,7 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        headless: true  // Disable headless mode for debugging
+        headless: false  // Disable headless mode for debugging
       },
       dependencies: ['setup'],
     },

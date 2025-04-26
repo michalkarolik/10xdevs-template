@@ -135,7 +135,7 @@ export const useAIGeneration = (topicId: string) => {
         back: suggestionToAccept.back,
       };
       // const user = await supabaseClient.auth.getUser()
-      const result: FlashcardAcceptResponseDto = await processFlashcardAccept(topicId,  suggestionToAccept.front, suggestionToAccept.back, supabaseClient)
+      const result: FlashcardAcceptResponseDto = await processFlashcardAccept(topicId,  suggestionToAccept.front, suggestionToAccept.back, 'ai-generated', supabaseClient)
       if (!result) {
         const errorMessage = await handleApiError(result, 'Failed to accept suggestion');
         // Removed duplicate declaration of errorMessage

@@ -63,6 +63,24 @@ test.describe('Topics Flow', () => {
     // // Verify the topic appears in the list
     // await expect(page.getByText(topicName)).toBeVisible({ timeout: 10000 });
 
-    console.log('Test completed successfully');
+    // New Steps: Add flashcards to the created topic
+    console.log('Step 8: Opening topic details');
+    await page.getByTestId("view-topic-"+topicName).click({ timeout: 60000 });
+    await expect(page.url()).toContain('/topics/'); // expecting navigation to topic details page
+  //TODO: verify that flashcard can be added
+    // console.log('Step 9: Opening Add Flashcard modal');
+    // await page.getByTestId('add-flashcard-button').click({ timeout: 5000 });
+    // await expect(page.getByTestId('add-flashcard-form')).toBeVisible({ timeout: 5000 });
+    //
+    // console.log('Step 10: Filling flashcard details');
+    // await page.getByTestId('flashcard-question-input').fill('What is 10x?');
+    // await page.getByTestId('flashcard-answer-input').fill('10x means ten times or 10 developers.');
+    // await page.getByTestId('create-flashcard-button').click();
+    //
+    // console.log('Step 11: Verifying flashcard addition');
+    // await expect(page.getByText('What is 10x?')).toBeVisible({ timeout: 10000 });
+    //
+    // console.log('Test completed successfully');
   });
 });
+

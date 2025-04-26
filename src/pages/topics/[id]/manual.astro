@@ -1,0 +1,46 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ManualFlashcardCreationView from "@/components/views/ManualFlashcardCreationView";
+import type { TopicResponseDto } from "@/types";
+import { getUserFromRequest } from "../../../lib/server/authenticationService";
+import { fetchTopicDetails } from "../../api/topics/[topic_id]/index";
+
+const { id: topicId } = Astro.params;
+
+if (!topicId) {
+  return Astro.redirect("/topics");
+}
+
+// Fetch topic name for breadcrumbs
+let topicName = "Loading...";
+let fetchError = null;
+try {
+  const user = await getUserFromRequest(Astro.request);
+  const topicDetails = await fetchTopicDetails(topicId, user, Astro.locals.supabase);
+  if (topicDetails) {
+    const topicData: TopicResponseDto = topicDetails
+    topicName = topicData?.name ?? "Unknown Topic";
+  } else {
+     fetchError = `Failed to fetch topic name`;
+     topicName = "Error";
+     console.error(fetchError);
+  }
+} catch (e) {
+   console.error("Error fetching topic name for breadcrumbs:", e);
+   fetchError = "Error fetching topic name.";
+   topicName = "Error";
+}
+
+// Define breadcrumbs
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Topics", href: "/topics" },
+  { label: fetchError ? "Error" : topicName, href: `/topics/${topicId}` },
+  { label: "Manual Creation" },
+];
+---
+
+<Layout title={`Manually Create Flashcards for ${topicName === "Loading..." || fetchError ? topicId : topicName}`} breadcrumbs={breadcrumbs}>
+  {fetchError && <p class="text-destructive mb-4">{fetchError}</p>}
+  <ManualFlashcardCreationView client:load topicId={topicId} data-test-id="manual-flashcard-creation-view" />
+</Layout>
