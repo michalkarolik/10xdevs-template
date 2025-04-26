@@ -79,7 +79,7 @@ export default function ManualFlashcardCreationView({ topicId }: ManualFlashcard
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Enter the question for the flashcard"
-                data-test-id="flashcard-question-input"
+                data-test-id="flashcard-front-input"
                 className="min-h-[100px]"
                 required
               />
@@ -93,7 +93,7 @@ export default function ManualFlashcardCreationView({ topicId }: ManualFlashcard
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 placeholder="Enter the answer for the flashcard"
-                data-test-id="flashcard-answer-input"
+                data-test-id="flashcard-back-input"
                 className="min-h-[150px]"
                 required
               />
@@ -109,7 +109,7 @@ export default function ManualFlashcardCreationView({ topicId }: ManualFlashcard
             </Button>
             <Button 
               type="submit" 
-              disabled={isSubmitting || !question.trim() || !answer.trim()}
+              disabled={isSubmitting}
               data-test-id="create-flashcard-button"
             >
               {isSubmitting ? 'Creating...' : 'Create Flashcard'}
@@ -120,3 +120,4 @@ export default function ManualFlashcardCreationView({ topicId }: ManualFlashcard
     </div>
   );
 }
+

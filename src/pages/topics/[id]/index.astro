@@ -68,7 +68,7 @@ function handleAddManualFlashcard() {
           <div class="flex space-x-2 flex-shrink-0">
             <a href={`/topics/${topicData?.id}/manual`}>
               <Button variant="outline" size="sm">
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Manual Flashcard
+                <PlusCircle className="mr-2 h-4 w-4" data-test-id="add-manual-flashcard"/> Add Manual Flashcard
               </Button>
             </a>
             <a href={`/topics/${topicData.id}/generate`} data-test-id="generate-flashcards-link">
@@ -79,7 +79,7 @@ function handleAddManualFlashcard() {
           </div>
         </div>
 
-        <h2 class="text-xl font-semibold mb-4 border-b pb-2">Flashcards ({topicData.flashcards.length})</h2>
+        <h2 class="text-xl font-semibold mb-4 border-b pb-2" data-test-id="flashcards-amount">Flashcards ({topicData.flashcards.length})</h2>
 
         {topicData.flashcards.length === 0 ? (
           <p class="text-muted-foreground mt-6 text-center">This topic doesn't have any flashcards yet.</p>
